@@ -26,6 +26,7 @@ export default function MainLayout() {
 		'/magzine-transfer/transfer': { parent: 'Home', current: 'Magzine-Transfer' },
 		'/magzine-master': { parent: 'Home', current: 'Magzine-Master' },
 		'/plant-master': { parent: 'Home', current: 'Plant-Master' },
+		'/plant-master/add': { parent: 'Home', current: 'Add Plant' },
 		'/mfg-masters': { parent: 'Home', current: 'MFG-Masters' },
 		'/mfg-masters/add': { parent: 'Home', current: 'Add MFG' },
 		'/country-master': { parent: 'Masters', current: 'Country Master' },
@@ -52,6 +53,9 @@ export default function MainLayout() {
 			return { parent: 'Masters', current: 'Edit MFG' };
 		}
 		if (path.startsWith('/mfg-location-master/edit/')) {
+			return { parent: 'Masters', current: 'Edit MFG Location' };
+		}
+		if (path.startsWith('/plant-master/edit/')) {
 			return { parent: 'Masters', current: 'Edit MFG Location' };
 		}
 

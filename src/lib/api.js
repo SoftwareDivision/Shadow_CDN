@@ -89,7 +89,7 @@ const putData = (url, token, data) => request('put', url, token, data);
 const deleteData = (url, token) => request('delete', url, token);
 
 // Master APIs
-export const getPlantDetails = (t) => getAll('/PlantMaster/GetAllPlants', t);
+
 export const getShiftDetails = (t) => getAll('/ShiftMasters/GetAllShifts', t);
 export const getProductDetails = (t) => getAll('/ProductMasters/GetAllProducts', t);
 export const getMachineDetails = (t) => getAll('/MachineCodeMasters/GetAllMachineCodes', t);
@@ -119,6 +119,11 @@ export const deleteMfgLocation = (t, id) => deleteData(`/MfgLocation/DeleteLocat
 export const createMfgLocation = (t, data) => postData('/MfgLocation/CreateLocation', t, data);
 export const updateMfgLocation = (t, d) => putData(`/MfgLocation/UpdateLocation/${d.id}`, t, d);
 
+export const getPlantDetails = (t) => getAll('/PlantMaster/GetAllPlants', t);
+export const deletePlant = (t, id) => deleteData(`/PlantMaster/DeletePlant/${id}`, t);
+export const createPlant = (t, data) => postData('/PlantMaster/CreatePlant', t, data);
+export const updatePlant = (t, d) => putData(`/PlantMaster/UpdatePlant/${d.id}`, t, d);
+
 // Special APIs
 export const getL1DetailsByNumber = (t, barcodes) => postData('/L1Generate/GetL1detailsByL1Number', t, barcodes);
 
@@ -131,5 +136,3 @@ export const saveMagazineTransfer = (t, payload) => postData('/TransferToMazgnie
 
 // Export API instance if needed elsewhere
 export default api;
-
-// MfgLocation APIs

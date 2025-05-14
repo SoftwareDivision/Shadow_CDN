@@ -15,6 +15,7 @@ const Magzine_Transfer = lazy(() => import('../Pages/Operations/Magzine_Transfer
 const TransferDialog = lazy(() => import('../Pages/Operations/Magzine_Transfer/TransferDialog'));
 const Magzine_Master = lazy(() => import('../Pages/Masters/Magzine_Master/Index'));
 const PlantMaster = lazy(() => import('../Pages/Masters/PlantMaster/Index'));
+const PlantAddOrEdit = lazy(() => import('../Pages/Masters/PlantMaster/AddOrEdit'));
 const MFGMasters = lazy(() => import('../Pages/Masters/MFG_Masters/Index'));
 const MFGAddOrEdit = lazy(() => import('../Pages/Masters/MFG_Masters/AddOrEdit'));
 const CountryMaster = lazy(() => import('../Pages/Masters/CountryMaster/Index'));
@@ -157,6 +158,22 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<PlantMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/plant-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<PlantAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/plant-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<PlantAddOrEdit />
 									</SuspenseWrapper>
 								}
 							/>

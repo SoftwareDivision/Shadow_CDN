@@ -71,15 +71,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/mfg-location-master",
           },
           {
-            title: "Magzine Master",
-            url: "/magzine-master",
-          },
-          
-          {
             title: "Plant Master",
             url: "/plant-master",
           },
-          
+          {
+            title: "Magzine Master",
+            url: "/magzine-master",
+          },
           {
             title: "Settings",
             url: "#",
