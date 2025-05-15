@@ -28,7 +28,7 @@ export function useWebSocket() {
 		ws.onmessage = (event) => {
 			try {
 				const messageText = event.data;
-
+				console.log('Received notification :', messageText);
 				// Handle notifications (plain text)
 				if (typeof messageText === 'string' && messageText.startsWith('Notification:')) {
 					const content = messageText.substring(13).trim();
