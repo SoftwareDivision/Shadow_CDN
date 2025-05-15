@@ -24,6 +24,7 @@ const StateMaster = lazy(() => import('../Pages/Masters/StateMaster/Index'));
 const StateAddOrEdit = lazy(() => import('../Pages/Masters/StateMaster/AddOrEdit'));
 const MfgLocationMaster = lazy(() => import('../Pages/Masters/MfgLocationMaster/Index'));
 const MfgLocationAddOrEdit = lazy(() => import('../Pages/Masters/MfgLocationMaster/AddOrEdit'));
+const ChatPage = lazy(() => import('../Pages/Chat/ChatPage'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -238,6 +239,14 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<MfgLocationAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/chat"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ChatPage />
 									</SuspenseWrapper>
 								}
 							/>
