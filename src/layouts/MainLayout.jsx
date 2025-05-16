@@ -13,11 +13,13 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { ModeToggle } from '../components/mode-toggle';
 import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useWebSocketContext } from '@/hooks/WebSocketContext';
 
 export default function MainLayout() {
 	const location = useLocation();
+	const { notifications, notificationCount, clearNotifications } = useWebSocketContext(); // Use context
 
-	// Define breadcrumb mapping based on route
 	const breadcrumbMap = {
 		'/dashboard': { parent: 'Home', current: 'Dashboard' },
 		'/barcode-generation': { parent: 'Home', current: 'L1 Barcode Generation' },
@@ -35,6 +37,7 @@ export default function MainLayout() {
 		'/state-master/add': { parent: 'Masters', current: 'Add State' },
 		'/mfg-location-master': { parent: 'Masters', current: 'Mfg Location Master' },
 		'/mfg-location-master/add': { parent: 'Masters', current: 'Add Mfg Location' },
+		'/chat': { parent: 'Chat', current: 'Chats' },
 		'/uom-master': { parent: 'Masters', current: 'UOM Master' },
 		'/uom-master/add': { parent: 'Masters', current: 'Add UOM' },
 		'/uom-master/edit': { parent: 'Masters', current: 'Edit UOM' },
@@ -47,14 +50,9 @@ export default function MainLayout() {
 
 	};
 
-	// Handle dynamic routes
 	const getPathInfo = (path) => {
-		// Check if it's an edit route
 		if (path.startsWith('/country-master/edit/')) {
 			return { parent: 'Masters', current: 'Edit Country' };
-		}
-		if (path.startsWith('/state-master/edit/')) {
-			return { parent: 'Masters', current: 'Edit State' };
 		}
 		if (path.startsWith('/state-master/edit/')) {
 			return { parent: 'Masters', current: 'Edit State' };
@@ -68,7 +66,6 @@ export default function MainLayout() {
 		if (path.startsWith('/plant-master/edit/')) {
 			return { parent: 'Masters', current: 'Edit MFG Location' };
 		}
-
 		return breadcrumbMap[path] || { parent: 'Home', current: 'Unknown' };
 	};
 
@@ -78,7 +75,6 @@ export default function MainLayout() {
 		<SidebarProvider>
 			<AppSidebar />
 			<SidebarInset className="min-h-screen flex flex-col">
-				{/* Sticky Header */}
 				<header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-md">
 					<div className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
 						<div className="flex items-center justify-between w-full px-4">
@@ -98,28 +94,58 @@ export default function MainLayout() {
 								</Breadcrumb>
 							</div>
 							<div className="flex items-center gap-4">
-								<div className="relative">
-									<Bell className="h-5 w-5 cursor-pointer" />
-									<Badge
-										variant="destructive"
-										className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full text-xs"
-									>
-										3
-									</Badge>
-								</div>
+								<Popover>
+									<PopoverTrigger>
+										<div className="relative">
+											<Bell className="h-5 w-5 cursor-pointer" />
+											{notificationCount > 0 && (
+												<Badge
+													variant="destructive"
+													className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full text-xs"
+												>
+													{notificationCount}
+												</Badge>
+											)}
+										</div>
+									</PopoverTrigger>
+									<PopoverContent className="w-80">
+										<div className="space-y-2">
+											<div className="flex items-center justify-between">
+												<h4 className="font-semibold">Notifications</h4>
+												{notificationCount > 0 && (
+													<button
+														onClick={clearNotifications}
+														className="text-xs text-muted-foreground hover:text-primary"
+													>
+														Clear all
+													</button>
+												)}
+											</div>
+											<div className="max-h-[300px] overflow-y-auto space-y-2">
+												{notifications.length === 0 ? (
+													<p className="text-sm text-muted-foreground text-center py-4">
+														No notifications
+													</p>
+												) : (
+													notifications.map((notification, index) => (
+														<div key={index} className="p-2 text-sm border rounded-lg">
+															{notification.content}
+														</div>
+													))
+												)}
+											</div>
+										</div>
+									</PopoverContent>
+								</Popover>
 								<ModeToggle />
 							</div>
 						</div>
 					</div>
 					<Separator />
 				</header>
-
-				{/* Main Content Area */}
 				<main className="flex-1 container mx-auto p-4">
 					<Outlet />
 				</main>
-
-				{/* Sticky Footer */}
 				<footer className="sticky top-[100vh] mt-auto border-t">
 					<div className="container mx-auto py-4 px-4">
 						<div className="text-center text-sm font-bold">

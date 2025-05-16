@@ -170,6 +170,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           },
         ],
       },
+      {
+        title: "Chat",
+        url: "#",
+        icon: Command,
+        items: [
+          {
+            title: "Chats",
+            url: "/chat",
+          }, 
+        ],
+      }
     ],
     projects: [
       {

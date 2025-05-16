@@ -124,6 +124,8 @@ export const deletePlant = (t, id) => deleteData(`/PlantMaster/DeletePlant/${id}
 export const createPlant = (t, data) => postData('/PlantMaster/CreatePlant', t, data);
 export const updatePlant = (t, d) => putData(`/PlantMaster/UpdatePlant/${d.id}`, t, d);
 
+export const getAllUsers = (t) => getAll('/Users/GetAllUsers', t);
+
 // Add these functions to your api.js file
 export const getMachineCodeDetails = (t) => getAll('/MachineCodeMasters/GetAllMachineCodes', t);
 export const deleteMachineCode = (t, id) => deleteData(`/MachineCodeMasters/DeleteMachineCode/${id}`, t);
@@ -139,6 +141,24 @@ export const createL1Generate = (t, d) => {
 };
 
 export const saveMagazineTransfer = (t, payload) => postData('/TransferToMazgnies', t, payload);
+
+// Notifications API
+export const notificationsApi = {
+	sendNotification: async (content, token) => {
+		try {
+			const response = await api.post(
+				'/notifications',
+				{ content },
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				},
+			);
+			return response;
+		} catch (error) {
+			return handleError(error, 'Failed to send notification');
+		}
+	},
+};
 
 // UOM Master APIs
 export const getUOMDetails = (t) => getAll('/UomMaster/GetAllUOM', t);

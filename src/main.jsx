@@ -5,6 +5,7 @@ import App from './App.jsx';
 import { ThemeProvider } from './components/theme-provider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnackbarProvider } from 'notistack';
+import { WebSocketProvider } from './hooks/WebSocketContext';
 
 const queryClient = new QueryClient();
 
@@ -20,7 +21,9 @@ createRoot(document.getElementById('root')).render(
 				autoHideDuration={3000}
 			>
 				<QueryClientProvider client={queryClient}>
-					<App />
+					<WebSocketProvider>
+						<App />
+					</WebSocketProvider>
 				</QueryClientProvider>
 			</SnackbarProvider>
 		</ThemeProvider>
