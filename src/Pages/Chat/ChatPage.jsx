@@ -179,7 +179,7 @@ function ChatPage() {
 												}`}
 											>
 												<p>{msg.content}</p>
-												<p className="text-xs text-gray-500">
+												<p className="text-xs">
 													{new Date(msg.timestamp).toLocaleTimeString()}
 												</p>
 											</div>
@@ -189,7 +189,7 @@ function ChatPage() {
 										<div key={`notif-${index}`} className="flex justify-center">
 											<div className="max-w-[70%] p-3 rounded-lg bg-info text-info-foreground">
 												<p>{notif.content}</p>
-												<p className="text-xs text-gray-500">
+												<p className="text-xs">
 													{new Date(notif.timestamp).toLocaleTimeString()}
 												</p>
 											</div>

@@ -111,10 +111,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             title: "2D Barcode Generation",
             url: "/2Dbarcode-generation",
           },
-          {
-           title: "Magzine Transfer",
-            url: "/magzine-transfer", 
-          },
         ],
       },
       {
@@ -122,6 +118,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: "#",
         icon: Store,
         items: [
+          {
+            title: "Magzine Transfer",
+             url: "/magzine-transfer", 
+           },
           {
             title: "RE2 File Generation",
             url: "/re2-file-generation",

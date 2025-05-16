@@ -172,5 +172,22 @@ export const createProduct = (t, data) => postData('/ProductMasters/CreateProduc
 export const deleteProduct = (t, id) => deleteData(`/ProductMasters/DeleteProduct/${id}`, t);
 export const updateProduct = (t, d) => putData(`/ProductMasters/UpdateProduct/${d.id}`, t, d);
 
+// RE2 APIs
+export const getRE2GenData = (t) => getAll('/RE2FileGenerations/GetRE2GenData', t);
+export const createRE2Generate = (t, d) => {
+	const params = new URLSearchParams({
+		mfgdt: formatDate(d.mfgdt),
+		plantCode: d.plantCode,
+		brandId: d.brandId,
+		pSizeCode: d.pSizeCode,
+		magname: d.magname,
+	}).toString();
+	return getAll(`/RE2FileGenerations/GettableDetailre?${params}`, t);
+};
+
+export const generateRE2File = (token, payload) => {
+	return postData('/RE2FileGenerations/GenerateRE2File', token, payload);
+};
+
 // Export API instance if needed elsewhere
 export default api;

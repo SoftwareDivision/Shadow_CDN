@@ -9,7 +9,7 @@ import { useAuthToken } from '@/hooks/authStore';
 import { useEffect, useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format, set } from 'date-fns';
 import { Controller } from 'react-hook-form';
 import { cn } from '../../../lib/utils';
@@ -215,8 +215,8 @@ export default function L1BarcodeGeneration() {
 				<CardContent className="relative">
 					{/* Loading Overlay */}
 					{isLoading && (
-						<div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
-							<Spinner className="h-8 w-8" />
+						<div className="flex items-center justify-center py-8">
+							<Loader2 className="h-8 w-8 animate-spin text-primary" />
 						</div>
 					)}
 
