@@ -13,7 +13,7 @@ export function useWebSocket() {
 
 	const connect = useCallback(() => {
 		if (!token?.data?.token) {
-			enqueueSnackbar('Please login first', { variant: 'error' });
+			// enqueueSnackbar('Please login first', { variant: 'error' });
 			return;
 		}
 
@@ -77,7 +77,7 @@ export function useWebSocket() {
 				}
 			} catch (error) {
 				console.error('Failed to process message:', error);
-				enqueueSnackbar('Error processing message', { variant: 'error' });
+				// enqueueSnackbar('Error processing message', { variant: 'error' });
 			}
 		};
 
@@ -86,15 +86,15 @@ export function useWebSocket() {
 			if (reconnectAttemptsRef.current < 5) {
 				setTimeout(connect, 1000 * Math.pow(2, reconnectAttemptsRef.current));
 				reconnectAttemptsRef.current++;
-				enqueueSnackbar('Reconnecting...', { variant: 'info' });
+				// enqueueSnackbar('Reconnecting...', { variant: 'info' });
 			} else {
-				enqueueSnackbar('Failed to reconnect after 5 attempts', { variant: 'error' });
+				// enqueueSnackbar('Failed to reconnect after 5 attempts', { variant: 'error' });
 			}
 		};
 
 		ws.onerror = (error) => {
 			console.error('WebSocket error:', error);
-			enqueueSnackbar('Connection error', { variant: 'error' });
+			// enqueueSnackbar('Connection error', { variant: 'error' });
 		};
 	}, [token]);
 
