@@ -124,6 +124,12 @@ export const deletePlant = (t, id) => deleteData(`/PlantMaster/DeletePlant/${id}
 export const createPlant = (t, data) => postData('/PlantMaster/CreatePlant', t, data);
 export const updatePlant = (t, d) => putData(`/PlantMaster/UpdatePlant/${d.id}`, t, d);
 
+// Add these functions to your api.js file
+export const getMachineCodeDetails = (t) => getAll('/MachineCodeMasters/GetAllMachineCodes', t);
+export const deleteMachineCode = (t, id) => deleteData(`/MachineCodeMasters/DeleteMachineCode/${id}`, t);
+export const createMachineCode = (t, data) => postData('/MachineCodeMasters/CreateMachineCode', t, data);
+export const updateMachineCode = (t, d) => putData(`/MachineCodeMasters/UpdateMachineCode/${d.id}`, t, d);
+
 // Special APIs
 export const getL1DetailsByNumber = (t, barcodes) => postData('/L1Generate/GetL1detailsByL1Number', t, barcodes);
 
@@ -133,6 +139,18 @@ export const createL1Generate = (t, d) => {
 };
 
 export const saveMagazineTransfer = (t, payload) => postData('/TransferToMazgnies', t, payload);
+
+// UOM Master APIs
+export const getUOMDetails = (t) => getAll('/UomMaster/GetAllUOM', t);
+export const getUOMById = (t, id) => getAll(`/UomMaster/GetUOMById/${id}`, t);
+export const createUOM = (t, data) => postData('/UomMaster/CreateUOM', t, data);
+export const updateUOM = (t, data) => putData(`/UomMaster/UpdateUOM/${data.id}`, t, data);
+export const deleteUOM = (t, id) => deleteData(`/UomMaster/DeleteUOM/${id}`, t);
+
+export const getAllProducts = (t) => getAll('/ProductMasters/GetAllProducts', t);
+export const createProduct = (t, data) => postData('/ProductMasters/CreateProduct', t, data);
+export const deleteProduct = (t, id) => deleteData(`/ProductMasters/DeleteProduct/${id}`, t);
+export const updateProduct = (t, d) => putData(`/ProductMasters/UpdateProduct/${d.id}`, t, d);
 
 // Export API instance if needed elsewhere
 export default api;

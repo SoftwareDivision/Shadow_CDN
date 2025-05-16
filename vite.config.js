@@ -11,4 +11,8 @@ export default defineConfig({
 			'@': path.resolve(__dirname, './src'),
 		},
 	},
+	server: {
+		host: true, // This allows connections from any IP address
+		  // Optional: you can specify a port if needed
+	},
 });

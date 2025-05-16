@@ -35,6 +35,16 @@ export default function MainLayout() {
 		'/state-master/add': { parent: 'Masters', current: 'Add State' },
 		'/mfg-location-master': { parent: 'Masters', current: 'Mfg Location Master' },
 		'/mfg-location-master/add': { parent: 'Masters', current: 'Add Mfg Location' },
+		'/uom-master': { parent: 'Masters', current: 'UOM Master' },
+		'/uom-master/add': { parent: 'Masters', current: 'Add UOM' },
+		'/uom-master/edit': { parent: 'Masters', current: 'Edit UOM' },
+		'/machine-code-master': { parent: 'Masters', current: 'Machine Code Master' },
+		'/machine-code-master/add': { parent: 'Masters', current: 'Add Machine Code' },
+		'/machine-code-master/edit': { parent: 'Masters', current: 'Edit Machine Code' },
+		'product-master': { parent: 'Masters', current: 'Product Master' },
+		'/product-master/add': { parent: 'Masters', current: 'Add Product' },
+		'/product-master/edit': { parent: 'Masters', current: 'Edit Product' },
+
 	};
 
 	// Handle dynamic routes

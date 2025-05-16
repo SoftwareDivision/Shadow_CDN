@@ -24,6 +24,12 @@ const StateMaster = lazy(() => import('../Pages/Masters/StateMaster/Index'));
 const StateAddOrEdit = lazy(() => import('../Pages/Masters/StateMaster/AddOrEdit'));
 const MfgLocationMaster = lazy(() => import('../Pages/Masters/MfgLocationMaster/Index'));
 const MfgLocationAddOrEdit = lazy(() => import('../Pages/Masters/MfgLocationMaster/AddOrEdit'));
+const MachineCodeMaster = lazy(() => import('../Pages/Masters/MachineCodeMaster/Index'));
+const MachineCodeAddOrEdit = lazy(() => import('../Pages/Masters/MachineCodeMaster/AddOrEdit'));
+const UOMMaster = lazy(() => import('../Pages/Masters/UOMMaster/Index'));
+const UOMAddOrEdit = lazy(() => import('../Pages/Masters/UOMMaster/AddOrEdit'));
+const ProductMaster = lazy(() => import('../Pages/Masters/ProductMaster/Index'));
+const ProductAddOrEdit = lazy(() => import('../Pages/Masters/ProductMaster/AddOrEdit'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -177,6 +183,7 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+
 							<Route
 								path="/magzine-transfer"
 								element={
@@ -193,6 +200,7 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+
 							<Route
 								path="/state-master"
 								element={
@@ -217,6 +225,7 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+
 							<Route
 								path="/mfg-location-master"
 								element={
@@ -241,7 +250,87 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+
+							<Route
+								path="/machine-code-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<MachineCodeMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/machine-code-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<MachineCodeAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/machine-code-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<MachineCodeAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+
+							<Route
+								path="/UOM-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<UOMMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/UOM-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<UOMAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/UOM-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<UOMAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/product-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ProductMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/product-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ProductAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/product-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ProductAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+							
 						</Route>
+
+
 
 						{/* Catch-all 404 page */}
 						<Route
