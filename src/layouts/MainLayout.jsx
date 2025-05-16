@@ -37,6 +37,7 @@ export default function MainLayout() {
 		'/state-master/add': { parent: 'Masters', current: 'Add State' },
 		'/mfg-location-master': { parent: 'Masters', current: 'Mfg Location Master' },
 		'/mfg-location-master/add': { parent: 'Masters', current: 'Add Mfg Location' },
+		'/re2-file-generation': { parent: 'Home', current: 'RE2 File Generation' },
 		'/chat': { parent: 'Chat', current: 'Chats' },
 	};
 

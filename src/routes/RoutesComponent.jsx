@@ -25,6 +25,7 @@ const StateAddOrEdit = lazy(() => import('../Pages/Masters/StateMaster/AddOrEdit
 const MfgLocationMaster = lazy(() => import('../Pages/Masters/MfgLocationMaster/Index'));
 const MfgLocationAddOrEdit = lazy(() => import('../Pages/Masters/MfgLocationMaster/AddOrEdit'));
 const ChatPage = lazy(() => import('../Pages/Chat/ChatPage'));
+const RE2FileGeneration = lazy(() => import('../Pages/Storages/RE2FileGeneration/RE2FileGeneration'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -247,6 +248,14 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<ChatPage />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/re2-file-generation"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RE2FileGeneration />
 									</SuspenseWrapper>
 								}
 							/>

@@ -4,12 +4,16 @@ import {
   BookOpen,
   Bot,
   Command,
+  Database,
   Frame,
   GalleryVerticalEnd,
+  LucideTruck,
   Map,
   PieChart,
   Settings2,
   SquareTerminal,
+  Store,
+  Workflow,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -51,7 +55,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         title: "Masters",
         url: "#",
-        icon: SquareTerminal,
+        icon: Database,
         isActive: false,
         items: [
           {
@@ -78,16 +82,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             title: "Magzine Master",
             url: "/magzine-master",
           },
-          {
-            title: "Settings",
-            url: "#",
-          },
+      
         ],
       },
       {
         title: "Operations",
         url: "#",
-        icon: Bot,
+        icon: Workflow,
         items: [
           {
             title: "L1Barcode Generation",
@@ -101,43 +102,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
            title: "Magzine Transfer",
             url: "/magzine-transfer", 
           },
-          {
-            title: "Explorer",
-            url: "#",
-          },
-          {
-            title: "Quantum",
-            url: "#",
-          },
         ],
       },
       {
-        title: "Documentation",
+        title: "Storge",
         url: "#",
-        icon: BookOpen,
+        icon: Store,
         items: [
           {
-            title: "Introduction",
-            url: "#",
+            title: "RE2 File Generation",
+            url: "/re2-file-generation",
+      
           },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
+        
         ],
       },
       {
-        title: "Settings",
+        title: "Dispatch",
         url: "#",
-        icon: Settings2,
+        icon: LucideTruck,
         items: [
           {
             title: "General",
