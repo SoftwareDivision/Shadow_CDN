@@ -6,7 +6,7 @@ import { PlusIcon, MoreHorizontal, Loader2 } from 'lucide-react';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import DataTable from '@/components/DataTable';
-import { getPlantDetails, deletePlant } from '@/lib/api';
+import { getMachineDetails, deleteMachineCode } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
 	DropdownMenu,
@@ -26,34 +26,34 @@ import {
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
-function PlantMaster() {
+function MachineCodeMaster() {
 	const navigate = useNavigate();
 	const { token } = useAuthToken.getState();
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
 
-	const { data: plantData, isLoading } = useQuery({
-		queryKey: ['plants'],
-		queryFn: () => getPlantDetails(tokendata),
+	const { data: machineData, isLoading } = useQuery({
+		queryKey: ['machines'],
+		queryFn: () => getMachineDetails(tokendata),
 		onError: (error) => {
-			enqueueSnackbar(error.message || 'Failed to fetch plant data', { variant: 'error' });
+			enqueueSnackbar(error.message || 'Failed to fetch machine data', { variant: 'error' });
 		},
 	});
 
 	const deleteMutation = useMutation({
-		mutationFn: (id) => deletePlant(tokendata, id),
+		mutationFn: (id) => deleteMachineCode(tokendata, id),
 		onSuccess: () => {
-			queryClient.invalidateQueries(['plants']);
-			enqueueSnackbar('Plant deleted successfully', { variant: 'success' });
+			queryClient.invalidateQueries(['machines']);
+			enqueueSnackbar('Machine code deleted successfully', { variant: 'success' });
 		},
 		onError: (error) => {
-			enqueueSnackbar(error.message || 'Failed to delete plant', { variant: 'error' });
+			enqueueSnackbar(error.message || 'Failed to delete machine code', { variant: 'error' });
 		},
 	});
 
 	const handleEdit = (row) => {
-		navigate(`/plant-master/edit/${row.id}`, { state: row });
+		navigate(`/machine-code-master/edit/${row.id}`, { state: row });
 	};
 
 	const handleDelete = (row) => {
@@ -61,21 +61,10 @@ function PlantMaster() {
 	};
 
 	const columns = [
-		{ header: 'Plant Name', accessorKey: 'pName' },
-		{ header: 'Plant Code', accessorKey: 'pCode' },
-		{ header: 'Plant Type', accessorKey: 'plant_type' },
-		{ header: 'License', accessorKey: 'license' },
 		{ header: 'Company ID', accessorKey: 'company_ID' },
-		{
-			header: 'Issue Date',
-			accessorKey: 'issue_dt',
-			cell: ({ row }) => new Date(row.original.issue_dt).toLocaleDateString(),
-		},
-		{
-			header: 'Validity Date',
-			accessorKey: 'validity_dt',
-			cell: ({ row }) => new Date(row.original.validity_dt).toLocaleDateString(),
-		},
+		{ header: 'Plant Name', accessorKey: 'pname' },
+		{ header: 'Plant Code', accessorKey: 'pcode' },
+		{ header: 'Machine Code', accessorKey: 'mcode' },
 		{
 			accessorKey: 'actions',
 			header: 'Actions',
@@ -100,8 +89,8 @@ function PlantMaster() {
 								<AlertDialogHeader>
 									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 									<AlertDialogDescription>
-										This action cannot be undone. This will permanently delete the plant "
-										{row.original.pName}" and all associated data.
+										This action cannot be undone. This will permanently delete the machine code
+										"{row.original.mcode}" and all associated data.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
@@ -124,10 +113,13 @@ function PlantMaster() {
 	return (
 		<Card className="p-4 shadow-md">
 			<div className="flex items-center justify-between">
-				<h2 className="text-2xl font-bold">Plant Master</h2>
-				<Button onClick={() => navigate('/plant-master/add')} className="bg-primary hover:bg-primary/90">
+				<h2 className="text-2xl font-bold">Machine Code Master</h2>
+				<Button
+					onClick={() => navigate('/machine-code-master/add')}
+					className="bg-primary hover:bg-primary/90"
+				>
 					<PlusIcon className="h-4 w-4" />
-					Add Plant
+					Add Machine Code
 				</Button>
 			</div>
 			{isLoading ? (
@@ -135,10 +127,10 @@ function PlantMaster() {
 					<Loader2 className="h-8 w-8 animate-spin text-primary" />
 				</div>
 			) : (
-				<DataTable columns={columns} data={plantData || []} />
+				<DataTable columns={columns} data={machineData || []} />
 			)}
 		</Card>
 	);
 }
 
-export default PlantMaster;
+export default MachineCodeMaster;

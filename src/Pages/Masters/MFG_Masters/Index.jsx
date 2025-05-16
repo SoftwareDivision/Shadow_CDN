@@ -78,6 +78,8 @@ function MFGMasters() {
 			accessorKey: 'company_ID',
 		},
 		{
+			accessorKey: 'actions',
+			header: 'Actions',
 			id: 'actions',
 			cell: ({ row }) => {
 				return (

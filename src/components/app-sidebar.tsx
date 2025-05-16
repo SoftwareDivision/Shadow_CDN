@@ -28,6 +28,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useAuthToken } from '@/hooks/authStore';
+import { title } from "process";
 
 
 
@@ -77,6 +78,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "Plant Master",
             url: "/plant-master",
+          },
+          {
+            title: "Machine Code Master",
+            url: "/machine-code-master",
+          },
+          {
+            title:"UOM Master",
+            url: "/uom-master", 
+          },
+          {
+            title: "Product Master",
+            url: "/product-master",
           },
           {
             title: "Magzine Master",

@@ -39,6 +39,16 @@ export default function MainLayout() {
 		'/mfg-location-master/add': { parent: 'Masters', current: 'Add Mfg Location' },
 		'/re2-file-generation': { parent: 'Home', current: 'RE2 File Generation' },
 		'/chat': { parent: 'Chat', current: 'Chats' },
+		'/uom-master': { parent: 'Masters', current: 'UOM Master' },
+		'/uom-master/add': { parent: 'Masters', current: 'Add UOM' },
+		'/uom-master/edit': { parent: 'Masters', current: 'Edit UOM' },
+		'/machine-code-master': { parent: 'Masters', current: 'Machine Code Master' },
+		'/machine-code-master/add': { parent: 'Masters', current: 'Add Machine Code' },
+		'/machine-code-master/edit': { parent: 'Masters', current: 'Edit Machine Code' },
+		'product-master': { parent: 'Masters', current: 'Product Master' },
+		'/product-master/add': { parent: 'Masters', current: 'Add Product' },
+		'/product-master/edit': { parent: 'Masters', current: 'Edit Product' },
+
 	};
 
 	const getPathInfo = (path) => {

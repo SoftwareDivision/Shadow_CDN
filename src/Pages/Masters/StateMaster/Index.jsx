@@ -86,6 +86,8 @@ function StateMaster() {
 			accessorKey: 'tahsil',
 		},
 		{
+			accessorKey: 'actions',
+			header: 'Actions',
 			id: 'actions',
 			cell: ({ row }) => {
 				return (
