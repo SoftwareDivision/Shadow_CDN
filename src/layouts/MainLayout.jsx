@@ -54,6 +54,9 @@ export default function MainLayout() {
 		'/reset-type-master/add': { parent: 'Masters', current: 'Add Reset Type' },
 		'/reset-type-master/edit': { parent: 'Masters', current: 'Edit Reset Type' },
 		'/re11-indent-generation/edit': { parent: 'Dispatch', current: 'Edit RE11 Indent' },
+		'/shift-master': { parent: 'Masters', current: 'Shift Master' },
+		'/shift-master/add': { parent: 'Masters', current: 'Add Shift' },
+		'/shift-master/edit': { parent: 'Masters', current: 'Edit Shift' },
 	};
 
 	const getPathInfo = (path) => {
