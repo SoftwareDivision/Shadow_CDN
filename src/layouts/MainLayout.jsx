@@ -48,7 +48,8 @@ export default function MainLayout() {
 		'product-master': { parent: 'Masters', current: 'Product Master' },
 		'/product-master/add': { parent: 'Masters', current: 'Add Product' },
 		'/product-master/edit': { parent: 'Masters', current: 'Edit Product' },
-
+		'/re11-indent-generation': { parent: 'Dispatch', current: 'RE11 Indent Generation' },
+		'/re11-indent-generation/add': { parent: 'Dispatch', current: 'Add RE11 Indent' },
 	};
 
 	const getPathInfo = (path) => {

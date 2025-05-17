@@ -189,5 +189,9 @@ export const generateRE2File = (token, payload) => {
 	return postData('/RE2FileGenerations/GenerateRE2File', token, payload);
 };
 
+// RE11 Indent APIs
+export const getRE11IndentDetails = (t) => getAll('/Re11IndentInfos/GetAllIndents', t);
+export const getRE11CreateIndents = (t) => getAll('/Re11IndentInfos/GetCreateIndents', t);
+
 // Export API instance if needed elsewhere
 export default api;

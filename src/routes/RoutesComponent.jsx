@@ -11,8 +11,8 @@ const Dashboard = lazy(() => import('../Pages/Dashboard/Index'));
 const L1BarcodeGeneration = lazy(() => import('../Pages/Operations/L1BarcodeGeneration/Index'));
 const LoginForm = lazy(() => import('../Pages/Auth/LoginForm'));
 const BarcodeGeneratorPage = lazy(() => import('../Pages/Operations/BarcodeGeneratorPage/BarcodeGeneratorPage'));
-const Magzine_Transfer = lazy(() => import('../Pages/Operations/Magzine_Transfer/Index'));
-const TransferDialog = lazy(() => import('../Pages/Operations/Magzine_Transfer/TransferDialog'));
+const Magzine_Transfer = lazy(() => import('../Pages/Storages/Magzine_Transfer/Index'));
+const TransferDialog = lazy(() => import('../Pages/Storages/Magzine_Transfer/TransferDialog'));
 const Magzine_Master = lazy(() => import('../Pages/Masters/Magzine_Master/Index'));
 const PlantMaster = lazy(() => import('../Pages/Masters/PlantMaster/Index'));
 const PlantAddOrEdit = lazy(() => import('../Pages/Masters/PlantMaster/AddOrEdit'));
@@ -32,6 +32,10 @@ const UOMAddOrEdit = lazy(() => import('../Pages/Masters/UOMMaster/AddOrEdit'));
 const ProductMaster = lazy(() => import('../Pages/Masters/ProductMaster/Index'));
 const ProductAddOrEdit = lazy(() => import('../Pages/Masters/ProductMaster/AddOrEdit'));
 const RE2FileGeneration = lazy(() => import('../Pages/Storages/RE2FileGeneration/RE2FileGeneration'));
+
+// Add this import at the top with other lazy imports
+const RE11IndentFileGeneration = lazy(() => import('../Pages/Dispatch/RE11IndentFileGeneration/Index'));
+const AddRE11Indent = lazy(() => import('@/Pages/Dispatch/RE11IndentFileGeneration/AddOrEdit'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -341,6 +345,24 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<RE2FileGeneration />
+									</SuspenseWrapper>
+								}
+							/>
+
+							{/* Add this route inside the MainLayout routes */}
+							<Route
+								path="/re11-indent-generation"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RE11IndentFileGeneration />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/re11-indent-generation/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<AddRE11Indent />
 									</SuspenseWrapper>
 								}
 							/>

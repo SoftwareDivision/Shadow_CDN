@@ -34,7 +34,11 @@ function MFGMasters() {
 	const queryClient = useQueryClient();
 
 	// Query for fetching MFG data
-	const { data: mfgData, isLoading } = useQuery({
+	const {
+		data: mfgData,
+		isLoading,
+		error,
+	} = useQuery({
 		queryKey: ['mfg'],
 		queryFn: () => getMfgDetails(tokendata),
 		onError: (error) => {
@@ -131,6 +135,10 @@ function MFGMasters() {
 			},
 		},
 	];
+	if (error) {
+		enqueueSnackbar(error.message || 'Failed to fetch MFG data', { variant: 'error' });
+		return <div>Error: {error.message}</div>;
+	}
 
 	return (
 		<Card className="p-4 shadow-md">

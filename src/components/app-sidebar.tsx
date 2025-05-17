@@ -136,8 +136,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: LucideTruck,
         items: [
           {
-            title: "General",
-            url: "#",
+            title: "RE11 File Generation",
+            url: "/re11-indent-generation",
           },
           {
             title: "Team",
