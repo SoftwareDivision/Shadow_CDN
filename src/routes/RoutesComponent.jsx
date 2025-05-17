@@ -34,6 +34,9 @@ const ProductAddOrEdit = lazy(() => import('../Pages/Masters/ProductMaster/AddOr
 const RE2FileGeneration = lazy(() => import('../Pages/Storages/RE2FileGeneration/RE2FileGeneration'));
 
 // Add this import at the top with other lazy imports
+const ResetTypeMaster = lazy(() => import('../Pages/Masters/ResetTypeMaster/Index'));
+const ResetTypeAddOrEdit = lazy(() => import('../Pages/Masters/ResetTypeMaster/AddOrEdit'));
+
 const RE11IndentFileGeneration = lazy(() => import('../Pages/Dispatch/RE11IndentFileGeneration/Index'));
 const AddRE11Indent = lazy(() => import('@/Pages/Dispatch/RE11IndentFileGeneration/AddOrEdit'));
 
@@ -366,6 +369,34 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+
+
+<Route
+								path="/reset-type-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ResetTypeMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/reset-type-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ResetTypeAddOrEdit />
+									</SuspenseWrapper>		
+								}
+								/>
+							<Route
+								path="/reset-type-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ResetTypeAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+							
 						</Route>
 
 						{/* Catch-all 404 page */}

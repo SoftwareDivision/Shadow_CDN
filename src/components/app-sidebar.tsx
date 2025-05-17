@@ -92,6 +92,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/product-master",
           },
           {
+            title:"Reset masters",
+            url: "/reset-type-master", // Remove the 's'
+          },
+          {
             title: "Magzine Master",
             url: "/magzine-master",
           },

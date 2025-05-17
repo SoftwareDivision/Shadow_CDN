@@ -50,6 +50,10 @@ export default function MainLayout() {
 		'/product-master/edit': { parent: 'Masters', current: 'Edit Product' },
 		'/re11-indent-generation': { parent: 'Dispatch', current: 'RE11 Indent Generation' },
 		'/re11-indent-generation/add': { parent: 'Dispatch', current: 'Add RE11 Indent' },
+		'/reset-type-master': { parent: 'Masters', current: 'Reset Type Master' },
+		'/reset-type-master/add': { parent: 'Masters', current: 'Add Reset Type' },
+		'/reset-type-master/edit': { parent: 'Masters', current: 'Edit Reset Type' },
+		'/re11-indent-generation/edit': { parent: 'Dispatch', current: 'Edit RE11 Indent' },
 	};
 
 	const getPathInfo = (path) => {
