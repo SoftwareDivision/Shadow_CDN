@@ -15,7 +15,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { getRE11CreateIndents } from '@/lib/api';
+import { createRE11Indent, getRE11CreateIndents } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore';
 import { useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -79,7 +79,7 @@ const AddRE11Indent = () => {
 	});
 
 	const mutation = useMutation({
-		mutationFn: (data) => api.postData('/api/Re11IndentInfos', token, data),
+		mutationFn: (data) => createRE11Indent(tokendata, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries(['re11Indents']);
 			enqueueSnackbar('RE11 Indent added successfully', { variant: 'success' });
@@ -177,7 +177,37 @@ const AddRE11Indent = () => {
 
 	const onSubmit = (data) => {
 		console.log(data);
-		// mutation.mutate(data);
+
+		// Prepare the payload with blank data for fields not in the UI
+		const payload = {
+			...data,
+			customerslIST: [], // Not available in UI
+			allExistingIndentno: [], // Not available in UI
+			productList: [], // Not available in UI
+			clic: '', // Not available in UI
+			compFlag: 0, // Not available in UI
+			month: '', // Not available in UI
+			year: '', // Not available in UI
+			prdInfoList: data.prdInfoList.map((product) => ({
+				...product,
+				pid: 0, // Not explicitly controlled in UI, defaulting to 0
+				ptypelist: [], // Not available in UI
+				ptypeCode: '', // Not available in UI
+				bid: '', // Not available in UI
+				sizeCode: '', // Not available in UI
+				div: product.division || 0, // Use existing division if available, otherwise 0
+				l1NetWt: parseFloat(product.l1netwt) || 0.0, // Use existing l1netwt if available, convert to number, otherwise 0.0
+				remWt: 0, // Not available in UI
+				remUnit: '', // Not available in UI
+				compFlag: 0, // Not available in UI
+				loadWt: 0, // Not available in UI
+				loadUnit: '', // Not available in UI
+				// Keep existing fields: ptype, bname, psize, reqWt, reqUnit, class, division, l1netwt
+			})),
+		};
+
+		console.log('Payload being sent:', payload);
+		mutation.mutate(payload);
 	};
 
 	const onError = (errors) => {
