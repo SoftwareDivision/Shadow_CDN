@@ -194,5 +194,17 @@ export const getRE11IndentDetails = (t) => getAll('/Re11IndentInfos/GetAllIndent
 export const getRE11CreateIndents = (t) => getAll('/Re11IndentInfos/GetCreateIndents', t);
 export const createRE11Indent = (token, data) => postData('/Re11IndentInfos/CreateIndent', token, data);
 
+// Loading Sheet APIs
+export const getAllLoadingSheets = (t) => getAll('/AllLoadingSheets/GetAllLoadingSheets', t);
+// Add the new function for fetching data for creating a loading sheet
+export const getCreateLoadingData = (t) => getAll('/AllLoadingSheets/GetCreateLoadingData', t);
+export const createLoadingSheet = (token, data) => postData('/AllLoadingSheets/CreateAllLoadingSheet', token, data);
+export const updateLoadingSheet = (t, data) =>
+	putData(
+		`
+/AllLoadingSheets/UpdateAllLoadingSheet/${data.id}`,
+		t,
+		data,
+	);
 // Export API instance if needed elsewhere
 export default api;

@@ -50,6 +50,8 @@ export default function MainLayout() {
 		'/product-master/edit': { parent: 'Masters', current: 'Edit Product' },
 		'/re11-indent-generation': { parent: 'Dispatch', current: 'RE11 Indent Generation' },
 		'/re11-indent-generation/add': { parent: 'Dispatch', current: 'Add RE11 Indent' },
+		'/loading-sheets': { parent: 'Dispatch', current: 'Loading Sheets' },
+		'/loading-sheets/add': { parent: 'Dispatch', current: 'Add Loading Sheet' },
 	};
 
 	const getPathInfo = (path) => {
@@ -68,6 +70,7 @@ export default function MainLayout() {
 		if (path.startsWith('/plant-master/edit/')) {
 			return { parent: 'Masters', current: 'Edit MFG Location' };
 		}
+
 		return breadcrumbMap[path] || { parent: 'Home', current: 'Unknown' };
 	};
 

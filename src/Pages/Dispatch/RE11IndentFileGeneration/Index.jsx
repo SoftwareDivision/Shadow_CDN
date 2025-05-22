@@ -128,19 +128,19 @@ const RE11IndentFileGeneration = () => {
 														<TableCell className="text-right">
 															<span className="font-medium">{item.reqWt}</span>
 															<span className="text-muted-foreground ml-1">
-																{item.reqUnit}
+																{item.unit}
 															</span>
 														</TableCell>
 														<TableCell className="text-right">
 															<span className="font-medium">{item.loadWt}</span>
 															<span className="text-muted-foreground ml-1">
-																{item.loadUnit}
+																{item.unit}
 															</span>
 														</TableCell>
 														<TableCell className="text-right">
 															<span className="font-medium">{item.remWt}</span>
 															<span className="text-muted-foreground ml-1">
-																{item.remUnit}
+																{item.unit}
 															</span>
 														</TableCell>
 														<TableCell className="text-center">

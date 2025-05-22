@@ -36,6 +36,9 @@ const RE2FileGeneration = lazy(() => import('../Pages/Storages/RE2FileGeneration
 // Add this import at the top with other lazy imports
 const RE11IndentFileGeneration = lazy(() => import('../Pages/Dispatch/RE11IndentFileGeneration/Index'));
 const AddRE11Indent = lazy(() => import('@/Pages/Dispatch/RE11IndentFileGeneration/AddOrEdit'));
+const LoadingSheetPage = lazy(() => import('../Pages/Dispatch/LoadingSheet/index'));
+// Import the new AddOrEditLoadingSheet component
+const AddOrEditLoadingSheet = lazy(() => import('@/Pages/Dispatch/LoadingSheet/AddOrEdit'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -363,6 +366,41 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<AddRE11Indent />
+									</SuspenseWrapper>
+								}
+							/>
+							{/* Add routes for Loading Sheet */}
+							<Route
+								path="/loading-sheets"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<LoadingSheetPage />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/loading-sheets/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<AddOrEditLoadingSheet />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/loading-sheets/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<AddOrEditLoadingSheet />
+									</SuspenseWrapper>
+								}
+							/>
+
+							{/* Catch-all 404 page */}
+							<Route
+								path="*"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<NotFound />
 									</SuspenseWrapper>
 								}
 							/>
