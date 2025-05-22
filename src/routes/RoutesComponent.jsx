@@ -32,8 +32,17 @@ const UOMAddOrEdit = lazy(() => import('../Pages/Masters/UOMMaster/AddOrEdit'));
 const ProductMaster = lazy(() => import('../Pages/Masters/ProductMaster/Index'));
 const ProductAddOrEdit = lazy(() => import('../Pages/Masters/ProductMaster/AddOrEdit'));
 const RE2FileGeneration = lazy(() => import('../Pages/Storages/RE2FileGeneration/RE2FileGeneration'));
+const shiftMaster = lazy(() => import('../Pages/Masters/shiftMaster/Index'));
+const shiftAddOrEdit = lazy(() => import('../Pages/Masters/shiftMaster/AddOrEdit'));
 
 // Add this import at the top with other lazy imports
+const ResetTypeMaster = lazy(() => import('../Pages/Masters/ResetTypeMaster/Index'));
+const ResetTypeAddOrEdit = lazy(() => import('../Pages/Masters/ResetTypeMaster/AddOrEdit'));
+
+// Add these imports at the top with other lazy imports
+const ShiftMaster = lazy(() => import('../Pages/Masters/ShiftMaster/Index'));
+const ShiftAddOrEdit = lazy(() => import('../Pages/Masters/ShiftMaster/AddOrEdit'));
+
 const RE11IndentFileGeneration = lazy(() => import('../Pages/Dispatch/RE11IndentFileGeneration/Index'));
 const AddRE11Indent = lazy(() => import('@/Pages/Dispatch/RE11IndentFileGeneration/AddOrEdit'));
 const LoadingSheetPage = lazy(() => import('../Pages/Dispatch/LoadingSheet/index'));
@@ -366,6 +375,81 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<AddRE11Indent />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/reset-type-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ResetTypeMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/reset-type-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ResetTypeAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/reset-type-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ResetTypeAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/shift-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ShiftMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/shift-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ShiftAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/shift-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ShiftAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/shift-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ShiftMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/shift-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ShiftAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/shift-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ShiftAddOrEdit />
 									</SuspenseWrapper>
 								}
 							/>

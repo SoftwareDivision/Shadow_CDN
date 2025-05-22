@@ -189,6 +189,18 @@ export const generateRE2File = (token, payload) => {
 	return postData('/RE2FileGenerations/GenerateRE2File', token, payload);
 };
 
+// Reset Type Master APIs
+export const getAllResets = (t) => getAll('/ResetTypeMaster/GetAllresets', t);
+export const createReset = (t, data) => postData('/ResetTypeMaster/CreateReset', t, data);
+export const deleteReset = (t, id) => deleteData(`/ResetTypeMaster/DeleteReset/${id}`, t);
+export const updateReset = (t, data) => putData(`/ResetTypeMaster/UpdateReset/${data.id}`, t, data);
+
+// Shift Master APIs
+export const getAllShifts = (t) => getAll('/ShiftMasters/GetAllShifts', t);
+export const createShift = (t, data) => postData('/ShiftMasters/CreateShift', t, data);
+export const deleteShift = (t, id) => deleteData(`/ShiftMasters/DeleteShift/${id}`, t);
+export const updateShift = (t, d) => putData(`/ShiftMasters/UpdateShift/${d.id}`, t, d);
+
 // RE11 Indent APIs
 export const getRE11IndentDetails = (t) => getAll('/Re11IndentInfos/GetAllIndents', t);
 export const getRE11CreateIndents = (t) => getAll('/Re11IndentInfos/GetCreateIndents', t);
