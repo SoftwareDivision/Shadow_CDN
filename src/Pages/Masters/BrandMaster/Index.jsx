@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import DataTable from '@/components/DataTable';
 import { Card } from '@/components/ui/card';
-import { getAllShifts, deleteShift } from '@/lib/api';
+import { getAllBrands, deleteBrand } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { MoreVertical, Pencil as PencilIcon, Plus as PlusIcon, Trash as TrashIcon, Loader2 } from 'lucide-react';
 import { useSnackbar } from 'notistack';
@@ -26,35 +26,36 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-function ShiftMaster() {
+function BrandMaster() {
     const { token } = useAuthToken.getState();
     const tokendata = token.data.token;
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
 
     const {
-        data: shiftData,
+        data: brandData,
         isLoading,
         error,
     } = useQuery({
-        queryKey: ['shiftData'],
+        queryKey: ['brandData'],
         queryFn: async () => {
-            const response = await getAllShifts(tokendata);
+            const response = await getAllBrands(tokendata);
             return response || [];
         },
         enabled: !!tokendata,
     });
+console.log(brandData);
 
     const deleteMutation = useMutation({
-        mutationFn: (id) => deleteShift(tokendata, id),
+        mutationFn: (id) => deleteBrand(tokendata, id),
         onSuccess: () => {
-            queryClient.invalidateQueries(['shiftData']);
-            enqueueSnackbar('Shift deleted successfully', {
+            queryClient.invalidateQueries(['brandData']);
+            enqueueSnackbar('Brand deleted successfully', {
                 variant: 'success',
             });
         },
         onError: (error) => {
-            enqueueSnackbar(error.message || 'Failed to delete shift', {
+            enqueueSnackbar(error.message || 'Failed to delete brand', {
                 variant: 'error',
             });
         },
@@ -62,8 +63,8 @@ function ShiftMaster() {
 
     const navigate = useNavigate();
     const handleEdit = (row) => {
-        navigate(`/shift-master/edit/${row.id}`, {
-            state: { shiftData: row },
+        navigate(`/brand-master/edit/${row.id}`, {
+            state: { brandData: row },
         });
     };
 
@@ -71,30 +72,40 @@ function ShiftMaster() {
         deleteMutation.mutate(row.id);
     };
 
+    if (isLoading) {
+        return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    }
+
+    if (error) {
+        return <div className="text-red-500">Error: {error.message}</div>;
+    }
+
     const columns = [
         {
-            accessorKey: 'shift',
-            header: 'Shift',
+            accessorKey: 'pname',
+            header: 'Plant Name',
         },
         {
-            accessorKey: 'fromtime',
-            header: 'From Time',
-            cell: ({ row }) => row.original.fromtime
+            accessorKey: 'pcode',
+            header: 'Plant Code',
         },
         {
-            accessorKey: 'totime',
-            header: 'To Time',
-            cell: ({ row }) => row.original.totime
+            accessorKey: 'bname',
+            header: 'Brand Name',
+        },
+        {
+            accessorKey: 'bid',
+            header: 'Brand ID',
         },
         {
             accessorKey: 'actions',
-			header: 'Actions',
-            id: 'actions',
+            header: 'Actions',
+            enableSorting: false,
             cell: ({ row }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-5 w-5" />
+                            <MoreVertical className="h-4 w-4" />
                             <span className="sr-only">Open menu</span>
                         </Button>
                     </DropdownMenuTrigger>
@@ -120,8 +131,7 @@ function ShiftMaster() {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete the shift "{row.original.shift}"
-                                        and all associated data.
+                                        This action cannot be undone. This will permanently delete the brand "{row.original.bname}" and all associated data.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -143,15 +153,15 @@ function ShiftMaster() {
 
     return (
         <Card className="p-4 shadow-md">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold">Shift Master</h2>
-                <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/shift-master/add')}>
-                    <PlusIcon className="mr-2 h-4 w-4" /> Add Shift
+            <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Brand Master</h2>
+                <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/brand-master/add')}>
+                    <PlusIcon className="h-4 w-4" /> Add Brand
                 </Button>
             </div>
-            <DataTable columns={columns} data={shiftData || []} />
+            <DataTable columns={columns} data={brandData} />
         </Card>
     );
 }
 
-export default ShiftMaster;
+export default BrandMaster;

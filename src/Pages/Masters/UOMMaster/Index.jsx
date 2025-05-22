@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, MoreHorizontal, Loader2 } from 'lucide-react';
+import { PlusIcon, MoreVertical, Loader2 } from 'lucide-react';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import DataTable from '@/components/DataTable';
@@ -74,7 +74,7 @@ function UOMMaster() {
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
                                 <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
+                                <MoreVertical className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">

@@ -57,6 +57,9 @@ export default function MainLayout() {
 		'/shift-master': { parent: 'Masters', current: 'Shift Master' },
 		'/shift-master/add': { parent: 'Masters', current: 'Add Shift' },
 		'/shift-master/edit': { parent: 'Masters', current: 'Edit Shift' },
+		'/brand-master': { parent: 'Masters', current: 'Brand Master' },
+		'/brand-master/add': { parent: 'Masters', current: 'Add Brand' },
+		'/brand-master/edit': { parent: 'Masters', current: 'Edit Brand' },
 	};
 
 	const getPathInfo = (path) => {

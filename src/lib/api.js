@@ -93,7 +93,7 @@ const deleteData = (url, token) => request('delete', url, token);
 export const getShiftDetails = (t) => getAll('/ShiftMasters/GetAllShifts', t);
 export const getProductDetails = (t) => getAll('/ProductMasters/GetAllProducts', t);
 export const getMachineDetails = (t) => getAll('/MachineCodeMasters/GetAllMachineCodes', t);
-export const getMagzineDetails = (t) => getAll('/MagzineMasters/GetAllMagzines', t);
+
 export const getCountryDetails = (t) => getAll('/CountryMasters/GetAllCountries', t);
 export const getStateDetails = (t) => getAll('/StateMasters/GetAllStates', t);
 export const getMfgDetails = (t) => getAll('/MfgMasters/GetAllMfgMasters', t);
@@ -201,10 +201,25 @@ export const createShift = (t, data) => postData('/ShiftMasters/CreateShift', t,
 export const deleteShift = (t, id) => deleteData(`/ShiftMasters/DeleteShift/${id}`, t);
 export const updateShift = (t, d) => putData(`/ShiftMasters/UpdateShift/${d.id}`, t, d);
 
+export const getAllBrands = (t) => getAll('/BrandMasters/GetAllBrands', t);
+export const createBrand = (t, data) => postData('/BrandMasters/CreateBrand', t, data);
+export const deleteBrand = (t, id) => deleteData(`/BrandMasters/DeleteBrand/${id}`, t);
+export const updateBrand = (t, d) => putData(`/BrandMasters/UpdateBrand/${d.id}`, t, d);
+
 // RE11 Indent APIs
 export const getRE11IndentDetails = (t) => getAll('/Re11IndentInfos/GetAllIndents', t);
 export const getRE11CreateIndents = (t) => getAll('/Re11IndentInfos/GetCreateIndents', t);
 export const createRE11Indent = (token, data) => postData('/Re11IndentInfos/CreateIndent', token, data);
+
+
+// Magazine Master APIs
+export const getMagzineDetails = (t) => getAll('/MagzineMasters/GetAllMagzines', t);
+export const createMagzine = (t, data) => postData('/MagzineMasters/CreateMagzine', t, data);
+export const deleteMagzine = (t, id) => deleteData(`/MagzineMasters/DeleteMagzine/${id}`, t);
+export const updateMagzine = (t, d) => putData(`/MagzineMasters/UpdateMagzine/${d.id}`, t, d);
+
+// ... rest of the code ...
+
 
 // Export API instance if needed elsewhere
 export default api;

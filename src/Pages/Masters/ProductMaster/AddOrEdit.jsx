@@ -126,8 +126,8 @@ function AddOrEdit() {
                 <h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} Product</h2>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-                    <div className="space-y-2">
+                <div className="space-y-2">
+                    <div className="space-y-2 col-span-6">
                         <Label>Brand Name</Label>
                         <Input {...register('bname')} className={errors.bname ? 'border-red-500' : ''} />
                         {errors.bname && <span className="text-sm text-red-500">{errors.bname.message}</span>}

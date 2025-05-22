@@ -14,6 +14,7 @@ import {
   SquareTerminal,
   Store,
   Workflow,
+  FileSpreadsheet,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -84,8 +85,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/machine-code-master",
           },
           {
-            title:"UOM Master",
-            url: "/uom-master", 
+            title: "UOM Master",
+            url: "/uom-master",
           },
           {
             title: "Product Master",
@@ -96,14 +97,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/shift-master",
           },
           {
-            title:"Reset masters",
+            title:"Brand Master",
+            url: "/brand-master",
+          },
+          {
+            title: "Reset masters",
             url: "/reset-type-master", // Remove the 's'
           },
           {
             title: "Magzine Master",
             url: "/magzine-master",
           },
-      
+
         ],
       },
       {
@@ -128,14 +133,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         items: [
           {
             title: "Magzine Transfer",
-             url: "/magzine-transfer", 
-           },
+            url: "/magzine-transfer",
+          },
           {
             title: "RE2 File Generation",
             url: "/re2-file-generation",
-      
+
           },
-        
+
         ],
       },
       {
@@ -162,6 +167,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ],
       },
       {
+        title: "Reports",
+        url: "#",
+        icon: FileSpreadsheet,
+        items: [
+          {
+            title: "L1Barcode Generation",
+            url: "/barcode-generation",
+          },
+          {
+            title: "2D Barcode Generation",
+            url: "/2Dbarcode-generation",
+          },
+        ],
+      },
+      {
         title: "Chat",
         url: "#",
         icon: Command,
@@ -169,7 +189,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "Chats",
             url: "/chat",
-          }, 
+          },
         ],
       }
     ],
@@ -191,7 +211,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
     ],
   };
-  
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

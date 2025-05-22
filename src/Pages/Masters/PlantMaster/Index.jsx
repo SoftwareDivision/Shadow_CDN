@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, MoreHorizontal, Loader2 } from 'lucide-react';
+import { PlusIcon, MoreVertical, Loader2 } from 'lucide-react';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import DataTable from '@/components/DataTable';
@@ -83,7 +83,7 @@ function PlantMaster() {
 			cell: ({ row }) => (
 				<DropdownMenu>
 					<DropdownMenuTrigger>
-						<MoreHorizontal className="h-5 w-5" />
+						<MoreVertical className="h-5 w-5" />
 					</DropdownMenuTrigger>
 					<DropdownMenuContent>
 						<DropdownMenuItem onClick={() => handleEdit(row.original)}>Edit</DropdownMenuItem>

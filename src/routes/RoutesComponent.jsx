@@ -13,7 +13,7 @@ const LoginForm = lazy(() => import('../Pages/Auth/LoginForm'));
 const BarcodeGeneratorPage = lazy(() => import('../Pages/Operations/BarcodeGeneratorPage/BarcodeGeneratorPage'));
 const Magzine_Transfer = lazy(() => import('../Pages/Storages/Magzine_Transfer/Index'));
 const TransferDialog = lazy(() => import('../Pages/Storages/Magzine_Transfer/TransferDialog'));
-const Magzine_Master = lazy(() => import('../Pages/Masters/Magzine_Master/Index'));
+
 const PlantMaster = lazy(() => import('../Pages/Masters/PlantMaster/Index'));
 const PlantAddOrEdit = lazy(() => import('../Pages/Masters/PlantMaster/AddOrEdit'));
 const MFGMasters = lazy(() => import('../Pages/Masters/MFG_Masters/Index'));
@@ -34,6 +34,8 @@ const ProductAddOrEdit = lazy(() => import('../Pages/Masters/ProductMaster/AddOr
 const RE2FileGeneration = lazy(() => import('../Pages/Storages/RE2FileGeneration/RE2FileGeneration'));
 const shiftMaster = lazy(() => import('../Pages/Masters/shiftMaster/Index'));
 const shiftAddOrEdit = lazy(() => import('../Pages/Masters/shiftMaster/AddOrEdit'));
+const BrandMaster = lazy(() => import('../Pages/Masters/BrandMaster/Index'));
+const BrandAddOrEdit = lazy(() => import('../Pages/Masters/BrandMaster/AddOrEdit'));
 
 
 // Add this import at the top with other lazy imports
@@ -44,6 +46,8 @@ const ResetTypeAddOrEdit = lazy(() => import('../Pages/Masters/ResetTypeMaster/A
 const ShiftMaster = lazy(() => import('../Pages/Masters/ShiftMaster/Index'));
 const ShiftAddOrEdit = lazy(() => import('../Pages/Masters/ShiftMaster/AddOrEdit'));
 
+const Magzine_Master = lazy(() => import('../Pages/Masters/Magzine_Master/Index'));
+const MagzineAddOrEdit = lazy(() => import('../Pages/Masters/Magzine_Master/AddOrEdit'));
 
 const RE11IndentFileGeneration = lazy(() => import('../Pages/Dispatch/RE11IndentFileGeneration/Index'));
 const AddRE11Indent = lazy(() => import('@/Pages/Dispatch/RE11IndentFileGeneration/AddOrEdit'));
@@ -175,6 +179,23 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+							<Route
+								path="/magzine-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<MagzineAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/magzine-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<MagzineAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
 
 							<Route
 								path="/plant-master"
@@ -432,6 +453,32 @@ export default function RoutesComponent() {
 
 
 							<Route
+								path="/brand-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<BrandMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/brand-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<BrandAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/brand-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<BrandAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+
+							<Route
 								path="/shift-master"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
@@ -455,6 +502,8 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+
+
 						</Route>
 
 						{/* Catch-all 404 page */}
