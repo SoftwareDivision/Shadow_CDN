@@ -51,6 +51,9 @@ const MagzineAddOrEdit = lazy(() => import('../Pages/Masters/Magzine_Master/AddO
 
 const RE11IndentFileGeneration = lazy(() => import('../Pages/Dispatch/RE11IndentFileGeneration/Index'));
 const AddRE11Indent = lazy(() => import('@/Pages/Dispatch/RE11IndentFileGeneration/AddOrEdit'));
+const LoadingSheetPage = lazy(() => import('../Pages/Dispatch/LoadingSheet/index'));
+// Import the new AddOrEditLoadingSheet component
+const AddOrEditLoadingSheet = lazy(() => import('@/Pages/Dispatch/LoadingSheet/AddOrEdit'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -399,7 +402,6 @@ export default function RoutesComponent() {
 								}
 							/>
 
-
 							<Route
 								path="/reset-type-master"
 								element={
@@ -424,7 +426,6 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
-
 
 							<Route
 								path="/shift-master"
@@ -499,6 +500,41 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<ShiftAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							{/* Add routes for Loading Sheet */}
+							<Route
+								path="/loading-sheets"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<LoadingSheetPage />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/loading-sheets/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<AddOrEditLoadingSheet />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/loading-sheets/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<AddOrEditLoadingSheet />
+									</SuspenseWrapper>
+								}
+							/>
+
+							{/* Catch-all 404 page */}
+							<Route
+								path="*"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<NotFound />
 									</SuspenseWrapper>
 								}
 							/>

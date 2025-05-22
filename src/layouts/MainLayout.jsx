@@ -57,6 +57,8 @@ export default function MainLayout() {
 		'/shift-master': { parent: 'Masters', current: 'Shift Master' },
 		'/shift-master/add': { parent: 'Masters', current: 'Add Shift' },
 		'/shift-master/edit': { parent: 'Masters', current: 'Edit Shift' },
+		'/loading-sheets': { parent: 'Dispatch', current: 'Loading Sheets' },
+		'/loading-sheets/add': { parent: 'Dispatch', current: 'Add Loading Sheet' },
 		'/brand-master': { parent: 'Masters', current: 'Brand Master' },
 		'/brand-master/add': { parent: 'Masters', current: 'Add Brand' },
 		'/brand-master/edit': { parent: 'Masters', current: 'Edit Brand' },
@@ -78,6 +80,7 @@ export default function MainLayout() {
 		if (path.startsWith('/plant-master/edit/')) {
 			return { parent: 'Masters', current: 'Edit MFG Location' };
 		}
+
 		return breadcrumbMap[path] || { parent: 'Home', current: 'Unknown' };
 	};
 

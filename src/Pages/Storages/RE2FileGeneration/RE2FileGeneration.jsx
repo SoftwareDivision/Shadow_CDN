@@ -139,7 +139,7 @@ const RE2FileGeneration = () => {
 				plantCode: selectedPlantCode,
 				brandId: selectedBrandId,
 				pSizeCode: selectedProductCode,
-				magname: selectedLicenseCode,
+				magname: data.magazine,
 			};
 			await submitForm(formData);
 		} catch (error) {
@@ -157,9 +157,9 @@ const RE2FileGeneration = () => {
 			}));
 			setPlantData(plantOptions);
 
-			const magazineOptions = Array.from(new Set(apiData?.mlist?.map((mag) => mag.magname))).map((magname) => ({
-				value: magname,
-				text: magname,
+			const magazineOptions = Array.from(new Set(apiData?.mlist?.map((mag) => mag.mcode))).map((mcode) => ({
+				value: mcode,
+				text: mcode,
 				disabled: false,
 			}));
 			setMagazineData(magazineOptions);
@@ -501,7 +501,7 @@ const RE2FileGeneration = () => {
 
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 						<div className="flex flex-col gap-y-2">
-							<Label>Magazine</Label>
+							<Label>Magazine Code</Label>
 							<Controller
 								name="magazine"
 								control={control}
@@ -510,9 +510,9 @@ const RE2FileGeneration = () => {
 										onValueChange={(value) => {
 											field.onChange(value);
 											// Find the magazine license code from API data
-											const selectedMag = apiData?.mlist?.find((m) => m.magname === value);
+											const selectedMag = apiData?.mlist?.find((m) => m.mcode === value);
 											if (selectedMag) {
-												setSelectedLicenseCode(selectedMag.mcode);
+												setSelectedLicenseCode(selectedMag.licno);
 											}
 										}}
 										value={field.value}
@@ -541,7 +541,7 @@ const RE2FileGeneration = () => {
 
 						{/* License Code Display */}
 						<div className="flex flex-col gap-y-2">
-							<Label>Magzine Code</Label>
+							<Label>Magzine License</Label>
 							<Input name="mCode" value={selectedLicenseCode} readOnly className="bg-muted" />
 						</div>
 					</div>

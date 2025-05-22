@@ -3,12 +3,15 @@ import {
   AudioWaveform,
   BookOpen,
   Bot,
+  ChartArea,
   Command,
   Database,
   Frame,
   GalleryVerticalEnd,
   LucideTruck,
   Map,
+  MessageCircle,
+  MessageCircleDashed,
   PieChart,
   Settings2,
   SquareTerminal,
@@ -153,6 +156,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/re11-indent-generation",
           },
           {
+            title: "Loading Sheet Generation",
+            url: "/loading-sheets",
+          },
+          {
             title: "Team",
             url: "#",
           },
@@ -184,7 +191,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         title: "Chat",
         url: "#",
-        icon: Command,
+        icon: MessageCircle,
         items: [
           {
             title: "Chats",
