@@ -54,7 +54,9 @@ function MagzineMaster() {
     });
 
     const handleEdit = (row) => {
-        navigate(`/magzine-master/edit/${row.id}`, { state: row });
+        navigate(`/magzine-master/edit/${row.id}`, {
+			state: { magzineData: row },
+		});
     };
 
     const handleDelete = (row) => {

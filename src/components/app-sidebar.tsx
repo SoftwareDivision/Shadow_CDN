@@ -100,6 +100,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/shift-master",
           },
           {
+            title: "Customer Master",
+            url: "/customer-master",
+          },
+          {
             title:"Brand Master",
             url: "/brand-master",
           },
