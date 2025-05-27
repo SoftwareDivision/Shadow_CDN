@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import DataTable from '@/components/DataTable';
 import { Card } from '@/components/ui/card';
-import { deleteTransport, getTransports } from '@/lib/api';
+import { deleteTransport, getAllTransports } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { MoreVertical, Pencil as PencilIcon, Plus as PlusIcon, Trash as TrashIcon, Loader2 } from 'lucide-react';
 import { useSnackbar } from 'notistack';
@@ -26,77 +26,6 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-const columns = [
-    {
-        header: 'Transport Name',
-        accessorKey: 'tName'
-    },
-    {
-        header: 'GST No',
-        accessorKey: 'gstno'
-    },
-    {
-        header: 'City',
-        accessorKey: 'city'
-    },
-    {
-        header: 'State',
-        accessorKey: 'state'
-    },
-    {
-        id: 'actions',
-        cell: ({ row }) => {
-            const transport = row.original;
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(transport)}>
-                            <PencilIcon className="mr-2 h-4 w-4" />
-                            Edit
-                        </DropdownMenuItem>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                    <TrashIcon className="mr-2 h-4 w-4" />
-                                    Delete
-                                </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete the
-                                        transport and remove all related data.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                        onClick={() => handleDelete(transport.id)}
-                                        className="bg-red-600 hover:bg-red-700"
-                                    >
-                                        {deleteMutation.isLoading ? (
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        ) : (
-                                            <TrashIcon className="mr-2 h-4 w-4" />
-                                        )}
-                                        Delete
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
-        },
-    },
-];
-
 function TransportMaster() {
     const { token } = useAuthToken.getState();
     const tokendata = token.data.token;
@@ -104,10 +33,91 @@ function TransportMaster() {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
+    const handleEdit = (transport) => {
+        navigate(`/transport-master/edit/${transport.id}`, {
+            state: { transportData: transport }
+        });
+    };
+
+    const handleDelete = (id) => {
+        deleteMutation.mutate(id);
+    };
+
+    const columns = [
+        {
+            header: 'Transport Name',
+            accessorKey: 'tName'
+        },
+        {
+            header: 'GST No',
+            accessorKey: 'gstno'
+        },
+        {
+            header: 'City',
+            accessorKey: 'city'
+        },
+        {
+            header: 'State',
+            accessorKey: 'state'
+        },
+        {
+            id: 'actions',
+            cell: ({ row }) => {
+                const transport = row.original;
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEdit(transport)}>
+                                <PencilIcon className="mr-2 h-4 w-4" />
+                                Edit
+                            </DropdownMenuItem>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                        <TrashIcon className="mr-2 h-4 w-4" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete the
+                                            transport and remove all related data.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                            onClick={() => handleDelete(transport.id)}
+                                            className="bg-red-600 hover:bg-red-700"
+                                        >
+                                            {deleteMutation.isLoading ? (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <TrashIcon className="mr-2 h-4 w-4" />
+                                            )}
+                                            Delete
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
+        },
+    ];
+
     const { data: transportData, isLoading } = useQuery({
         queryKey: ['transports'],
         queryFn: async () => {
-            const response = await getTransports(tokendata);
+            const response = await getAllTransports(tokendata);
             return response || [];
         },
         enabled: !!tokendata,
@@ -126,16 +136,6 @@ function TransportMaster() {
             enqueueSnackbar(error.message || 'Failed to delete transport', { variant: 'error' });
         },
     });
-
-    const handleEdit = (transport) => {
-        navigate(`/transport-master/edit/${transport.id}`, {
-            state: { transportData: transport }
-        });
-    };
-
-    const handleDelete = (id) => {
-        deleteMutation.mutate(id);
-    };
 
     const handleAdd = () => {
         navigate('/transport-master/add');

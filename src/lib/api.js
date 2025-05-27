@@ -215,8 +215,6 @@ export const getCustomerDetails = (t) => getAll('/CustomerMasters/GetAllCustomer
 export const createCustomer = (t, data) => postData('/CustomerMasters/CreateCustomer', t, data);
 export const updateCustomer = (t, data) => putData('/CustomerMasters/UpdateCustomer', t, data);
 export const deleteCustomer = (t, id) => deleteData(`/CustomerMasters/DeleteCustomer/${id}`, t);
-// ... rest of the code ...
-
 // Loading Sheet APIs
 export const getAllLoadingSheets = (t) => getAll('/AllLoadingSheets/GetAllLoadingSheets', t);
 export const getCreateLoadingData = (t) => getAll('/AllLoadingSheets/GetCreateLoadingData', t);
