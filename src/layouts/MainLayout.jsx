@@ -62,6 +62,12 @@ export default function MainLayout() {
 		'/brand-master': { parent: 'Masters', current: 'Brand Master' },
 		'/brand-master/add': { parent: 'Masters', current: 'Add Brand' },
 		'/brand-master/edit': { parent: 'Masters', current: 'Edit Brand' },
+		'transport-master': { parent: 'Masters', current: 'Transport Master' },
+		'/transport-master/add': { parent: 'Masters', current: 'Add Transport' },
+		'/transport-master/edit': { parent: 'Masters', current: 'Edit Transport' },
+		'/customer-master': { parent: 'Masters', current: 'Customer Master' },
+		'/customer-master/add': { parent: 'Masters', current: 'Add Customer' },
+		'/customer-master/edit': { parent: 'Masters', current: 'Edit Customer' },
 	};
 
 	const getPathInfo = (path) => {

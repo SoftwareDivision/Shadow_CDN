@@ -38,6 +38,9 @@ const BrandMaster = lazy(() => import('../Pages/Masters/BrandMaster/Index'));
 const BrandAddOrEdit = lazy(() => import('../Pages/Masters/BrandMaster/AddOrEdit'));
 const CustomerMaster = lazy(() => import('../Pages/Masters/CustomerMaster/Index'));
 const CustomerAddOrEdit = lazy(() => import('../Pages/Masters/CustomerMaster/AddOrEdit'));
+const TransportMaster = lazy(() => import('../Pages/Masters/transportMaster/Index'));
+const TransportAddOrEdit = lazy(() => import('../Pages/Masters/transportMaster/AddOrEdit'));
+
 
 
 // Add this import at the top with other lazy imports
@@ -532,28 +535,53 @@ export default function RoutesComponent() {
 							/>
 
 							<Route
-							path='/customer-master'
-							element={
-								<SuspenseWrapper loadingBarRef={loadingBarRef}>
-									<CustomerMaster />
-								</SuspenseWrapper>
-							}	
+								path='/customer-master'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<CustomerMaster />
+									</SuspenseWrapper>
+								}
 							/>
 							<Route
-							path='/customer-master/add'
-							element={
-								<SuspenseWrapper loadingBarRef={loadingBarRef}>
-									<CustomerAddOrEdit />
-								</SuspenseWrapper>
-							}
+								path='/customer-master/add'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<CustomerAddOrEdit />
+									</SuspenseWrapper>
+								}
 							/>
 							<Route
-							path='/customer-master/edit/:id'
-							element={
-								<SuspenseWrapper loadingBarRef={loadingBarRef}>
-									<CustomerAddOrEdit />
-								</SuspenseWrapper>
-							}
+								path='/customer-master/edit/:id'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<CustomerAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path='/transport-master'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<TransportMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path='/transport-master/add'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<TransportAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path='/transport-master/edit/:id'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<TransportAddOrEdit />
+									</SuspenseWrapper>
+								}
 							/>
 
 							{/* Catch-all 404 page */}

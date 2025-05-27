@@ -108,6 +108,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/brand-master",
           },
           {
+            title:"Transpoter Master",
+            url: "/transporter-master",
+          },
+          {
             title: "Reset masters",
             url: "/reset-type-master", // Remove the 's'
           },
