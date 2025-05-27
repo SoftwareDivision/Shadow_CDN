@@ -222,7 +222,6 @@ export const getAllLoadingSheets = (t) => getAll('/AllLoadingSheets/GetAllLoadin
 export const getCreateLoadingData = (t) => getAll('/AllLoadingSheets/GetCreateLoadingData', t);
 export const createLoadingSheet = (token, data) => postData('/AllLoadingSheets/CreateAllLoadingSheet', token, data);
 export const updateLoadingSheet = (t, data) => putData(`/AllLoadingSheets/UpdateAllLoadingSheet/${data.id}`, t, data);
-export const updateLoadingSheet = (t, data) => putData(`/AllLoadingSheets/UpdateAllLoadingSheet/${data.id}`, t, data,);
 
 // Transport APIs
 export const getAllTransports = (t) => getAll('/TransportMasters/GetAllTransports', t);
