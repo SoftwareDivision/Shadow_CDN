@@ -222,5 +222,12 @@ export const getAllLoadingSheets = (t) => getAll('/AllLoadingSheets/GetAllLoadin
 export const getCreateLoadingData = (t) => getAll('/AllLoadingSheets/GetCreateLoadingData', t);
 export const createLoadingSheet = (token, data) => postData('/AllLoadingSheets/CreateAllLoadingSheet', token, data);
 export const updateLoadingSheet = (t, data) => putData(`/AllLoadingSheets/UpdateAllLoadingSheet/${data.id}`, t, data);
+
+// Transport APIs
+export const getAllTransports = (t) => getAll('/TransportMasters/GetAllTransports', t);
+export const createTransport = (t, data) => postData('/TransportMasters/CreateTransport', t, data);
+export const updateTransport = (t, data) => putData(`/TransportMasters/UpdateTransport/${data.id}`, t, data);
+export const deleteTransport = (t, id) => deleteData(`/TransportMasters/DeleteTransport/${id}`, t);
+
 // Export API instance if needed elsewhere
 export default api;

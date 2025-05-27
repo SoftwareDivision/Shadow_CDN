@@ -19,52 +19,42 @@ import {
     SelectTrigger,
     SelectValue
 } from '@/components/ui/select';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-
-
-const {
-    register,        
-    control,
-    handleSubmit,
-    formState: { errors },
-    reset
-} = useForm({
-    resolver: yupResolver(schema),
-    defaultValues: {
-        id: 0,
-        cid: '',
-        cName: '',
-        addr: '',
-        gstno: '',
-        state: '',
-        city: '',
-        district: '',
-        tahsil: '',
-        magazines: [],
-        members: []
-    }
-});
 
 const magazineSchema = yup.object().shape({
     id: yup.number(),
-    cid: yup.number(),
+    cid: yup.number(), // Foreign key to customer
     magazine: yup.string().required('Magazine is required'),
     license: yup.string().required('License is required'),
     validity: yup.date().required('Validity date is required'),
     wt: yup.number().required('Weight is required').positive('Weight must be positive'),
     unit: yup.string().required('Unit is required')
-
-    
 });
 
-const schema = yup.object().shape({
+// Member schema with foreign key relationship
+const memberSchema = yup.object().shape({
     id: yup.number(),
-    cid: yup.number(),
+    cid: yup.number(), // Foreign key to customer
     name: yup.string().required('Name is required'),
     email: yup.string().email('Invalid email').required('Email is required'),
-    contactNo: yup.string().required('Contact number is required'),
-
+    contactNo: yup.string().required('Contact number is required')
 });
+
+// Main customer schema
+const schema = yup.object().shape({
+    id: yup.number(),
+    cName: yup.string().required('Customer Name is required'),
+    addr: yup.string().required('Address is required'),
+    gstno: yup.string().required('GST Number is required'),
+    state: yup.string().required('State is required'),
+    city: yup.string().required('City is required'),
+    district: yup.string().required('District is required'),
+    tahsil: yup.string().required('Tahsil is required'),
+    magazines: yup.array().of(magazineSchema),
+    members: yup.array().of(memberSchema)
+});
+
 
 function AddOrEdit() {
     const { id } = useParams();
@@ -84,12 +74,35 @@ function AddOrEdit() {
         enabled: !!tokendata
     });
 
+    const {
+        register,        
+        control,
+        handleSubmit,
+        formState: { errors },
+        reset
+    } = useForm({
+        resolver: yupResolver(schema),
+        defaultValues: {
+            id: 0,
+            cid: '',
+            cName: '',
+            addr: '',
+            gstno: '',
+            state: '',
+            city: '',
+            district: '',
+            tahsil: '',
+            magazines: [],
+            members: []
+        }
+    });
+
     // Update UOM data formatting
     useEffect(() => {
         if (uomData) {
             const uomOptions = uomData.map(uom => ({
                 value: uom.uomcode,
-                text: `${uom.uomcode} - ${uom.uomdesc}` // Added description for better readability
+                text: uom.uomcode // Added description for better readability
             }));
             setUoms(uomOptions);
         }
@@ -108,8 +121,6 @@ function AddOrEdit() {
             reset(formattedData);
         }
     }, [state, reset]);
-
-   
 
     const { fields: magazineFields, append: appendMagazine, remove: removeMagazine } = useFieldArray({
         control,
@@ -152,7 +163,7 @@ function AddOrEdit() {
     return (
         <Card className="p-4">
             <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-3 gap-4 mb-4">
                     <div>
                         <label htmlFor="mfgloccode" className="text-sm font-medium">
                             Customer ID
@@ -320,7 +331,7 @@ function AddOrEdit() {
                                             )}
                                         />
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className='w-[20px]'>
                                         <Button
                                             type="button"
                                             variant="ghost"
@@ -377,7 +388,7 @@ function AddOrEdit() {
                                             className={errors.members?.[index]?.contactNo ? 'border-red-500' : ''}
                                         />
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className='w-[20px]'>
                                         <Button
                                             type="button"
                                             variant="ghost"
