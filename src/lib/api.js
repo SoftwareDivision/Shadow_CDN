@@ -210,19 +210,17 @@ export const createMagzine = (t, data) => postData('/MagzineMasters/CreateMagzin
 export const deleteMagzine = (t, id) => deleteData(`/MagzineMasters/DeleteMagzine/${id}`, t);
 export const updateMagzine = (t, d) => putData(`/MagzineMasters/UpdateMagzine/${d.id}`, t, d);
 
+// Customer Master APIs
+export const getCustomerDetails = (t) => getAll('/CustomerMasters/GetAllCustomers', t);
+export const createCustomer = (t, data) => postData('/CustomerMasters/CreateCustomer', t, data);
+export const updateCustomer = (t, data) => putData('/CustomerMasters/UpdateCustomer', t, data);
+export const deleteCustomer = (t, id) => deleteData(`/CustomerMasters/DeleteCustomer/${id}`, t);
 // ... rest of the code ...
 
 // Loading Sheet APIs
 export const getAllLoadingSheets = (t) => getAll('/AllLoadingSheets/GetAllLoadingSheets', t);
-// Add the new function for fetching data for creating a loading sheet
 export const getCreateLoadingData = (t) => getAll('/AllLoadingSheets/GetCreateLoadingData', t);
 export const createLoadingSheet = (token, data) => postData('/AllLoadingSheets/CreateAllLoadingSheet', token, data);
-export const updateLoadingSheet = (t, data) =>
-	putData(
-		`
-/AllLoadingSheets/UpdateAllLoadingSheet/${data.id}`,
-		t,
-		data,
-	);
+export const updateLoadingSheet = (t, data) => putData(`/AllLoadingSheets/UpdateAllLoadingSheet/${data.id}`, t, data);
 // Export API instance if needed elsewhere
 export default api;

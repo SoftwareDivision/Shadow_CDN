@@ -92,27 +92,33 @@ function AddOrEdit() {
 
     useEffect(() => {
         if (state?.magzineData) {
-            const {
-                mfgloc, mfgloccode, magname, mcode, licno, issuedate, validitydt,
-                totalwt, margin, autoallot_flag, magzineMasterDetails
-            } = state.magzineData;
-            console.log('magzineData:', magzineMasterDetails);
+            const data = state.magzineData;
             reset({
-                id: parseInt(id),
-                mfgloc,
-                mfgloccode,
-                magname,
-                mcode,
-                licno,
-                issuedate: new Date(issuedate).toISOString().split('T')[0],
-                validitydt: new Date(validitydt).toISOString().split('T')[0],
-                totalwt,
-                margin,
-                autoallot_flag,
-                magzineMasterDetails: magzineMasterDetails || []
+                id: data.id,
+                mfgloc: data.mfgloc,
+                mfgloccode: data.mfgloccode,
+                magname: data.magname,
+                mcode: data.mcode,
+                licno: data.licno,
+                issuedate: new Date(data.issuedate).toISOString().split('T')[0],
+                validitydt: new Date(data.validitydt).toISOString().split('T')[0],
+                totalwt: data.totalwt,
+                margin: data.margin,
+                autoallot_flag: data.autoallot_flag,
+                magzineMasterDetails: data.magzineMasterDetails.map(detail => ({
+                    id: detail.id,
+                    magzineid: detail.magzineid,
+                    class: detail.class,
+                    division: detail.division,
+                    product: detail.product,
+                    wt: detail.wt,
+                    margin: detail.margin,
+                    units: detail.units
+                }))
             });
         }
-    }, [state, id, reset]);
+    }, [state, reset]);
+console.log('state', state);
 
     const mutation = useMutation({
         mutationFn: (data) => {
@@ -173,7 +179,7 @@ function AddOrEdit() {
     const { data: mfgLoc } = useQuery({
         queryKey: ['classes'],
         queryFn: () => getMfgLocationDetails(tokendata),
-        enabled:!!tokendata
+        enabled: !!tokendata
     });
 
     useEffect(() => {
@@ -228,7 +234,13 @@ function AddOrEdit() {
                             render={({ field }) => (
                                 <Select
                                     value={field.value}
-                                    onValueChange={field.onChange}
+                                    onValueChange={(value) => {
+                                        field.onChange(value);
+                                        const selectedLoc = mfgLoc.find(loc => loc.mfgloc === value);
+                                        if (selectedLoc) {
+                                            setValue('mfgloccode', selectedLoc.mfgloccode);
+                                        }
+                                    }}
                                 >
                                     <SelectTrigger className={`w-full ${errors.mfgloc ? 'border-red-500' : ''}`}>
                                         <SelectValue placeholder="Select location..." />

@@ -36,6 +36,8 @@ const shiftMaster = lazy(() => import('../Pages/Masters/shiftMaster/Index'));
 const shiftAddOrEdit = lazy(() => import('../Pages/Masters/shiftMaster/AddOrEdit'));
 const BrandMaster = lazy(() => import('../Pages/Masters/BrandMaster/Index'));
 const BrandAddOrEdit = lazy(() => import('../Pages/Masters/BrandMaster/AddOrEdit'));
+const CustomerMaster = lazy(() => import('../Pages/Masters/CustomerMaster/Index'));
+const CustomerAddOrEdit = lazy(() => import('../Pages/Masters/CustomerMaster/AddOrEdit'));
 
 
 // Add this import at the top with other lazy imports
@@ -527,6 +529,31 @@ export default function RoutesComponent() {
 										<AddOrEditLoadingSheet />
 									</SuspenseWrapper>
 								}
+							/>
+
+							<Route
+							path='/customer-master'
+							element={
+								<SuspenseWrapper loadingBarRef={loadingBarRef}>
+									<CustomerMaster />
+								</SuspenseWrapper>
+							}	
+							/>
+							<Route
+							path='/customer-master/add'
+							element={
+								<SuspenseWrapper loadingBarRef={loadingBarRef}>
+									<CustomerAddOrEdit />
+								</SuspenseWrapper>
+							}
+							/>
+							<Route
+							path='/customer-master/edit/:id'
+							element={
+								<SuspenseWrapper loadingBarRef={loadingBarRef}>
+									<CustomerAddOrEdit />
+								</SuspenseWrapper>
+							}
 							/>
 
 							{/* Catch-all 404 page */}
