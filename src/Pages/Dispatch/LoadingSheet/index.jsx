@@ -45,7 +45,7 @@ function LoadingSheetPage() {
 				return (
 					<Badge
 						className={`px-2 py-1 rounded-full text-xs ${
-							status === 0 ? 'bg-yellow-800 text-white e' : ' bg-green-700 text-white'
+							status === 0 ? 'bg-yellow-800 text-white' : ' bg-green-700 text-white'
 						}`}
 					>
 						{status === 0 ? 'Pending' : 'Completed'}
