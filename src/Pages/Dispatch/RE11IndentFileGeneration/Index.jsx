@@ -53,10 +53,10 @@ const RE11IndentFileGeneration = () => {
 			},
 		},
 		{
-			accessorKey: 'compFlag',
+			accessorKey: 'completedIndent',
 			header: 'Status',
 			cell: ({ row }) => {
-				const status = row.getValue('compFlag');
+				const status = row.getValue('completedIndent');
 				return (
 					<Badge
 						className={`px-2 py-1 rounded-full text-xs ${
@@ -146,12 +146,14 @@ const RE11IndentFileGeneration = () => {
 														<TableCell className="text-center">
 															<span
 																className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-																	item.compFlag === 1
+																	item.completedLoadingProduct === 1
 																		? 'bg-green-50 text-green-700 border border-green-200'
 																		: 'bg-yellow-50 text-yellow-700 border border-yellow-200'
 																}`}
 															>
-																{item.compFlag === 1 ? 'Completed' : 'Pending'}
+																{item.completedLoadingProduct === 1
+																	? 'Completed'
+																	: 'Pending'}
 															</span>
 														</TableCell>
 													</TableRow>

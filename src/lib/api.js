@@ -140,7 +140,7 @@ export const createL1Generate = (t, d) => {
 	return postData('/L1Generate/CreateL1Generate', t, formatted);
 };
 
-export const saveMagazineTransfer = (t, payload) => postData('/TransferToMazgnies', t, payload);
+export const saveMagazineTransfer = (t, payload) => postData('/ProductionMagzineAllocations', t, payload);
 
 // Notifications API
 export const notificationsApi = {
@@ -175,14 +175,7 @@ export const updateProduct = (t, d) => putData(`/ProductMasters/UpdateProduct/${
 // RE2 APIs
 export const getRE2GenData = (t) => getAll('/RE2FileGenerations/GetRE2GenData', t);
 export const createRE2Generate = (t, d) => {
-	const params = new URLSearchParams({
-		mfgdt: formatDate(d.mfgdt),
-		plantCode: d.plantCode,
-		brandId: d.brandId,
-		pSizeCode: d.pSizeCode,
-		magname: d.magname,
-	}).toString();
-	return getAll(`/RE2FileGenerations/GettableDetailre?${params}`, t);
+	return postData(`/RE2FileGenerations/GettableDetailre`, t, d);
 };
 
 export const generateRE2File = (token, payload) => {
@@ -211,7 +204,6 @@ export const getRE11IndentDetails = (t) => getAll('/Re11IndentInfos/GetAllIndent
 export const getRE11CreateIndents = (t) => getAll('/Re11IndentInfos/GetCreateIndents', t);
 export const createRE11Indent = (token, data) => postData('/Re11IndentInfos/CreateIndent', token, data);
 
-
 // Magazine Master APIs
 export const getMagzineDetails = (t) => getAll('/MagzineMasters/GetAllMagzines', t);
 export const createMagzine = (t, data) => postData('/MagzineMasters/CreateMagzine', t, data);
@@ -223,11 +215,13 @@ export const getCustomerDetails = (t) => getAll('/CustomerMasters/GetAllCustomer
 export const createCustomer = (t, data) => postData('/CustomerMasters/CreateCustomer', t, data);
 export const updateCustomer = (t, data) => putData('/CustomerMasters/UpdateCustomer', t, data);
 export const deleteCustomer = (t, id) => deleteData(`/CustomerMasters/DeleteCustomer/${id}`, t);
+// ... rest of the code ...
 
 // Loading Sheet APIs
 export const getAllLoadingSheets = (t) => getAll('/AllLoadingSheets/GetAllLoadingSheets', t);
 export const getCreateLoadingData = (t) => getAll('/AllLoadingSheets/GetCreateLoadingData', t);
 export const createLoadingSheet = (token, data) => postData('/AllLoadingSheets/CreateAllLoadingSheet', token, data);
+export const updateLoadingSheet = (t, data) => putData(`/AllLoadingSheets/UpdateAllLoadingSheet/${data.id}`, t, data);
 export const updateLoadingSheet = (t, data) => putData(`/AllLoadingSheets/UpdateAllLoadingSheet/${data.id}`, t, data,);
 
 // Transport APIs

@@ -21,12 +21,6 @@ import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem } from '
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const magazineOptions = [
-	{ value: 'm10', label: 'm10' },
-	{ value: 'm11', label: 'm11' },
-	{ value: 'm12', label: 'm12' },
-];
-
 function IndentDetailsSection({
 	control,
 	watch,
@@ -36,6 +30,7 @@ function IndentDetailsSection({
 	availableIndentsForSelection,
 	isEdit,
 	isMutationPending,
+	data,
 }) {
 	const { enqueueSnackbar } = useSnackbar();
 
@@ -67,6 +62,11 @@ function IndentDetailsSection({
 			setIsIndentComboboxOpen(false);
 		}
 	};
+
+	const magazineOptions = data?.magzinesname.map((mag) => ({
+		label: mag,
+		value: mag,
+	}));
 
 	const handleRemoveIndent = (indexToRemove) => {
 		setSelectedIndents(selectedIndents.filter((_, index) => index !== indexToRemove));

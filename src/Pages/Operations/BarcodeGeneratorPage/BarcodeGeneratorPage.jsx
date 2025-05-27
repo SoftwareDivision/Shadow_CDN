@@ -54,7 +54,9 @@ export default function L1BarcodePDFGenerator() {
 			if (!imgData) continue;
 
 			doc.addImage(imgData, 'PNG', x, y, imgSize, imgSize);
-
+			// Set font size before adding text
+			doc.setFontSize(6); // You can adjust the size as needed
+			doc.text(barcode, x, y + imgSize + margin / 2);
 			x += imgSize + margin;
 			if (x + imgSize > doc.internal.pageSize.width - margin) {
 				x = margin;
