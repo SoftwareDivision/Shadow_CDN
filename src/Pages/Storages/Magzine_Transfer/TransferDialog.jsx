@@ -46,10 +46,15 @@ function TransferDialog() {
 	const getGroupedDetails = (details) => {
 		if (!details?.l1barcode) return [];
 		const grouped = details.l1barcode.reduce((acc, detail) => {
-			const key = `${detail.plantName}`;
+			const key = `${detail.plantName}-${detail.pCode}-${detail.brandId}-${detail.pSizeCode}`;
 			if (!acc[key]) {
 				acc[key] = {
 					plantName: detail.plantName,
+					plantCode: detail.pCode,
+					brandName: detail.brandName,
+					Bid: detail.brandId,
+					productSize: detail.productSize,
+					SizeCode: detail.pSizeCode,
 					count: 0,
 					l1NetWt: detail.l1NetWt,
 				};
@@ -65,12 +70,16 @@ function TransferDialog() {
 
 	const handleSaveSelections = async () => {
 		const groupedData = getGroupedDetails(l1Details);
-		const unselectedPlants = groupedData
-			.filter((detail) => !selectedMagazines[detail.plantName])
-			.map((detail) => detail.plantName);
 
-		if (unselectedPlants.length > 0) {
-			enqueueSnackbar(`Please select magazines for: ${unselectedPlants.join(', ')}`, {
+		const unselectedItems = groupedData
+			.filter((detail) => {
+				const key = `${detail.plantName}-${detail.plantCode}-${detail.Bid}-${detail.SizeCode}`;
+				return !selectedMagazines[key];
+			})
+			.map((detail) => `${detail.plantName} - ${detail.brandName} - ${detail.productSize}`);
+
+		if (unselectedItems.length > 0) {
+			enqueueSnackbar(`Please select magazines for: ${unselectedItems.join(', ')}`, {
 				variant: 'error',
 			});
 			return;
@@ -78,17 +87,25 @@ function TransferDialog() {
 
 		try {
 			setIsSaving(true);
-			const payload = groupedData.map((detail) => ({
-				id: 0,
-				transferId: transid,
-				plant: detail.plantName || '',
-				truckNo: truckno || '',
-				magazineName: selectedMagazines[detail.plantName] || '',
-				caseQuantity: detail.count || 0,
-				totalwt: detail.totalNetWeight || 0,
-				readFlag: 0,
-			}));
-
+			const payload = groupedData.map((detail) => {
+				const key = `${detail.plantName}-${detail.plantCode}-${detail.Bid}-${detail.SizeCode}`;
+				return {
+					id: 0,
+					transferId: transid,
+					plant: detail.plantName || '',
+					plantCode: detail.plantCode || '',
+					truckNo: truckno || '',
+					brandName: detail.brandName || '',
+					brandId: detail.Bid || '',
+					productSize: detail.productSize || '',
+					productSizecCode: detail.SizeCode || '',
+					magazineName: selectedMagazines[key] || '',
+					caseQuantity: detail.count || 0,
+					totalwt: detail.totalNetWeight || 0,
+					readFlag: 0,
+				};
+			});
+			console.log('payload', payload);
 			await saveMagazineTransfer(tokendata, payload);
 			enqueueSnackbar('Magazine transfer successful', {
 				variant: 'success',
@@ -103,14 +120,12 @@ function TransferDialog() {
 		}
 	};
 
-	const MagazineSelect = ({ plantName, magazines, isLoading, error }) => {
-		const [selectedMagazine, setSelectedMagazine] = useState(selectedMagazines[plantName] || '');
-
+	const MagazineSelect = ({ uniqueKey, magazines, isLoading, error, selectedMagazines, setSelectedMagazines }) => {
 		const handleChange = (value) => {
-			setSelectedMagazine(value);
+			// Update parent state directly
 			setSelectedMagazines((prev) => ({
 				...prev,
-				[plantName]: value,
+				[uniqueKey]: value,
 			}));
 		};
 
@@ -119,7 +134,7 @@ function TransferDialog() {
 		if (!magazines?.length) return <div className="text-sm">No magazines available</div>;
 
 		return (
-			<Select value={selectedMagazine} onValueChange={handleChange}>
+			<Select value={selectedMagazines[uniqueKey] || ''} onValueChange={handleChange}>
 				<SelectTrigger className="w-full">
 					<SelectValue placeholder="Select Magazine..." />
 				</SelectTrigger>
@@ -153,6 +168,8 @@ function TransferDialog() {
 						<thead className="">
 							<tr className="bg-muted">
 								<th className="p-2 text-left">Plant Name</th>
+								<th className="p-2 text-left">Brand Name</th>
+								<th className="p-2 text-left">Size</th>
 								<th className="p-2 text-left">Cases</th>
 								<th className="p-2 text-left">Total Weight</th>
 								<th className="p-2 text-left">Select Magazine</th>
@@ -162,6 +179,8 @@ function TransferDialog() {
 							{getGroupedDetails(l1Details)?.map((detail, index) => (
 								<tr key={index} className="border-t hover:bg-muted/5">
 									<td className="p-2">{detail.plantName}</td>
+									<td className="p-2">{detail.brandName}</td>
+									<td className="p-2">{detail.productSize}</td>
 									<td className="p-2">
 										<Badge variant="secondary">{detail.count}</Badge>
 									</td>
@@ -170,10 +189,12 @@ function TransferDialog() {
 									</td>
 									<td className="p-2">
 										<MagazineSelect
-											plantName={detail.plantName}
+											uniqueKey={`${detail.plantName}-${detail.plantCode}-${detail.Bid}-${detail.SizeCode}`}
 											magazines={l1Details?.combined}
 											isLoading={l1Loading}
 											error={l1Error}
+											selectedMagazines={selectedMagazines} // Pass parent state
+											setSelectedMagazines={setSelectedMagazines} // Pass parent updater
 										/>
 									</td>
 								</tr>

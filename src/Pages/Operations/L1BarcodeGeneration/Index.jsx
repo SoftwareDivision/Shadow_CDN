@@ -208,18 +208,17 @@ export default function L1BarcodeGeneration() {
 		isFetching || isSubmitting || isPlantFetching || isMachineFetching || isShiftFetching || isProductFetching;
 	const isError =
 		fetchError || submitError || fetchplantError || fetchMachineError || fetchShiftError || fetchProductError;
-
+	if (isLoading) {
+		return (
+			<div className="flex items-center justify-center py-8">
+				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+			</div>
+		);
+	}
 	return (
 		<>
 			<Card className="shadow-md w-full">
 				<CardContent className="relative">
-					{/* Loading Overlay */}
-					{isLoading && (
-						<div className="flex items-center justify-center py-8">
-							<Loader2 className="h-8 w-8 animate-spin text-primary" />
-						</div>
-					)}
-
 					{/* Error Alerts */}
 					{isError && (
 						<Alert variant="destructive" className="mb-4">

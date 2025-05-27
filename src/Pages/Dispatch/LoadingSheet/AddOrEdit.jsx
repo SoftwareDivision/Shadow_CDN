@@ -385,6 +385,7 @@ function AddOrEditLoadingSheet() {
 					availableIndentsForSelection={availableIndentsForSelection}
 					isEdit={isEdit}
 					isMutationPending={mutation.isPending}
+					data={createData}
 				/>
 
 				<div className="flex justify-end space-x-2 mt-6">

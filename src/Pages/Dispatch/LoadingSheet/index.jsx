@@ -41,14 +41,14 @@ function LoadingSheetPage() {
 			header: 'Status',
 			accessorKey: 'compflag',
 			cell: ({ row }) => {
-				const status = row.getValue('compFlag');
+				const status = row.getValue('compflag');
 				return (
 					<Badge
 						className={`px-2 py-1 rounded-full text-xs ${
-							status === 1 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+							status === 0 ? 'bg-yellow-800 text-white' : ' bg-green-700 text-white'
 						}`}
 					>
-						{status === 1 ? 'Completed' : 'Pending'}
+						{status === 0 ? 'Pending' : 'Completed'}
 					</Badge>
 				);
 			},
