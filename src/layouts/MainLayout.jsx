@@ -68,6 +68,7 @@ export default function MainLayout() {
 		'/customer-master': { parent: 'Masters', current: 'Customer Master' },
 		'/customer-master/add': { parent: 'Masters', current: 'Add Customer' },
 		'/customer-master/edit': { parent: 'Masters', current: 'Edit Customer' },
+		'/re12-file-generation': { parent: 'Dispatch', current: 'RE12 Generation' },
 	};
 
 	const getPathInfo = (path) => {

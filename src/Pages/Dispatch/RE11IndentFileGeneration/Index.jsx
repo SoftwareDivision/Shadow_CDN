@@ -60,7 +60,9 @@ const RE11IndentFileGeneration = () => {
 				return (
 					<Badge
 						className={`px-2 py-1 rounded-full text-xs ${
-							status === 1 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+							status === 1
+								? 'bg-green-800 text-white border border-green-800 '
+								: 'bg-yellow-800 text-white border border-yellow-800 '
 						}`}
 					>
 						{status === 1 ? 'Completed' : 'Pending'}
@@ -146,14 +148,14 @@ const RE11IndentFileGeneration = () => {
 														<TableCell className="text-center">
 															<span
 																className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-																	item.completedLoadingProduct === 1
-																		? 'bg-green-50 text-green-700 border border-green-200'
-																		: 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+																	item.completedLoadingProduct === 0
+																		? 'bg-yellow-800 text-white border border-yellow-800'
+																		: ' bg-green-800 text-white border border-green-800'
 																}`}
 															>
-																{item.completedLoadingProduct === 1
-																	? 'Completed'
-																	: 'Pending'}
+																{item.completedLoadingProduct === 0
+																	? 'Pending'
+																	: 'Completed'}
 															</span>
 														</TableCell>
 													</TableRow>

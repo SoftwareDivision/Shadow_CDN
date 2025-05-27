@@ -40,8 +40,7 @@ const CustomerMaster = lazy(() => import('../Pages/Masters/CustomerMaster/Index'
 const CustomerAddOrEdit = lazy(() => import('../Pages/Masters/CustomerMaster/AddOrEdit'));
 const TransportMaster = lazy(() => import('../Pages/Masters/transportMaster/Index'));
 const TransportAddOrEdit = lazy(() => import('../Pages/Masters/transportMaster/AddOrEdit'));
-
-
+const RE12FileGeneration = lazy(() => import('../Pages/Dispatch/RE12FileGeneration/RE12FileGeneration'));
 
 // Add this import at the top with other lazy imports
 const ResetTypeMaster = lazy(() => import('../Pages/Masters/ResetTypeMaster/Index'));
@@ -203,7 +202,6 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
-
 
 							<Route
 								path="/plant-master"
@@ -391,6 +389,15 @@ export default function RoutesComponent() {
 
 							{/* Add this route inside the MainLayout routes */}
 							<Route
+								path="/re12-file-generation"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RE12FileGeneration />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
 								path="/re11-indent-generation"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
@@ -457,7 +464,6 @@ export default function RoutesComponent() {
 								}
 							/>
 
-
 							<Route
 								path="/brand-master"
 								element={
@@ -482,7 +488,6 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
-
 
 							<Route
 								path="/shift-master"
@@ -535,7 +540,7 @@ export default function RoutesComponent() {
 							/>
 
 							<Route
-								path='/customer-master'
+								path="/customer-master"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<CustomerMaster />
@@ -543,7 +548,7 @@ export default function RoutesComponent() {
 								}
 							/>
 							<Route
-								path='/customer-master/add'
+								path="/customer-master/add"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<CustomerAddOrEdit />
@@ -551,7 +556,7 @@ export default function RoutesComponent() {
 								}
 							/>
 							<Route
-								path='/customer-master/edit/:id'
+								path="/customer-master/edit/:id"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<CustomerAddOrEdit />
@@ -560,7 +565,7 @@ export default function RoutesComponent() {
 							/>
 
 							<Route
-								path='/transport-master'
+								path="/transport-master"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<TransportMaster />
@@ -568,7 +573,7 @@ export default function RoutesComponent() {
 								}
 							/>
 							<Route
-								path='/transport-master/add'
+								path="/transport-master/add"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<TransportAddOrEdit />
@@ -576,7 +581,7 @@ export default function RoutesComponent() {
 								}
 							/>
 							<Route
-								path='/transport-master/edit/:id'
+								path="/transport-master/edit/:id"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<TransportAddOrEdit />
@@ -593,8 +598,6 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
-
-
 						</Route>
 
 						{/* Catch-all 404 page */}
