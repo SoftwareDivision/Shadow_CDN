@@ -104,13 +104,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/customer-master",
           },
           {
-            title:"Brand Master",
+            title: "Brand Master",
             url: "/brand-master",
           },
           {
-            title:"Transpoter Master",
-            url: "/transporter-master",
-          },
+            title: "Transport Master", // Fix typo in title
+            url: "/transport-master", // Match with route path
+        },
           {
             title: "Reset masters",
             url: "/reset-type-master", // Remove the 's'

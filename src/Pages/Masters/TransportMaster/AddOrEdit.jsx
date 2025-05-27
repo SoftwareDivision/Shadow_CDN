@@ -1,10 +1,25 @@
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { useAuthToken } from '../../../hooks/useAuth';
+import { useAuthToken } from '@/hooks/authStore.js';
 import { useSnackbar } from 'notistack';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
+} from "@/components/ui/table";
+
 
 // Vehicle Schema with foreign key relationship
 const vehicleSchema = yup.object().shape({
@@ -47,14 +62,15 @@ function AddOrEdit() {
     const { token } = useAuthToken.getState();
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
+    const tokendata = token.data.token;
 
     // Add UOM state
     const [uoms, setUoms] = useState([]);
 
     const { data: uomData } = useQuery({
         queryKey: ['uoms'],
-        queryFn: () => getUOMDetails(token.data.token),
-        enabled: !!token.data.token
+        queryFn: () => getUOMDetails(tokendata),
+        enabled: !!tokendata,
     });
 
     // Update UOM data formatting
@@ -62,7 +78,7 @@ function AddOrEdit() {
         if (uomData) {
             const uomOptions = uomData.map(uom => ({
                 value: uom.uomcode,
-                text: `${uom.uomcode} - ${uom.uomdesc}`
+                text: uom.uomcode
             }));
             setUoms(uomOptions);
         }
@@ -156,137 +172,243 @@ function AddOrEdit() {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="container mx-auto py-6">
-            <div className="grid grid-cols-3 gap-4 mb-4">
-                {/* Transport Details */}
-                <div className="col-span-3">
-                    <h2 className="text-xl font-semibold mb-4">Transport Details</h2>
-                    <div className="grid grid-cols-3 gap-4">
-                        <Input
-                            label="Transport Name"
-                            {...register('tName')}
-                            error={errors.tName?.message}
-                        />
-                        <Input
-                            label="GST No"
-                            {...register('gstno')}
-                            error={errors.gstno?.message}
-                        />
-                        <Input
-                            label="Address"
-                            {...register('addr')}
-                            error={errors.addr?.message}
-                        />
-                        <Input
-                            label="State"
-                            {...register('state')}
-                            error={errors.state?.message}
-                        />
-                        <Input
-                            label="City"
-                            {...register('city')}
-                            error={errors.city?.message}
-                        />
-                        <Input
-                            label="District"
-                            {...register('district')}
-                            error={errors.district?.message}
-                        />
-                        <Input
-                            label="Tahsil"
-                            {...register('tahsil')}
-                            error={errors.tahsil?.message}
-                        />
-                    </div>
-                </div>
+        <Card className="p-4 shadow-md w-full mx-auto">
+            <div>
+                <h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} Transporter</h2>
+            </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="container mx-auto py-2">
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                    {/* Transport Details */}
+                    <div className="col-span-3">
+                        <h2 className="text-xl font-semibold mb-4">Transport Details</h2>
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                                <label htmlFor="tName" className="text-sm font-medium">
+                                    Transport Name
+                                </label>
+                                <Input id="tName" {...register('tName')} className={errors.tName ? 'border-red-500' : ''} />
+                                {errors.tName && <span className="text-sm text-red-500">{errors.tName.message}</span>}
+                            </div>
 
-                {/* Vehicles Section */}
-                <div className="col-span-3">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold">Vehicles</h2>
-                        <Button onClick={() => appendVehicle({ id: 0, vehicleNo: '', license: '', validity: '', wt: '', unit: '' })}>
-                            Add Vehicle
-                        </Button>
+
+                            <div className="space-y-2">
+                                <label htmlFor="addr" className="text-sm font-medium">
+                                    Address
+                                </label>
+                                <Input id="addr" {...register('addr')} className={errors.addr ? 'border-red-500' : ''} />
+                                {errors.addr && <span className="text-sm text-red-500">{errors.addr.message}</span>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="gstno" className="text-sm font-medium">
+                                    GST No
+                                </label>
+                                <Input id="gstno" {...register('gstno')} className={errors.gstno ? 'border-red-500' : ''} />
+                                {errors.gstno && <span className="text-sm text-red-500">{errors.gstno.message}</span>}
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <label htmlFor="state" className="text-sm font-medium">
+                                    State
+                                </label>
+                                <Input id="state" {...register('state')} className={errors.state ? 'border-red-500' : ''} />
+                                {errors.state && <span className="text-sm text-red-500">{errors.state.message}</span>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="city" className="text-sm font-medium">
+                                    City
+                                </label>
+                                <Input id="city" {...register('city')} className={errors.city ? 'border-red-500' : ''} />
+                                {errors.city && <span className="text-sm text-red-500">{errors.city.message}</span>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="district" className="text-sm font-medium">
+                                    District
+                                </label>
+                                <Input id="district" {...register('district')} className={errors.district ? 'border-red-500' : ''} />
+                                {errors.district && <span className="text-sm text-red-500">{errors.district.message}</span>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="tahsil" className="text-sm font-medium">
+                                    Tahsil
+                                </label>
+                                <Input id="tahsil" {...register('tahsil')} className={errors.tahsil ? 'border-red-500' : ''} />
+                                {errors.tahsil && <span className="text-sm text-red-500">{errors.tahsil.message}</span>}
+                            </div>
+                        </div>
                     </div>
-                    {vehicleFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-6 gap-4 mb-4">
-                            <Input
-                                {...register(`vehicles.${index}.vehicleNo`)}
-                                label="Vehicle No"
-                                error={errors.vehicles?.[index]?.vehicleNo?.message}
-                            />
-                            <Input
-                                {...register(`vehicles.${index}.license`)}
-                                label="License"
-                                error={errors.vehicles?.[index]?.license?.message}
-                            />
-                            <Input
-                                type="date"
-                                {...register(`vehicles.${index}.validity`)}
-                                label="Validity"
-                                error={errors.vehicles?.[index]?.validity?.message}
-                            />
-                            <Input
-                                type="number"
-                                {...register(`vehicles.${index}.wt`)}
-                                label="Weight"
-                                error={errors.vehicles?.[index]?.wt?.message}
-                            />
-                            <Select
-                                {...register(`vehicles.${index}.unit`)}
-                                label="Unit"
-                                options={uoms}
-                                error={errors.vehicles?.[index]?.unit?.message}
-                            />
-                            <Button variant="destructive" onClick={() => removeVehicle(index)}>
-                                Remove
+
+                    {/* Vehicles Section */}
+                    <div className="col-span-3">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-semibold">Vehicles</h2>
+                            <Button onClick={() => appendVehicle({ id: 0, vehicleNo: '', license: '', validity: '', wt: '', unit: '' })}>
+                                <Plus className="h-4 w-4 mr-1" />
+                                Add Vehicle
                             </Button>
                         </div>
-                    ))}
-                </div>
-
-                {/* Members Section */}
-                <div className="col-span-3">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold">Members</h2>
-                        <Button onClick={() => appendMember({ id: 0, name: '', email: '', contactNo: '' })}>
-                            Add Member
-                        </Button>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Vehicle No</TableHead>
+                                    <TableHead>License</TableHead>
+                                    <TableHead>Validity</TableHead>
+                                    <TableHead>Weight</TableHead>
+                                    <TableHead>Unit</TableHead>
+                                    <TableHead className="w-[100px]">Action</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {vehicleFields.map((field, index) => (
+                                    <TableRow key={field.id}>
+                                        <TableCell>
+                                            <Input
+                                                {...register(`vehicles.${index}.vehicleNo`)}
+                                                error={errors.vehicles?.[index]?.vehicleNo?.message}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Input
+                                                {...register(`vehicles.${index}.license`)}
+                                                error={errors.vehicles?.[index]?.license?.message}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Input
+                                                type="date"
+                                                {...register(`vehicles.${index}.validity`)}
+                                                error={errors.vehicles?.[index]?.validity?.message}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Input
+                                                type="number"
+                                                {...register(`vehicles.${index}.wt`)}
+                                                error={errors.vehicles?.[index]?.wt?.message}
+                                            />
+                                        </TableCell>
+                                        <TableCell className='w-[150px]'>
+                                            <Controller
+                                                name={`vehicles.${index}.unit`}
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Select
+                                                        value={field.value}
+                                                        onValueChange={field.onChange}
+                                                    >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Select unit..." />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectGroup>
+                                                                {uoms.map((uom) => (
+                                                                    <SelectItem
+                                                                        key={uom.value}
+                                                                        value={uom.value}
+                                                                    >
+                                                                        {uom.text}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectGroup>
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell className='w-[20px]'>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-red-500 hover:text-red-700"
+                                                onClick={() => removeVehicle(index)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
                     </div>
-                    {memberFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-4 gap-4 mb-4">
-                            <Input
-                                {...register(`members.${index}.name`)}
-                                label="Name"
-                                error={errors.members?.[index]?.name?.message}
-                            />
-                            <Input
-                                {...register(`members.${index}.email`)}
-                                label="Email"
-                                error={errors.members?.[index]?.email?.message}
-                            />
-                            <Input
-                                {...register(`members.${index}.contactNo`)}
-                                label="Contact No"
-                                error={errors.members?.[index]?.contactNo?.message}
-                            />
-                            <Button variant="destructive" onClick={() => removeMember(index)}>
-                                Remove
+
+                    {/* Members Section */}
+                    <div className="col-span-3">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-semibold">Members</h2>
+                            <Button onClick={() => appendMember({ id: 0, name: '', email: '', contactNo: '' })}>
+                                <Plus className="h-4 w-4 mr-1" />
+                                Add Member
                             </Button>
                         </div>
-                    ))}
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Email</TableHead>
+                                    <TableHead>Contact No</TableHead>
+                                    <TableHead className="w-[100px]">Action</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {memberFields.map((field, index) => (
+                                    <TableRow key={field.id}>
+                                        <TableCell>
+                                            <Input
+                                                {...register(`members.${index}.name`)}
+                                                error={errors.members?.[index]?.name?.message}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Input
+                                                {...register(`members.${index}.email`)}
+                                                error={errors.members?.[index]?.email?.message}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Input
+                                                {...register(`members.${index}.contactNo`)}
+                                                error={errors.members?.[index]?.contactNo?.message}
+                                            />
+                                        </TableCell>
+                                        <TableCell className='w-[20px]'>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-red-500 hover:text-red-700"
+                                                onClick={() => removeMember(index)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </div>
-            </div>
 
-            <div className="flex justify-end gap-4">
-                <Button variant="outline" onClick={() => navigate('/transport-master')}>
-                    Cancel
-                </Button>
-                <Button type="submit" disabled={mutation.isLoading}>
-                    {id ? 'Update' : 'Create'} Transport
-                </Button>
-            </div>
-        </form>
+                <div className="flex justify-end gap-4">
+                    <Button variant="outline" onClick={() => navigate('/transport-master')}>
+                        Cancel
+                    </Button>
+                    <Button type="submit" disabled={mutation.isLoading}>
+                        {mutation.isLoading ? (
+                            <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Saving...
+                            </>
+                        ) : (
+                            'Save'
+                        )}
+                    </Button>
+                </div>
+            </form>
+        </Card>
     );
 }
 
