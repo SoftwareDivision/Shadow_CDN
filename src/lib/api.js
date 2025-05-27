@@ -227,5 +227,8 @@ export const createTransport = (t, data) => postData('/TransportMasters/CreateTr
 export const updateTransport = (t, data) => putData(`/TransportMasters/UpdateTransport/${data.id}`, t, data);
 export const deleteTransport = (t, id) => deleteData(`/TransportMasters/DeleteTransport/${id}`, t);
 
+//re12
+export const getRe12IndentDetails = (t) => getAll('/RE12Gens/GetRe12s', t);
+export const createRe12Indent = (token, data) => postData('/RE12Gens/CreateRe12', token, data);
 // Export API instance if needed elsewhere
 export default api;

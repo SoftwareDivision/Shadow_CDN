@@ -168,16 +168,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/loading-sheets",
           },
           {
-            title: "Team",
-            url: "#",
-          },
-          {
-            title: "Billing",
-            url: "#",
-          },
-          {
-            title: "Limits",
-            url: "#",
+            title: "RE12 File Generation",
+            url: "/re12-file-generation",
           },
         ],
       },
