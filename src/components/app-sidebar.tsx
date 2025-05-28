@@ -110,7 +110,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "Transport Master", // Fix typo in title
             url: "/transport-master", // Match with route path
-        },
+          },
           {
             title: "Reset masters",
             url: "/reset-type-master", // Remove the 's'
