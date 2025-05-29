@@ -35,8 +35,9 @@ const formatDate = (date) => {
 };
 
 const handleResponse = (res) => {
-	const { status, statusCode, data } = res.data;
+	const { status, statusCode, data, message } = res.data;
 	console.log('API Response:', data);
+
 	if ((status && statusCode === 200) || statusCode === 201) return data;
 	throw new Error(data || 'Operation failed');
 };
@@ -230,5 +231,14 @@ export const deleteTransport = (t, id) => deleteData(`/TransportMasters/DeleteTr
 //re12
 export const getRe12IndentDetails = (t) => getAll('/RE12Gens/GetRe12s', t);
 export const createRe12Indent = (token, data) => postData('/RE12Gens/CreateRe12', token, data);
+
+// Production Report API
+export const getProductionReport = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return getAll(`/Reports/Getproreport?${queryParams}`, token);
+};
+
+// ... existing code ...
+
 // Export API instance if needed elsewhere
 export default api;
