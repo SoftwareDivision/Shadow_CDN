@@ -37,8 +37,10 @@ export function useWebSocket() {
 						content: content,
 						timestamp: new Date().toISOString(),
 					};
+
 					setNotifications((prev) => [...prev, notification]);
 					setNotificationCount((prev) => prev + 1);
+
 					enqueueSnackbar(content, { variant: 'info', autoHideDuration: 3000 });
 					return;
 				}
