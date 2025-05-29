@@ -15,10 +15,31 @@ import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useWebSocketContext } from '@/hooks/WebSocketContext';
+import SweetAlert2 from 'react-sweetalert2';
+import { useEffect, useState } from 'react';
 
 export default function MainLayout() {
 	const location = useLocation();
 	const { notifications, notificationCount, clearNotifications } = useWebSocketContext(); // Use context
+
+	const [swalProps, setSwalProps] = useState(null);
+
+	useEffect(() => {
+		if (notifications.length > 0) {
+			console.log('Notification:', notifications[notifications.length - 1]);
+			const notification = notifications[notifications.length - 1];
+			setSwalProps({
+				show: true,
+				title: 'Notification',
+				html: notification.content,
+				icon: 'info',
+				confirmButtonText: 'OK',
+				onConfirm: () => {
+					setSwalProps(null);
+				},
+			});
+		}
+	}, [notifications, setSwalProps]);
 
 	const breadcrumbMap = {
 		'/dashboard': { parent: 'Home', current: 'Dashboard' },
@@ -167,6 +188,12 @@ export default function MainLayout() {
 				</header>
 				<main className="flex-1 container mx-auto p-4">
 					<Outlet />
+					<SweetAlert2
+						{...swalProps}
+						didClose={() => {
+							setSwalProps(null);
+						}}
+					/>
 				</main>
 				<footer className="sticky top-[100vh] mt-auto border-t">
 					<div className="container mx-auto py-4 px-4">

@@ -1,12 +1,10 @@
+import React from 'react';
 import { SectionCards } from './section-cards';
 import { ChartAreaInteractive } from './chart-area-interactive';
 import DataTable from '@/components/DataTable';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -15,7 +13,6 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { CheckCircle2Icon, GripVerticalIcon, LoaderIcon, MoreVerticalIcon } from 'lucide-react';
-import { toast } from 'sonner';
 import { useSortable } from '@dnd-kit/sortable';
 import { Card } from '@/components/ui/card';
 
