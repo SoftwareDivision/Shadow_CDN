@@ -93,6 +93,10 @@ export default function MainLayout() {
 		'/l1reprint': { parent: 'Reprint', current: 'L1 Reprint' },
 		'/l2reprint': { parent: 'Reprint', current: 'L2 Reprint' },
 		'/production-report': { parent: 'Reports', current: 'Production Report' },
+		'/dispatch-report': { parent: 'Reports', current: 'Dispatch Report' },
+		'/storage-report': { parent: 'Reports', current: 'Storage Report' },
+		'/re11-status-report': { parent: 'Reports', current: 'RE11 Status Report' },
+		'/re2-status-report': { parent: 'Reports', current: 'RE2 Status Report' },
 	};
 
 	const getPathInfo = (path) => {

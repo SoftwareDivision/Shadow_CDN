@@ -62,6 +62,10 @@ const AddOrEditLoadingSheet = lazy(() => import('@/Pages/Dispatch/LoadingSheet/A
 
 //Reports
 const Production_Report = lazy(() => import('../Pages/Reports/Production Report/Index'));
+const Storage_Report = lazy(() => import('../Pages/Reports/Storage Report/Index'));
+const Dispatch_Report = lazy(() => import('../Pages/Reports/Dispatch Report/Index'));
+const RE11_Status_Report = lazy(() => import('../Pages/Reports/RE11 Status Report/Index'));
+const RE2_Status_Report = lazy(() => import('../Pages/Reports/RE2 Status Report/Index'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -629,6 +633,44 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+
+							<Route
+								path='/storage-report'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<Storage_Report />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path='/dispatch-report' // This is the URL path
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<Dispatch_Report />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path='/re11-status-report' // This is the URL path
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RE11_Status_Report />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path='/re2-status-report' // This is the URL path
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RE2_Status_Report />
+									</SuspenseWrapper>
+								}
+							/>
+
+							
 						</Route>
 						{/* Catch-all 404 page */}
 						<Route
