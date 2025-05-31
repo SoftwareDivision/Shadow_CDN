@@ -36,9 +36,14 @@ const formatDate = (date) => {
 
 const handleResponse = (res) => {
 	const { status, statusCode, data, message } = res.data;
-	console.log('API Response:', data);
-
+	console.log('API Response:', res.data);
 	if ((status && statusCode === 200) || statusCode === 201) return data;
+	if (statusCode === 400 || statusCode === 404) {
+		enqueueSnackbar(message, {
+			variant: 'error',
+			anchorOrigin: { vertical: 'top', horizontal: 'right' },
+		});
+	}
 	throw new Error(data || 'Operation failed');
 };
 
@@ -267,4 +272,19 @@ export const getRe2StatusReport = (token, params) => {
 
 
 // Export API instance if needed elsewhere
+
+// reprint
+export const reprintL1Barcode = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/L1ReprintReport/GetL1Reprintbarcd?${queryParams}`, token);
+};
+export const sendreprintL1Barcode = (token, data) => postData('/L1ReprintReport/REPrintdetailslone', token, data);
+
+// l2reprint
+export const reprintL2Barcode = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/L2ReprintReport/GetReprintbar?${queryParams}`, token);
+};
+export const sendreprintL2Barcode = (token, data) => postData('/L2ReprintReport/REPrintdetailsLTwo', token, data);
+
 export default api;
