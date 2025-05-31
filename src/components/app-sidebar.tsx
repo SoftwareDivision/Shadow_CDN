@@ -183,9 +183,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/production-report",
           },
           {
-            title: "2D Barcode Generation",
-            url: "/2Dbarcode-generation",
+            title: "Storage Report",
+            url: "/storage-report",
           },
+          {
+            title: "Dispatch Report",
+            url: "/dispatch-report",
+          },
+          {
+            title: "RE11 Status Report",
+            url: "/re11-status-report",
+          },
+          {
+            title: "RE2 Status Report",
+            url: "/re2-status-report",
+          }
         ],
       },
       {

@@ -9,7 +9,7 @@ import { CalendarIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 // Assuming getPlantDetails, getShiftDetails, getBrands, and getProductSizes are available in your api.js
-import { getPlantDetails, getShiftDetails, getProductionReport, getProductDetails } from '@/lib/api';
+import { getRe2StatusReport, getProductDetails } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
 
 import { Card } from '@/components/ui/card';
@@ -30,12 +30,11 @@ import {
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DataTable from '@/components/DataTable';
 
 
 
-function Production_Report() {
+function RE2_Status_Report() {
     const { token } = useAuthToken.getState();
     const tokendata = token.data.token;
 
@@ -44,9 +43,7 @@ function Production_Report() {
         reportType: yup.string().required('Report type is required'),
         fromDate: yup.date().required('From date is required'),
         toDate: yup.date().required('To date is required'),
-        shift: yup.string().required('Shift is required'),
-        plantId: yup.string().required('Plant is required'),
-        brand: yup.string().required('Brand is required'),
+        re2Status: yup.string().required('RE2 Status is required'),
         productsize: yup.string().required('Product Size is required'),
     });
 
@@ -61,10 +58,9 @@ function Production_Report() {
         resolver: yupResolver(formSchema),
         defaultValues: {
             reportType: 'Detailed',
-            plantId: 'all',
             fromDate: null,
             toDate: null,
-            shift: 'all',
+            re2Status: 'all',
             brand: 'all',
             productsize: 'all',
         },
@@ -73,8 +69,6 @@ function Production_Report() {
 
     const [fromDate, setFromDate] = React.useState(null);
     const [toDate, setToDate] = React.useState(null);
-    const [plants, setPlants] = React.useState([]);
-    const [shifts, setShifts] = useState([]);
     const [products, setProducts] = useState([]);
     const [productSizes, setProductSizes] = useState([]);
     const [reportData, setReportData] = React.useState(null);
@@ -83,28 +77,6 @@ function Production_Report() {
 
     const { enqueueSnackbar } = useSnackbar();
 
-    //plant details
-    const {
-        data: plantData,
-        isLoading: isPlantFetching,
-        error: fetchplantError,
-    } = useQuery({
-        queryKey: ['plantData'],
-        queryFn: () => getPlantDetails(tokendata),
-        enabled: !!tokendata,
-    });
-
-
-    //shift details
-    const {
-        data: shiftData,
-        isLoading: isShiftFetching,
-        error: fetchShiftError,
-    } = useQuery({
-        queryKey: ['shiftData'],
-        queryFn: () => getShiftDetails(tokendata),
-        enabled: !!tokendata,
-    });
 
     const {
         data: productData,
@@ -118,25 +90,24 @@ function Production_Report() {
 
 
     useEffect(() => {
-        if (plantData) {
-            const plantOptions = plantData?.map((plant) => ({
-                value: plant.pName,
-                text: plant.pName,
-                disabled: false,
-            }));
-            plantOptions.unshift({ value: 'all', text: 'All', disabled: false });
-            setPlants(plantOptions);
+        if (productData) {
+            const productOptions = [
+                ...new Set(
+                    productData
+                        ?.map((product) => product.bname), // Then extract names
+                ),
+            ]
+                .sort((a, b) => a.localeCompare(b)) // Proper alphabetical sort
+                .map((bname) => ({
+                    value: bname,
+                    text: bname,
+                    disabled: false,
+                }));
+            productOptions.unshift({ value: 'all', text: 'All', disabled: false });
+            setProducts(productOptions);
         }
-        if (shiftData) {
-            const shiftOptions = [...new Set(shiftData?.map((shift) => shift.shift))].sort().map((shift) => ({
-                value: shift,
-                text: shift,
-                disabled: false,
-            }));
 
-            setShifts(shiftOptions);
-        }
-    }, [reset, plantData, shiftData]);
+    }, [reset, productData]);
 
     // Handle form submission
     const onSubmit = async (data) => {
@@ -148,8 +119,7 @@ function Production_Report() {
         const formattedToDate = data.toDate ? format(data.toDate, 'yyyy-MM-dd') : '';
 
         // Handle 'all' values for shift, plant, brand and productsize
-        const selectedShift = data.shift === 'all' ? '' : data.shift;
-        const selectedPlant = data.plantId === 'all' ? '' : data.plantId;
+        const selectedRe2Status = data.re2Status === 'all' ? '' : data.re2Status;
         const selectedBrand = data.brand === 'all' ? '' : data.brand;
         const selectedProductSize = data.productsize === 'all' ? '' : data.productsize;
         setReportType(data.reportType);
@@ -157,8 +127,7 @@ function Production_Report() {
             fromDate: formattedFromDate,
             toDate: formattedToDate,
             reportType: data.reportType,
-            shift: selectedShift,
-            plant: selectedPlant,
+            re2Status: selectedRe2Status ? parseInt(selectedRe2Status) : selectedRe2Status,
             brand: selectedBrand,
             productsize: selectedProductSize,
         };
@@ -166,9 +135,10 @@ function Production_Report() {
 
         try {
             // Make the API call using the new function
-            const result = await getProductionReport(tokendata, reportParams);
+            const result = await getRe2StatusReport(tokendata, reportParams);
 
             enqueueSnackbar('Report fetched successfully', { variant: 'success' });
+
             console.log('Report Data:', result);
             setReportData(result); // Store the report data
             setIsLoadingReport(false);
@@ -179,8 +149,8 @@ function Production_Report() {
 
     console.log('Report Data from setreportData:', reportData)
 
-    const loading = isLoadingReport || isShiftFetching || isPlantFetching || isProductFetching;
-    const allerrors = fetchShiftError || fetchplantError || fetchProductError;
+    const loading = isLoadingReport || isProductFetching;
+    const allerrors = fetchProductError;
 
     if (allerrors) {
         enqueueSnackbar(allerrors.message || 'Failed to fetch data', { variant: 'error' });
@@ -191,44 +161,48 @@ function Production_Report() {
 
     const detailedReportColumns = [
         {
-            accessorKey: 'plantname',
-            header: 'Plant Name',
-        },
-        {
-            accessorKey: 'shift',
-            header: 'Shift',
-        },
-        {
             accessorKey: 'brandname',
             header: 'Brand Name',
         },
         {
             accessorKey: 'productsize',
             header: 'Product Size',
+        },
+        {
+            accessorKey: 'magname',
+            header: 'Magazine Name',
+        },
+        {
+            accessorKey: 'unloadDt',
+            header: 'Unload Date',
+            cell: ({ row }) => {
+                const date = row.getValue('unloadDt');
+                return date ? format(new Date(date), 'dd/MM/yyyy') : '';
+            }
         },
         {
             accessorKey: 'l1barcode',
             header: 'L1 Barcode',
         },
         {
-            accessorKey: 'l1netqty',
-            header: 'Net Wt.',
-        },
-        {
-            accessorKey: 'l1netunit',
-            header: 'Net Unit',
+            accessorKey: 're2status',
+            header: 'RE2 Status',
+            cell: ({ row }) => {
+                const status = row.getValue('re2status');
+                return (
+                    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                        ${status === 1
+                            ? 'bg-green-900 '
+                            : 'bg-red-900 '
+                        }`}>
+                        {status === 1 ? 'Completed' : 'Pending'}
+                    </div>
+                );
+            }
         }
     ];
 
     const summaryReportColumns = [
-        {
-            accessorKey: 'plantname',
-            header: 'Plant Name',
-        },
-        {
-            accessorKey: 'shift',
-            header: 'Shift',
-        },
         {
             accessorKey: 'brandname',
             header: 'Brand Name',
@@ -238,16 +212,35 @@ function Production_Report() {
             header: 'Product Size',
         },
         {
-            accessorKey: 'boxcount',
-            header: 'Box Qty.',
+            accessorKey: 'magname',
+            header: 'Magazine Name',
         },
         {
-            accessorKey: 'l1netqty',
-            header: 'Net Wt.',
+            accessorKey: 'unloadDt',
+            header: 'Unload Date',
+            cell: ({ row }) => {
+                const date = row.getValue('unloadDt');
+                return date ? format(new Date(date), 'dd/MM/yyyy') : '';
+            }
         },
         {
-            accessorKey: 'l1netunit',
-            header: 'Net Unit',
+            accessorKey: 'l1barcode',
+            header: 'Box Count',
+        },
+        {
+            accessorKey: 're2status',
+            header: 'RE2 Status',
+            cell: ({ row }) => {
+                const status = row.getValue('re2status');
+                return (
+                    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status === 1
+                        ? 'bg-green-900 '
+                        : 'bg-red-900 '
+                        }`}>
+                        {status === 1 ? 'Completed' : 'Pending'}
+                    </div>
+                );
+            }
         }
     ];
 
@@ -255,7 +248,7 @@ function Production_Report() {
     return (
         <Card className="p-4 shadow-md">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-semibold">Production Report</h1>
+                <h1 className="text-2xl font-semibold">RE2 Status Report</h1>
             </div>
             {/* Updated onSubmit handler */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -276,7 +269,7 @@ function Production_Report() {
                             <label htmlFor="detailed_summary">Detailed Summary</label>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="summary" id="summary" />
+                            <RadioGroupItem value="Summary" id="summary" />
                             <label htmlFor="summary">Summary</label>
                         </div>
                     </RadioGroup>
@@ -296,8 +289,9 @@ function Production_Report() {
                 <div className="grid grid-cols-1 gap-5">
                     {/* MFG Date Wise */}
                     <div>
-                        <h6 className="mb-2 font-semibold">MFG Date Wise :</h6>
+                        <h6 className="mb-2 font-semibold">Stock Date Wise :</h6>
                         <div className="grid grid-cols-2 gap-4">
+
                             {/* From Date */}
                             <div>
                                 <label htmlFor="fromDate" className="text-sm font-medium">
@@ -366,100 +360,6 @@ function Production_Report() {
 
 
 
-                <div className="grid grid-cols-2 gap-5">
-                    <Controller
-                        name="plantId"
-                        control={control}
-                        render={({ field }) => (
-                            // plantName                           
-                            <div className="flex flex-col gap-y-2">
-                                <Label>Plant Name</Label>
-                                <Select
-                                    value={field.value}
-                                    onValueChange={(value) => {
-                                        field.onChange(value);
-                                        // Filter products by plant code or appropriate field
-                                        const productOptions = [
-                                            ...new Set(
-                                                productData
-                                                    ?.filter((product) => product.ptype === value) // Use pCode or correct field
-                                                    ?.map((product) => product.bname),
-                                            ),
-                                        ]
-                                            .sort((a, b) => a.localeCompare(b))
-                                            .map((bname) => ({
-                                                value: bname,
-                                                text: bname,
-                                                disabled: false,
-                                            }));
-                                        setProducts(productOptions);
-                                    }}
-                                >
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select plant..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-
-                                        <SelectGroup>
-                                            {plants.map((plant) => (
-                                                <SelectItem
-                                                    key={plant.value}
-                                                    value={plant.value}
-                                                    disabled={plant.disabled}
-                                                >
-                                                    {plant.text}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                {errors.plantId && (
-                                    <span className="text-destructive text-sm">{errors.plantId.message}</span>
-                                )}
-                            </div>
-                        )}
-                    />
-                    {/* Shift dropdown */}
-                    <div className="flex flex-col gap-y-2">
-                        <Controller
-                            name="shift"
-                            control={control}
-                            render={({ field }) => (
-                                <div className="flex flex-col gap-y-2">
-                                    <Label>Shift</Label>
-                                    <Select
-                                        value={field.value}
-                                        onValueChange={(value) => {
-                                            field.onChange(value);
-                                        }}
-                                    >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select Shift..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All</SelectItem>
-                                            <SelectGroup>
-                                                {shifts.map((shift) => (
-                                                    <SelectItem
-                                                        key={shift.value}
-                                                        value={shift.value}
-                                                        disabled={shift.disabled}
-                                                    >
-                                                        {shift.text}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.shift && (
-                                        <span className="text-destructive text-sm">{errors.shift.message}</span>
-                                    )}
-                                </div>
-                            )}
-                        />
-                    </div>
-
-                </div>
 
                 {/* saprater */}
                 <div className="relative my-2">
@@ -467,76 +367,107 @@ function Production_Report() {
                         <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center">
-                        <span className="bg-transparent  px-2 text-sm font-medium">Product Details</span>
+                        <span className="bg-transparent  px-2 text-sm font-medium">RE2 Status And Product Details</span>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-5">
-                    {/* brand dropdown */}
+                <div className="grid grid-cols-3 gap-5">
+
+                    {/* Re2 Status dropdown */}
                     <div className="flex flex-col gap-y-2">
                         <Controller
-                            name="brand" // Changed from brandName to brand as per formSchema
+                            name="re2Status"
                             control={control}
                             render={({ field }) => (
                                 <div className="flex flex-col gap-y-2">
-                                    <Label>Brand Name</Label>
+                                    <Label>RE2 Status</Label>
                                     <Select
                                         value={field.value}
                                         onValueChange={(value) => {
                                             field.onChange(value);
-                                            setValue('productsize', '');
-                                            setProductSizes([]);
-
-                                            if (value === 'all') {
-                                                setProductSizes([]);
-                                                setValue('brandId', '');
-                                            } else {
-                                                const selected = productData?.find((p) => p.bname === value);
-                                                if (selected) {
-                                                    setValue('brandId', selected?.bid);
-                                                    const productOptions = [
-                                                        ...new Set(
-                                                            productData
-                                                                ?.filter((product) => product.bid === selected.bid)
-                                                                ?.map((product) => product.psize),
-                                                        ),
-                                                    ]
-                                                        .sort((a, b) => a.localeCompare(b))
-                                                        .map((psize) => ({
-                                                            value: psize,
-                                                            text: psize,
-                                                            disabled: false,
-                                                        }));
-                                                    setProductSizes(productOptions);
-                                                }
-                                            }
                                         }}
                                     >
                                         <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select Brand..." />
+                                            <SelectValue placeholder="Select RE2 Status..." />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="all">All</SelectItem>
-                                            <SelectGroup>
-                                                {products.map((product, index) => ( // Changed 'plant' to 'product'
-                                                    <SelectItem
-                                                        key={`${product.value}-${index}`} // Added index for uniqueness
-                                                        value={product.value}
-                                                        disabled={product.disabled}
-                                                    >
-                                                        {product.text}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectGroup>
+                                            <SelectItem value="0">Pending</SelectItem>
+                                            <SelectItem value="1">Completed</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.brand && ( // Corrected error message key
-                                        <span className="text-destructive text-sm">{errors.brand.message}</span>
+                                    {errors.re2 && (
+                                        <span className="text-destructive text-sm">{errors.re2.message}</span>
                                     )}
                                 </div>
                             )}
                         />
                     </div>
+
+                    {/* Brand dropdown */}
+                    <Controller
+                        name="brand" // Changed from brandName to brand as per formSchema
+                        control={control}
+                        render={({ field }) => (
+                            <div className="flex flex-col gap-y-2">
+                                <Label>Brand Name</Label>
+                                <Select
+                                    value={field.value}
+                                    onValueChange={(value) => {
+                                        field.onChange(value);
+                                        setValue('productsize', '');
+                                        setProductSizes([]);
+
+                                        if (value === 'all') {
+                                            setProductSizes([]);
+                                            setValue('brandId', '');
+                                        } else {
+                                            const selected = productData?.find((p) => p.bname === value);
+                                            if (selected) {
+                                                setValue('brandId', selected?.bid);
+                                                const productOptions = [
+                                                    ...new Set(
+                                                        productData
+                                                            ?.filter((product) => product.bid === selected.bid)
+                                                            ?.map((product) => product.psize),
+                                                    ),
+                                                ]
+                                                    .sort((a, b) => a.localeCompare(b))
+                                                    .map((psize) => ({
+                                                        value: psize,
+                                                        text: psize,
+                                                        disabled: false,
+                                                    }));
+                                                setProductSizes(productOptions);
+                                            }
+                                        }
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Select Brand..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            {products.map((product) => ( // Changed 'plant' to 'product'
+                                                <SelectItem
+                                                    key={product.value}// Added index for uniqueness
+                                                    value={product.value}
+                                                    disabled={product.disabled}
+                                                >
+                                                    {product.text}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                {errors.brand && ( // Corrected error message key
+                                    <span className="text-destructive text-sm">{errors.brand.message}</span>
+                                )}
+                            </div>
+                        )}
+                    />
+
+
                     {/* Product size */}
                     <div className="flex flex-col gap-y-2">
                         <Controller
@@ -615,4 +546,4 @@ function Production_Report() {
     );
 }
 
-export default Production_Report;
+export default RE2_Status_Report;

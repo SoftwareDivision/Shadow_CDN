@@ -9,7 +9,7 @@ import { CalendarIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 // Assuming getPlantDetails, getShiftDetails, getBrands, and getProductSizes are available in your api.js
-import { getPlantDetails, getShiftDetails, getProductionReport, getProductDetails } from '@/lib/api';
+import { getMagzineDetails, getDispatchReport, getCustomerDetails, getIndentOnly } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
 
 import { Card } from '@/components/ui/card';
@@ -30,12 +30,11 @@ import {
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DataTable from '@/components/DataTable';
 
 
 
-function Production_Report() {
+function Dispatch_Report() {
     const { token } = useAuthToken.getState();
     const tokendata = token.data.token;
 
@@ -44,10 +43,9 @@ function Production_Report() {
         reportType: yup.string().required('Report type is required'),
         fromDate: yup.date().required('From date is required'),
         toDate: yup.date().required('To date is required'),
-        shift: yup.string().required('Shift is required'),
-        plantId: yup.string().required('Plant is required'),
-        brand: yup.string().required('Brand is required'),
-        productsize: yup.string().required('Product Size is required'),
+        magazine: yup.string().required('Magazine is required'),
+        customerName: yup.string().required('Customer Name is required'),
+        indentNo: yup.string().required('Indent No. is required'),
     });
 
     const {
@@ -61,82 +59,95 @@ function Production_Report() {
         resolver: yupResolver(formSchema),
         defaultValues: {
             reportType: 'Detailed',
-            plantId: 'all',
             fromDate: null,
             toDate: null,
-            shift: 'all',
-            brand: 'all',
-            productsize: 'all',
+            magazine: 'all',
+            customerName: 'all',
+            indentNo: 'all',
         },
     });
 
 
     const [fromDate, setFromDate] = React.useState(null);
     const [toDate, setToDate] = React.useState(null);
-    const [plants, setPlants] = React.useState([]);
-    const [shifts, setShifts] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [productSizes, setProductSizes] = useState([]);
+    const [magazine, setMagzine] = useState([]);
+    const [customer, setcustomer] = useState([]);
+    const [indent, setIndent] = useState([]);
     const [reportData, setReportData] = React.useState(null);
     const [isLoadingReport, setIsLoadingReport] = React.useState(false);
     const [reportType, setReportType] = React.useState('Detailed');
 
     const { enqueueSnackbar } = useSnackbar();
 
-    //plant details
+
+    //Magazine details
     const {
-        data: plantData,
-        isLoading: isPlantFetching,
-        error: fetchplantError,
+        data: magazineData,
+        isLoading: isMagazineFetching,
+        error: fetchMagazineError,
     } = useQuery({
-        queryKey: ['plantData'],
-        queryFn: () => getPlantDetails(tokendata),
+        queryKey: ['magazineData'],
+        queryFn: () => getMagzineDetails(tokendata),
         enabled: !!tokendata,
     });
 
-
-    //shift details
+    //Coustomer details
     const {
-        data: shiftData,
-        isLoading: isShiftFetching,
-        error: fetchShiftError,
+        data: customerData,
+        isLoading: iscustomerFetching,
+        error: fetchcoustomerError,
     } = useQuery({
-        queryKey: ['shiftData'],
-        queryFn: () => getShiftDetails(tokendata),
+        queryKey: ['coustomerData'],
+        queryFn: () => getCustomerDetails(tokendata),
+        enabled: !!tokendata,
+    });
+    console.log("customerData", customerData);
+
+    //Indent details
+    const {
+        data: indentData,
+        isLoading: isIndentFetching,
+        error: fetchIndentError,
+    } = useQuery({
+        queryKey: ['indentData'],
+        queryFn: () => getIndentOnly(tokendata),
         enabled: !!tokendata,
     });
 
-    const {
-        data: productData,
-        isLoading: isProductFetching,
-        error: fetchProductError,
-    } = useQuery({
-        queryKey: ['productData'],
-        queryFn: () => getProductDetails(tokendata),
-        enabled: !!tokendata,
-    });
-
+    console.log("indentData", indentData);
 
     useEffect(() => {
-        if (plantData) {
-            const plantOptions = plantData?.map((plant) => ({
-                value: plant.pName,
-                text: plant.pName,
-                disabled: false,
-            }));
-            plantOptions.unshift({ value: 'all', text: 'All', disabled: false });
-            setPlants(plantOptions);
-        }
-        if (shiftData) {
-            const shiftOptions = [...new Set(shiftData?.map((shift) => shift.shift))].sort().map((shift) => ({
-                value: shift,
-                text: shift,
-                disabled: false,
-            }));
 
-            setShifts(shiftOptions);
+        if (customerData) {
+            const customerOptions = [...new Set(customerData?.map((customer) => customer.cName))].sort().map((customer) => ({
+                value: customer,
+                text: customer,
+                disabled: false,
+            }));
+            customerOptions.unshift({ value: 'all', text: 'All', disabled: false });
+            setcustomer(customerOptions);
         }
-    }, [reset, plantData, shiftData]);
+
+        if (magazineData) {
+            const magOptions = [...new Set(magazineData?.map((mag) => mag.mcode))].sort().map((mag) => ({
+                value: mag,
+                text: mag,
+                disabled: false,
+            }));
+            magOptions.unshift({ value: 'all', text: 'All', disabled: false });
+            setMagzine(magOptions);
+        }
+
+        if (indentData) {
+            const indentOptions = [...new Set(indentData?.map((indent) => indent))].map((indent) => ({
+                value: indent,
+                text: indent,
+                disabled: false,
+            }));
+            indentOptions.unshift({ value: 'all', text: 'All', disabled: false });
+            setIndent(indentOptions);
+        }
+    }, [reset, customerData, magazineData, indentData]);
 
     // Handle form submission
     const onSubmit = async (data) => {
@@ -148,27 +159,26 @@ function Production_Report() {
         const formattedToDate = data.toDate ? format(data.toDate, 'yyyy-MM-dd') : '';
 
         // Handle 'all' values for shift, plant, brand and productsize
-        const selectedShift = data.shift === 'all' ? '' : data.shift;
-        const selectedPlant = data.plantId === 'all' ? '' : data.plantId;
-        const selectedBrand = data.brand === 'all' ? '' : data.brand;
-        const selectedProductSize = data.productsize === 'all' ? '' : data.productsize;
+        const selectedMagazine = data.magazine === 'all' ? '' : data.magazine;
+        const selectedCustomer = data.customerName === 'all' ? '' : data.customerName;
+        const selectedIndent = data.indentNo === 'all' ? '' : data.indentNo;
         setReportType(data.reportType);
         const reportParams = {
             fromDate: formattedFromDate,
             toDate: formattedToDate,
             reportType: data.reportType,
-            shift: selectedShift,
-            plant: selectedPlant,
-            brand: selectedBrand,
-            productsize: selectedProductSize,
+            magazine: selectedMagazine,
+            customerName: selectedCustomer,
+            indentNo: selectedIndent,
         };
         console.log('Report Params:', reportParams);
 
         try {
             // Make the API call using the new function
-            const result = await getProductionReport(tokendata, reportParams);
+            const result = await getDispatchReport(tokendata, reportParams);
 
             enqueueSnackbar('Report fetched successfully', { variant: 'success' });
+
             console.log('Report Data:', result);
             setReportData(result); // Store the report data
             setIsLoadingReport(false);
@@ -179,8 +189,8 @@ function Production_Report() {
 
     console.log('Report Data from setreportData:', reportData)
 
-    const loading = isLoadingReport || isShiftFetching || isPlantFetching || isProductFetching;
-    const allerrors = fetchShiftError || fetchplantError || fetchProductError;
+    const loading = isLoadingReport || iscustomerFetching || isIndentFetching || isMagazineFetching;
+    const allerrors = fetchcoustomerError || fetchIndentError || fetchMagazineError;
 
     if (allerrors) {
         enqueueSnackbar(allerrors.message || 'Failed to fetch data', { variant: 'error' });
@@ -191,71 +201,97 @@ function Production_Report() {
 
     const detailedReportColumns = [
         {
-            accessorKey: 'plantname',
-            header: 'Plant Name',
+            accessorKey: 're11indentno',
+            header: 'RE11 Indent No.',
         },
         {
-            accessorKey: 'shift',
-            header: 'Shift',
+            accessorKey: 'dispatchDt',
+            header: 'Dispt. Dt.',
+            cell: ({ row }) => {
+                const date = row.getValue('dispatchDt');
+                return date ? format(new Date(date), 'dd/MM/yyyy') : '';
+            }
+        },
+        {
+            accessorKey: 'truck',
+            header: 'Truck No.',
+        },
+        {
+            accessorKey: 'l1Barcode',
+            header: 'L1 Bardcode',
         },
         {
             accessorKey: 'brandname',
-            header: 'Brand Name',
+            header: 'Brand',
         },
         {
             accessorKey: 'productsize',
             header: 'Product Size',
         },
         {
-            accessorKey: 'l1barcode',
-            header: 'L1 Barcode',
+            accessorKey: 'magname',
+            header: 'Mag Name',
         },
         {
-            accessorKey: 'l1netqty',
-            header: 'Net Wt.',
+            accessorKey: 'netqty',
+            header: 'Qty.',
         },
         {
-            accessorKey: 'l1netunit',
-            header: 'Net Unit',
+            accessorKey: 'unit',
+            header: 'Unit',
         }
+
     ];
 
     const summaryReportColumns = [
         {
-            accessorKey: 'plantname',
-            header: 'Plant Name',
+            accessorKey: 're11indentno',
+            header: 'RE11 Indent No.',
         },
         {
-            accessorKey: 'shift',
-            header: 'Shift',
+            accessorKey: 'dispatchDt',
+            header: 'Dispt. Dt.',
+            cell: ({ row }) => {
+                const date = row.getValue('dispatchDt');
+                return date ? format(new Date(date), 'dd/MM/yyyy') : '';
+            }
         },
+        {
+            accessorKey: 'truck',
+            header: 'Truck No.',
+        },       
         {
             accessorKey: 'brandname',
-            header: 'Brand Name',
+            header: 'Brand',
         },
         {
             accessorKey: 'productsize',
             header: 'Product Size',
         },
         {
-            accessorKey: 'boxcount',
-            header: 'Box Qty.',
+            accessorKey: 'magname',
+            header: 'Mag Name',
         },
         {
-            accessorKey: 'l1netqty',
-            header: 'Net Wt.',
+            accessorKey: 'l1Barcode',
+            header: 'Box Count',
         },
         {
-            accessorKey: 'l1netunit',
-            header: 'Net Unit',
+            accessorKey: 'netqty',
+            header: 'Qty.',
+        },
+        {
+            accessorKey: 'unit',
+            header: 'Unit',
         }
+
     ];
 
 
     return (
         <Card className="p-4 shadow-md">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-semibold">Production Report</h1>
+                <h1 className="text-2xl font-semibold">Dispatch Report</h1>
             </div>
             {/* Updated onSubmit handler */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -276,7 +312,7 @@ function Production_Report() {
                             <label htmlFor="detailed_summary">Detailed Summary</label>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="summary" id="summary" />
+                            <RadioGroupItem value="Summary" id="summary" />
                             <label htmlFor="summary">Summary</label>
                         </div>
                     </RadioGroup>
@@ -296,8 +332,9 @@ function Production_Report() {
                 <div className="grid grid-cols-1 gap-5">
                     {/* MFG Date Wise */}
                     <div>
-                        <h6 className="mb-2 font-semibold">MFG Date Wise :</h6>
+                        <h6 className="mb-2 font-semibold">Dispatch Date Wise :</h6>
                         <div className="grid grid-cols-2 gap-4">
+
                             {/* From Date */}
                             <div>
                                 <label htmlFor="fromDate" className="text-sm font-medium">
@@ -367,66 +404,15 @@ function Production_Report() {
 
 
                 <div className="grid grid-cols-2 gap-5">
-                    <Controller
-                        name="plantId"
-                        control={control}
-                        render={({ field }) => (
-                            // plantName                           
-                            <div className="flex flex-col gap-y-2">
-                                <Label>Plant Name</Label>
-                                <Select
-                                    value={field.value}
-                                    onValueChange={(value) => {
-                                        field.onChange(value);
-                                        // Filter products by plant code or appropriate field
-                                        const productOptions = [
-                                            ...new Set(
-                                                productData
-                                                    ?.filter((product) => product.ptype === value) // Use pCode or correct field
-                                                    ?.map((product) => product.bname),
-                                            ),
-                                        ]
-                                            .sort((a, b) => a.localeCompare(b))
-                                            .map((bname) => ({
-                                                value: bname,
-                                                text: bname,
-                                                disabled: false,
-                                            }));
-                                        setProducts(productOptions);
-                                    }}
-                                >
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select plant..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
 
-                                        <SelectGroup>
-                                            {plants.map((plant) => (
-                                                <SelectItem
-                                                    key={plant.value}
-                                                    value={plant.value}
-                                                    disabled={plant.disabled}
-                                                >
-                                                    {plant.text}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                {errors.plantId && (
-                                    <span className="text-destructive text-sm">{errors.plantId.message}</span>
-                                )}
-                            </div>
-                        )}
-                    />
-                    {/* Shift dropdown */}
+                    {/* Magazine dropdown */}
                     <div className="flex flex-col gap-y-2">
                         <Controller
-                            name="shift"
+                            name="magazine"
                             control={control}
                             render={({ field }) => (
                                 <div className="flex flex-col gap-y-2">
-                                    <Label>Shift</Label>
+                                    <Label>Magazine Name</Label>
                                     <Select
                                         value={field.value}
                                         onValueChange={(value) => {
@@ -434,25 +420,24 @@ function Production_Report() {
                                         }}
                                     >
                                         <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select Shift..." />
+                                            <SelectValue placeholder="Select Magazine..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="all">All</SelectItem>
                                             <SelectGroup>
-                                                {shifts.map((shift) => (
+                                                {magazine.map((mag) => (
                                                     <SelectItem
-                                                        key={shift.value}
-                                                        value={shift.value}
-                                                        disabled={shift.disabled}
+                                                        key={mag.value}
+                                                        value={mag.value}
+                                                        disabled={mag.disabled}
                                                     >
-                                                        {shift.text}
+                                                        {mag.text}
                                                     </SelectItem>
                                                 ))}
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
-                                    {errors.shift && (
-                                        <span className="text-destructive text-sm">{errors.shift.message}</span>
+                                    {errors.mag && (
+                                        <span className="text-destructive text-sm">{errors.mag.message}</span>
                                     )}
                                 </div>
                             )}
@@ -467,7 +452,7 @@ function Production_Report() {
                         <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center">
-                        <span className="bg-transparent  px-2 text-sm font-medium">Product Details</span>
+                        <span className="bg-transparent  px-2 text-sm font-medium">Customer And Indent Details</span>
                     </div>
                 </div>
 
@@ -475,63 +460,34 @@ function Production_Report() {
                     {/* brand dropdown */}
                     <div className="flex flex-col gap-y-2">
                         <Controller
-                            name="brand" // Changed from brandName to brand as per formSchema
+                            name="customerName" // Changed from brandName to brand as per formSchema
                             control={control}
                             render={({ field }) => (
                                 <div className="flex flex-col gap-y-2">
-                                    <Label>Brand Name</Label>
+                                    <Label>Coustomer Name</Label>
                                     <Select
                                         value={field.value}
-                                        onValueChange={(value) => {
-                                            field.onChange(value);
-                                            setValue('productsize', '');
-                                            setProductSizes([]);
 
-                                            if (value === 'all') {
-                                                setProductSizes([]);
-                                                setValue('brandId', '');
-                                            } else {
-                                                const selected = productData?.find((p) => p.bname === value);
-                                                if (selected) {
-                                                    setValue('brandId', selected?.bid);
-                                                    const productOptions = [
-                                                        ...new Set(
-                                                            productData
-                                                                ?.filter((product) => product.bid === selected.bid)
-                                                                ?.map((product) => product.psize),
-                                                        ),
-                                                    ]
-                                                        .sort((a, b) => a.localeCompare(b))
-                                                        .map((psize) => ({
-                                                            value: psize,
-                                                            text: psize,
-                                                            disabled: false,
-                                                        }));
-                                                    setProductSizes(productOptions);
-                                                }
-                                            }
-                                        }}
                                     >
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select Brand..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="all">All</SelectItem>
                                             <SelectGroup>
-                                                {products.map((product, index) => ( // Changed 'plant' to 'product'
+                                                {customer.map((cust) => ( // Changed 'plant' to 'product'
                                                     <SelectItem
-                                                        key={`${product.value}-${index}`} // Added index for uniqueness
-                                                        value={product.value}
-                                                        disabled={product.disabled}
+                                                        key={cust.value}// Added index for uniqueness
+                                                        value={cust.value}
+                                                        disabled={cust.disabled}
                                                     >
-                                                        {product.text}
+                                                        {cust.text}
                                                     </SelectItem>
                                                 ))}
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
-                                    {errors.brand && ( // Corrected error message key
-                                        <span className="text-destructive text-sm">{errors.brand.message}</span>
+                                    {errors.customerName && ( // Corrected error message key
+                                        <span className="text-destructive text-sm">{errors.customerName.message}</span>
                                     )}
                                 </div>
                             )}
@@ -540,37 +496,20 @@ function Production_Report() {
                     {/* Product size */}
                     <div className="flex flex-col gap-y-2">
                         <Controller
-                            name="productsize" // Changed from productSize to productsize as per formSchema
+                            name="indentNo" // Changed from productSize to productsize as per formSchema
                             control={control}
                             render={({ field }) => (
                                 <div className="flex flex-col gap-y-2">
-                                    <Label>Product Size</Label>
+                                    <Label>Indent No.</Label>
                                     <Select
                                         value={field.value}
-                                        onValueChange={(value) => {
-                                            field.onChange(value);
-                                            const selected = productData.find((p) => p.psize === value);
-                                            if (selected) {
-                                                setValue('pSizeCode', selected.psizecode);
-                                                setValue('l1NetWt', selected.l1netwt);
-                                                setValue('class', selected.class);
-                                                setValue('division', selected.division);
-                                                setValue('sdCat', selected.sdcat);
-                                                setValue('unNoClass', selected.unnoclass);
-                                                setValue('l1NetUnit', selected.unit);
-                                                setValue('noOfL2', selected.noofl2);
-                                                setValue('noOfL3perL2', selected.noofl3perl2);
-                                                setValue('noOfL3', selected.noofl3perl1);
-                                            }
-                                        }}
                                     >
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select product size..." /> {/* Changed placeholder */}
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="all">All</SelectItem>
                                             <SelectGroup>
-                                                {productSizes.map((size, index) => ( // Changed 'plant' to 'size'
+                                                {indent.map((size, index) => ( // Changed 'plant' to 'size'
                                                     <SelectItem
                                                         key={`${size.value}-${index}`} // Added index for uniqueness
                                                         value={size.value}
@@ -582,9 +521,9 @@ function Production_Report() {
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
-                                    {errors.productsize && ( // Corrected error message key
+                                    {errors.indent && ( // Corrected error message key
                                         <span className="text-destructive text-sm">
-                                            {errors.productsize.message}
+                                            {errors.indent.message}
                                         </span>
                                     )}
                                 </div>
@@ -602,7 +541,7 @@ function Production_Report() {
             <div>
                 {reportData ? (
                     <DataTable
-                        columns={reportType === 'Detailed' ? detailedReportColumns : summaryReportColumns} // Use 'columns' for Detailed, 'summaryReportColumns' for Summary
+                        columns={reportType === 'Storage' ? detailedReportColumns : summaryReportColumns} // Use 'columns' for Detailed, 'summaryReportColumns' for Summary
                         data={reportData}
                     />
                 ) : (
@@ -615,4 +554,4 @@ function Production_Report() {
     );
 }
 
-export default Production_Report;
+export default Dispatch_Report;

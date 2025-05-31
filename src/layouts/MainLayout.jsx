@@ -91,6 +91,10 @@ export default function MainLayout() {
 		'/customer-master/edit': { parent: 'Masters', current: 'Edit Customer' },
 		'/re12-file-generation': { parent: 'Dispatch', current: 'RE12 Generation' },
 		'/production-report': { parent: 'Reports', current: 'Production Report' },
+		'/dispatch-report': { parent: 'Reports', current: 'Dispatch Report' },
+		'/storage-report': { parent: 'Reports', current: 'Storage Report' },
+		'/re11-status-report': { parent: 'Reports', current: 'RE11 Status Report' },
+		'/re2-status-report': { parent: 'Reports', current: 'RE2 Status Report' },
 	};
 
 	const getPathInfo = (path) => {
