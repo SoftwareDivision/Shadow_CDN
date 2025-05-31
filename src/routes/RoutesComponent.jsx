@@ -46,7 +46,6 @@ const L2Reprint = lazy(() => import('../Pages/Reprint/L2Reprint/Index'));
 // Add this import at the top with other lazy imports
 const ResetTypeMaster = lazy(() => import('../Pages/Masters/ResetTypeMaster/Index'));
 const ResetTypeAddOrEdit = lazy(() => import('../Pages/Masters/ResetTypeMaster/AddOrEdit'));
-
 // Add these imports at the top with other lazy imports
 const ShiftMaster = lazy(() => import('../Pages/Masters/ShiftMaster/Index'));
 const ShiftAddOrEdit = lazy(() => import('../Pages/Masters/ShiftMaster/AddOrEdit'));
@@ -59,6 +58,9 @@ const AddRE11Indent = lazy(() => import('@/Pages/Dispatch/RE11IndentFileGenerati
 const LoadingSheetPage = lazy(() => import('../Pages/Dispatch/LoadingSheet/index'));
 // Import the new AddOrEditLoadingSheet component
 const AddOrEditLoadingSheet = lazy(() => import('@/Pages/Dispatch/LoadingSheet/AddOrEdit'));
+
+//Reports
+const Production_Report = lazy(() => import('../Pages/Reports/Production Report/Index'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -615,8 +617,17 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
-						</Route>
 
+							{/* Add the Production Report Route here */}
+							<Route
+								path="/production-report" // This is the URL path
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<Production_Report />
+									</SuspenseWrapper>
+								}
+							/>
+						</Route>
 						{/* Catch-all 404 page */}
 						<Route
 							path="*"

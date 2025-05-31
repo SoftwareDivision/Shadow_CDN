@@ -195,8 +195,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: FileSpreadsheet,
         items: [
           {
-            title: "L1Barcode Generation",
-            url: "/barcode-generation",
+            title: "Production Report",
+            url: "/production-report",
           },
           {
             title: "2D Barcode Generation",
