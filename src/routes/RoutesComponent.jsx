@@ -5,6 +5,7 @@ import ErrorBoundary from './../components/ErrorBoundary';
 import NotFound from '../components/NotFound';
 import MainLayout from '../layouts/MainLayout';
 import AuthLayout from '../layouts/AuthLayout';
+import Loader from '@/components/Loader';
 
 // Lazy-loaded pages
 const Dashboard = lazy(() => import('../Pages/Dashboard/Index'));
@@ -70,7 +71,8 @@ const LoadingSpinner = ({ loadingBarRef }) => {
 
 	return (
 		<div className="flex items-center justify-center min-h-screen">
-			<div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+			<Loader />
+			{/* <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div> */}
 		</div>
 	);
 };
