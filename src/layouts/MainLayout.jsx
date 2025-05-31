@@ -90,6 +90,8 @@ export default function MainLayout() {
 		'/customer-master/add': { parent: 'Masters', current: 'Add Customer' },
 		'/customer-master/edit': { parent: 'Masters', current: 'Edit Customer' },
 		'/re12-file-generation': { parent: 'Dispatch', current: 'RE12 Generation' },
+		'/l1reprint': { parent: 'Reprint', current: 'L1 Reprint' },
+		'/l2reprint': { parent: 'Reprint', current: 'L2 Reprint' },
 	};
 
 	const getPathInfo = (path) => {

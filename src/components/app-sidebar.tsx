@@ -18,6 +18,7 @@ import {
   Store,
   Workflow,
   FileSpreadsheet,
+  PrinterIcon,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -136,6 +137,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/2Dbarcode-generation",
           },
         ],
+      },
+      {
+        title: "Reprint",
+        url: "#",
+        icon: PrinterIcon,
+        items: [
+          {
+            title: "L1 Reprint",
+            url: "/l1reprint",
+          },
+          {
+            title: "L2 Reprint",
+            url: "/l2reprint",
+          }
+        ]
       },
       {
         title: "Storge",

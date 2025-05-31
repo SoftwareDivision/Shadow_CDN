@@ -41,7 +41,8 @@ const CustomerAddOrEdit = lazy(() => import('../Pages/Masters/CustomerMaster/Add
 const TransportMaster = lazy(() => import('../Pages/Masters/transportMaster/Index'));
 const TransportAddOrEdit = lazy(() => import('../Pages/Masters/transportMaster/AddOrEdit'));
 const RE12FileGeneration = lazy(() => import('../Pages/Dispatch/RE12FileGeneration/RE12FileGeneration'));
-
+const L1Reprint = lazy(() => import('../Pages/Reprint/L1Reprint/Index'));
+const L2Reprint = lazy(() => import('../Pages/Reprint/L2Reprint/Index'));
 // Add this import at the top with other lazy imports
 const ResetTypeMaster = lazy(() => import('../Pages/Masters/ResetTypeMaster/Index'));
 const ResetTypeAddOrEdit = lazy(() => import('../Pages/Masters/ResetTypeMaster/AddOrEdit'));
@@ -585,6 +586,22 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<TransportAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/l1reprint"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<L1Reprint />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/l2reprint"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<L2Reprint />
 									</SuspenseWrapper>
 								}
 							/>
