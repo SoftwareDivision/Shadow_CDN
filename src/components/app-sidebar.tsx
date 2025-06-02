@@ -213,6 +213,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "RE2 Status Report",
             url: "/re2-status-report",
+          },
+          {
+            title:"L1 Box Deletion Report",
+            url:"/l1-box-deletion-report",
+          },
+          {
+            title: "L1 Barcode Reprint Report",
+            url: "/l1-barcode-reprint-report",
+          },
+          {
+            title: "L2 Barcode Reprint Report",
+            url: "/l2-barcode-reprint-report",
+          },
+          {
+            title:"Production Material Transfer Report",
+            url:"/production-material-transfer-report",
           }
         ],
       },
