@@ -307,8 +307,8 @@ export default function DataTable({ data: initialData, columns }) {
 					</DropdownMenu>
 				</div>
 			</div>
-			<div className="relative flex flex-col gap-4 overflow-auto w-[95vw] md:w-[70vw] lg:w-[79vw]">
-				<div className="rounded-lg border scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+			<div className="relative flex flex-col gap-4 overflow-auto w-[95vw] md:w-[85vw] lg:w-[75vw]">
+				<div className="rounded-lg border overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
 					<DndContext
 						collisionDetection={closestCenter}
 						modifiers={[restrictToVerticalAxis]}
@@ -316,7 +316,7 @@ export default function DataTable({ data: initialData, columns }) {
 						sensors={sensors}
 						id={sortableId}
 					>
-						<Table>
+						<Table className="min-w-full w-max lg:w-full table-auto">
 							<TableHeader className="bg-muted">
 								{table.getHeaderGroups().map((headerGroup) => (
 									<TableRow key={headerGroup.id}>
