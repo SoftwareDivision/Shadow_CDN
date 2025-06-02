@@ -76,7 +76,6 @@ const LoadingSpinner = ({ loadingBarRef }) => {
 	return (
 		<div className="flex items-center justify-center min-h-screen">
 			<Loader />
-			{/* <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div> */}
 		</div>
 	);
 };
@@ -635,7 +634,7 @@ export default function RoutesComponent() {
 							/>
 
 							<Route
-								path='/storage-report'
+								path="/storage-report"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<Storage_Report />
@@ -644,7 +643,7 @@ export default function RoutesComponent() {
 							/>
 
 							<Route
-								path='/dispatch-report' // This is the URL path
+								path="/dispatch-report" // This is the URL path
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<Dispatch_Report />
@@ -653,7 +652,7 @@ export default function RoutesComponent() {
 							/>
 
 							<Route
-								path='/re11-status-report' // This is the URL path
+								path="/re11-status-report" // This is the URL path
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<RE11_Status_Report />
@@ -662,15 +661,13 @@ export default function RoutesComponent() {
 							/>
 
 							<Route
-								path='/re2-status-report' // This is the URL path
+								path="/re2-status-report" // This is the URL path
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<RE2_Status_Report />
 									</SuspenseWrapper>
 								}
 							/>
-
-							
 						</Route>
 						{/* Catch-all 404 page */}
 						<Route

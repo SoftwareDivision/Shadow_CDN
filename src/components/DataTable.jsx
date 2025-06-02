@@ -307,8 +307,8 @@ export default function DataTable({ data: initialData, columns }) {
 					</DropdownMenu>
 				</div>
 			</div>
-			<div className="relative flex flex-col gap-4 overflow-auto">
-				<div className="overflow-hidden rounded-lg border">
+			<div className="relative flex flex-col gap-4 overflow-auto max-w-5xl">
+				<div className="rounded-lg border scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
 					<DndContext
 						collisionDetection={closestCenter}
 						modifiers={[restrictToVerticalAxis]}

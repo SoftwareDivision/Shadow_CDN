@@ -179,14 +179,18 @@ html {
 	.scrollbar-thin {
 		scrollbar-width: thin;
 	}
+
+	.scrollbar-thin::-webkit-scrollbar {
+		width: 6px;
+		height: 6px; /* Horizontal scrollbar */
+	}
+
 	.scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
 		background-color: #d1d5db;
 		border-radius: 6px;
 	}
+
 	.scrollbar-track-gray-100::-webkit-scrollbar-track {
 		background-color: #f3f4f6;
-	}
-	.scrollbar-thin::-webkit-scrollbar {
-		width: 6px;
 	}
 }

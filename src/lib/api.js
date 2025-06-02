@@ -44,10 +44,10 @@ const handleResponse = (res) => {
 			anchorOrigin: { vertical: 'top', horizontal: 'right' },
 		});
 	}
-	throw new Error(data || 'Operation failed');
+	throw new Error(message || 'Operation failed');
 };
 
-const handleError = (err, fallback = 'Operation failed') => {
+const handleError = (err, fallback = 'Api Is Not Working') => {
 	console.error('API Error:', err);
 	const msg = err.response?.data?.data || err.response?.data?.message;
 	throw new Error(msg || fallback);
@@ -266,10 +266,6 @@ export const getRe2StatusReport = (token, params) => {
 	const queryParams = new URLSearchParams(params).toString();
 	return getAll(`/Reports/GetRE2statusdata?${queryParams}`, token);
 };
-
-
-
-
 
 // Export API instance if needed elsewhere
 

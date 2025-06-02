@@ -10,7 +10,9 @@ import { getAllLoadingSheets } from '@/lib/api'; // Import the new API function
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-
+import Loader from '@/components/Loader';
+import { Alert } from '@/components/ui/alert';
+import Error from '@/components/Error';
 function LoadingSheetPage() {
 	const navigate = useNavigate();
 	const { token } = useAuthToken.getState();
@@ -18,7 +20,11 @@ function LoadingSheetPage() {
 	const { enqueueSnackbar } = useSnackbar();
 
 	// Query for fetching Loading Sheet data
-	const { data: loadingSheetsData, isLoading } = useQuery({
+	const {
+		data: loadingSheetsData,
+		isLoading,
+		error,
+	} = useQuery({
 		queryKey: ['loadingSheets'],
 		queryFn: () => getAllLoadingSheets(tokendata), // Use the new API function
 		onError: (error) => {
@@ -56,6 +62,16 @@ function LoadingSheetPage() {
 		{ header: 'Details', id: 'id' },
 	];
 
+	if (isLoading) {
+		return (
+			<div className="flex items-center justify-center h-full">
+				<Loader />
+			</div>
+		);
+	}
+	if (error) {
+		return <Error error={error.message} />;
+	}
 	return (
 		<Card className="p-4 shadow-md">
 			<div className="flex items-center justify-between">
@@ -66,13 +82,7 @@ function LoadingSheetPage() {
 					Add Loading Sheet
 				</Button>
 			</div>
-			{isLoading ? (
-				<div className="flex items-center justify-center py-8">
-					<Loader2 className="h-8 w-8 animate-spin text-primary" />
-				</div>
-			) : (
-				<DataTable columns={columns} data={loadingSheetsData || []} />
-			)}
+			<DataTable columns={columns} data={loadingSheetsData || []} />
 		</Card>
 	);
 }
