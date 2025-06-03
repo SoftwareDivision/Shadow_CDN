@@ -50,8 +50,8 @@ function AddOrEdit() {
 			pCode: '',
 			license: '',
 			company_ID: '',
-			issue_dt: '',
-			validity_dt: '',
+			issue_dt: new Date(),
+			validity_dt: new Date(),
 		},
 	});
 
@@ -96,122 +96,119 @@ function AddOrEdit() {
 				<h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} Plant</h2>
 			</div>
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-				<div className="space-y-2">
-					<label htmlFor="plant_type" className="text-sm font-medium">
-						Plant Type
-					</label>
-					<Input
-						id="plant_type"
-						{...register('plant_type')}
-						className={errors.plant_type ? 'border-red-500' : ''}
-					/>
-					{errors.plant_type && <span className="text-sm text-red-500">{errors.plant_type.message}</span>}
-				</div>
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div className="space-y-2">
+						<label htmlFor="plant_type" className="text-sm font-medium">
+							Plant Type
+						</label>
+						<Input
+							id="plant_type"
+							{...register('plant_type')}
+							className={errors.plant_type ? 'border-red-500' : ''}
+						/>
+						{errors.plant_type && <span className="text-sm text-red-500">{errors.plant_type.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="pName" className="text-sm font-medium">
-						Plant Name
-					</label>
-					<Input id="pName" {...register('pName')} className={errors.pName ? 'border-red-500' : ''} />
-					{errors.pName && <span className="text-sm text-red-500">{errors.pName.message}</span>}
-				</div>
+					<div className="space-y-2">
+						<label htmlFor="pName" className="text-sm font-medium">
+							Plant Name
+						</label>
+						<Input id="pName" {...register('pName')} className={errors.pName ? 'border-red-500' : ''} />
+						{errors.pName && <span className="text-sm text-red-500">{errors.pName.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="pCode" className="text-sm font-medium">
-						Plant Code
-					</label>
-					<Input id="pCode" {...register('pCode')} className={errors.pCode ? 'border-red-500' : ''} />
-					{errors.pCode && <span className="text-sm text-red-500">{errors.pCode.message}</span>}
-				</div>
+					<div className="space-y-2">
+						<label htmlFor="pCode" className="text-sm font-medium">
+							Plant Code
+						</label>
+						<Input id="pCode" {...register('pCode')} className={errors.pCode ? 'border-red-500' : ''} />
+						{errors.pCode && <span className="text-sm text-red-500">{errors.pCode.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="license" className="text-sm font-medium">
-						License
-					</label>
-					<Input id="license" {...register('license')} className={errors.license ? 'border-red-500' : ''} />
-					{errors.license && <span className="text-sm text-red-500">{errors.license.message}</span>}
-				</div>
+					<div className="space-y-2">
+						<label htmlFor="license" className="text-sm font-medium">
+							License
+						</label>
+						<Input id="license" {...register('license')} className={errors.license ? 'border-red-500' : ''} />
+						{errors.license && <span className="text-sm text-red-500">{errors.license.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="company_ID" className="text-sm font-medium">
-						Company ID
-					</label>
-					<Input
-						id="company_ID"
-						{...register('company_ID')}
-						className={errors.company_ID ? 'border-red-500' : ''}
-					/>
-					{errors.company_ID && <span className="text-sm text-red-500">{errors.company_ID.message}</span>}
-				</div>
+					<div className="space-y-2">
+						<label htmlFor="company_ID" className="text-sm font-medium">
+							Company ID
+						</label>
+						<Input
+							id="company_ID"
+							{...register('company_ID')}
+							className={errors.company_ID ? 'border-red-500' : ''}
+						/>
+						{errors.company_ID && <span className="text-sm text-red-500">{errors.company_ID.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="issue_dt" className="text-sm font-medium">
-						Issue Date
-					</label>
-					<Popover>
-						<PopoverTrigger asChild>
-							<Button
-								variant={'outline'}
-								className={cn(
-									'w-full justify-start text-left font-normal',
-									!watch('issue_dt') && 'text-muted-foreground',
-									errors.issue_dt && 'border-red-500',
-								)}
-							>
-								<CalendarIcon className="mr-2 h-4 w-4" />
-								{watch('issue_dt') ? (
-									format(new Date(watch('issue_dt')), 'PPP')
-								) : (
-									<span>Pick a date</span>
-								)}
-							</Button>
-						</PopoverTrigger>
-						<PopoverContent className="w-auto p-0" align="start">
-							<Calendar
-								mode="single"
-								selected={watch('issue_dt') ? new Date(watch('issue_dt')) : undefined}
-								onSelect={(date) => setValue('issue_dt', date?.toISOString().split('T')[0])}
-								initialFocus
-							/>
-						</PopoverContent>
-					</Popover>
-					{errors.issue_dt && <span className="text-sm text-red-500">{errors.issue_dt.message}</span>}
-				</div>
+					<div className="space-y-2">
+						<label htmlFor="issue_dt" className="text-sm font-medium">
+							Issue Date
+						</label>
+						<Popover>
+							<PopoverTrigger asChild>
+								<Button
+									variant={'outline'}
+									className={cn(
+										'w-full justify-start text-left font-normal',
+										!watch('issue_dt') && 'text-muted-foreground',
+										errors.issue_dt && 'border-red-500',
+									)}
+								>
+									<CalendarIcon className="mr-2 h-4 w-4" />
+									{watch('issue_dt') ? (
+										format(new Date(watch('issue_dt')), 'PPP')
+									) : format(new Date(), "PPP")}
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className="w-auto p-0" align="start">
+								<Calendar
+									mode="single"
+									selected={watch('issue_dt') ? new Date(watch('issue_dt')) : undefined}
+									onSelect={(date) => setValue('issue_dt', date?.toISOString().split('T')[0])}
+									initialFocus
+								/>
+							</PopoverContent>
+						</Popover>
+						{errors.issue_dt && <span className="text-sm text-red-500">{errors.issue_dt.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="validity_dt" className="text-sm font-medium">
-						Validity Date
-					</label>
-					<Popover>
-						<PopoverTrigger asChild>
-							<Button
-								variant={'outline'}
-								className={cn(
-									'w-full justify-start text-left font-normal',
-									!watch('validity_dt') && 'text-muted-foreground',
-									errors.validity_dt && 'border-red-500',
-								)}
-							>
-								<CalendarIcon className="mr-2 h-4 w-4" />
-								{watch('validity_dt') ? (
-									format(new Date(watch('validity_dt')), 'PPP')
-								) : (
-									<span>Pick a date</span>
-								)}
-							</Button>
-						</PopoverTrigger>
-						<PopoverContent className="w-auto p-0" align="start">
-							<Calendar
-								mode="single"
-								selected={watch('validity_dt') ? new Date(watch('validity_dt')) : undefined}
-								onSelect={(date) => setValue('validity_dt', date?.toISOString().split('T')[0])}
-								initialFocus
-							/>
-						</PopoverContent>
-					</Popover>
-					{errors.validity_dt && <span className="text-sm text-red-500">{errors.validity_dt.message}</span>}
+					<div className="space-y-2">
+						<label htmlFor="validity_dt" className="text-sm font-medium">
+							Validity Date
+						</label>
+						<Popover>
+							<PopoverTrigger asChild>
+								<Button
+									variant={'outline'}
+									className={cn(
+										'w-full justify-start text-left font-normal',
+										!watch('validity_dt') && 'text-muted-foreground',
+										errors.validity_dt && 'border-red-500',
+									)}
+								>
+									<CalendarIcon className="mr-2 h-4 w-4" />
+									{watch('validity_dt') ? (
+										format(new Date(watch('validity_dt')), 'PPP')
+									) : format(new Date(), "PPP")}
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className="w-auto p-0" align="start">
+								<Calendar
+									mode="single"
+									selected={watch('validity_dt') ? new Date(watch('validity_dt')) : undefined}
+									onSelect={(date) => setValue('validity_dt', date?.toISOString().split('T')[0])}
+									initialFocus
+								/>
+							</PopoverContent>
+						</Popover>
+						{errors.validity_dt && <span className="text-sm text-red-500">{errors.validity_dt.message}</span>}
+					</div>
 				</div>
-
 				<div className="flex justify-end space-x-2">
 					<Button
 						type="button"

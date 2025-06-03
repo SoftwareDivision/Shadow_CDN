@@ -41,9 +41,10 @@ function AddOrEdit() {
 			id: 0,
 			mfgname: '',
 			code: '',
-			company_ID: '',
+			company_ID: token.data.user.company_ID,
 		},
-	});
+	}, [token]);
+	console.log('token', token.data.user.company_ID);
 
 	React.useEffect(() => {
 		if (id && location.state) {
@@ -88,39 +89,41 @@ function AddOrEdit() {
 				<h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} MFG</h2>
 			</div>
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-				<div className="space-y-2">
-					<label htmlFor="mfgname" className="text-sm font-medium">
-						MFG Name
-					</label>
-					<Input id="mfgname" {...register('mfgname')} className={errors.mfgname ? 'border-red-500' : ''} />
-					{errors.mfgname && <span className="text-sm text-red-500">{errors.mfgname.message}</span>}
-				</div>
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div className="space-y-2">
+						<label htmlFor="mfgname" className="text-sm font-medium">
+							MFG Name
+						</label>
+						<Input id="mfgname" {...register('mfgname')} className={errors.mfgname ? 'border-red-500' : ''} />
+						{errors.mfgname && <span className="text-sm text-red-500">{errors.mfgname.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="code" className="text-sm font-medium">
-						Code (2 characters)
-					</label>
-					<Input
-						id="code"
-						{...register('code')}
-						className={errors.code ? 'border-red-500' : ''}
-						maxLength={2}
-					/>
-					{errors.code && <span className="text-sm text-red-500">{errors.code.message}</span>}
-				</div>
+					<div className="space-y-2">
+						<label htmlFor="code" className="text-sm font-medium">
+							Code (2 characters)
+						</label>
+						<Input
+							id="code"
+							{...register('code')}
+							className={errors.code ? 'border-red-500' : ''}
+							maxLength={2}
+						/>
+						{errors.code && <span className="text-sm text-red-500">{errors.code.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="company_ID" className="text-sm font-medium">
-						Company ID
-					</label>
-					<Input
-						id="company_ID"
-						{...register('company_ID')}
-						className={errors.company_ID ? 'border-red-500' : ''}
-					/>
-					{errors.company_ID && <span className="text-sm text-red-500">{errors.company_ID.message}</span>}
+					<div className="space-y-2 hidden">
+						<label htmlFor="company_ID" className="text-sm font-medium">
+							Company ID
+						</label>
+						<Input
+							id="company_ID"
+							{...register('company_ID')}
+							className={errors.company_ID ? 'border-red-500' : ''}
+							readOnly
+						/>
+						{errors.company_ID && <span className="text-sm text-red-500">{errors.company_ID.message}</span>}
+					</div>
 				</div>
-
 				<div className="flex justify-end space-x-2">
 					<Button
 						type="button"
