@@ -21,12 +21,25 @@ export const useAuthToken = create(
 					console.error('Token processing failed:', error);
 					throw new Error('Invalid token format');
 				}
+
+				setCompany: (company) => {
+					try {
+						set({
+							company: company,
+						});
+					} catch (error) {
+						console.error('Token processing failed:', error);
+						throw new Error('Invalid token format');
+					}
+				};
 			},
 
 			getToken: () => {
 				const { token, isExpired } = get();
 				return !isExpired() ? token : null;
 			},
+
+			getCompany: () => get().company,
 
 			clearToken: () =>
 				set({
