@@ -6,14 +6,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import { createMachineCode, updateMachineCode, getPlantDetails } from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-
 
 const schema = yup.object().shape({
 	id: yup.number(),
@@ -134,9 +133,7 @@ function AddOrEdit() {
 							{...register('company_ID')}
 							className={errors.company_ID ? 'border-red-500' : ''}
 						/>
-						{errors.company_ID && (
-							<span className="text-sm text-red-500">{errors.company_ID.message}</span>
-						)}
+						{errors.company_ID && <span className="text-sm text-red-500">{errors.company_ID.message}</span>}
 					</div>
 
 					<div className="flex flex-col gap-y-2">
@@ -169,8 +166,7 @@ function AddOrEdit() {
 														value={plant.value}
 														disabled={plant.disabled}
 													>
-														{plant.text
-														}
+														{plant.text}
 													</SelectItem>
 												))}
 											</SelectGroup>
@@ -186,14 +182,8 @@ function AddOrEdit() {
 
 					<div className="flex flex-col gap-y-2">
 						<Label>Plant Code</Label>
-						<Input
-							{...register('pcode')}
-							readOnly
-							className={errors.pcode ? 'border-red-500' : ''}
-						/>
-						{errors.pcode && (
-							<span className="text-destructive text-sm">{errors.pcode.message}</span>
-						)}
+						<Input {...register('pcode')} readOnly className={errors.pcode ? 'border-red-500' : ''} />
+						{errors.pcode && <span className="text-destructive text-sm">{errors.pcode.message}</span>}
 					</div>
 
 					<div className="flex flex-col gap-y-2">
@@ -203,11 +193,7 @@ function AddOrEdit() {
 							render={({ field }) => (
 								<div className="flex flex-col gap-y-2">
 									<Label>Machine Code</Label>
-									<Select
-										value={field.value}
-										onValueChange={field.onChange}
-										
-									>
+									<Select value={field.value} onValueChange={field.onChange}>
 										<SelectTrigger className="w-full">
 											<SelectValue placeholder="Select machine code..." />
 										</SelectTrigger>
@@ -242,11 +228,7 @@ function AddOrEdit() {
 					>
 						Cancel
 					</Button>
-					<Button
-						type="submit"
-						className="bg-primary hover:bg-primary/90"
-						disabled={mutation.isPending}
-					>
+					<Button type="submit" className="bg-primary hover:bg-primary/90" disabled={mutation.isPending}>
 						{mutation.isPending ? (
 							<>
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />

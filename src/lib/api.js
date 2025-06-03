@@ -283,4 +283,7 @@ export const reprintL2Barcode = (token, data) => {
 };
 export const sendreprintL2Barcode = (token, data) => postData('/L2ReprintReport/REPrintdetailsLTwo', token, data);
 
+//dashboard
+export const getDasboardcardtDetails = (t) => getAll('/Dashboard/Getdashboardcard', t);
+export const getMagzinestockDetails = (t) => getAll('/Dashboard/GetMagazinesstock', t);
 export default api;

@@ -9,8 +9,12 @@ export default function L1BarcodeReprint() {
 			<h2 className="text-2xl font-bold">L1 Reprint</h2>
 			<Tabs defaultValue="allDetails">
 				<TabsList className="grid w-full grid-cols-2">
-					<TabsTrigger value="allDetails">Reprint by All Details</TabsTrigger>
-					<TabsTrigger value="l1Barcode">Reprint by L1Barcode</TabsTrigger>
+					<TabsTrigger value="allDetails" className="p-1">
+						Reprint by All Details
+					</TabsTrigger>
+					<TabsTrigger value="l1Barcode" className="p-1">
+						Reprint by L1Barcode
+					</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="allDetails">

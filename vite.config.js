@@ -13,6 +13,6 @@ export default defineConfig({
 	},
 	server: {
 		host: true, // This allows connections from any IP address
-		  // Optional: you can specify a port if needed
+		// Optional: you can specify a port if needed
 	},
 });

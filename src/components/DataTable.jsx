@@ -324,7 +324,7 @@ export default function DataTable({ data: initialData, columns }) {
 											<TableHead key={header.id} colSpan={header.colSpan}>
 												{header.isPlaceholder ? null : (
 													<div
-														className="flex items-center gap-2 cursor-pointer select-none"
+														className="flex items-center gap-2 cursor-pointer select-none  font-semibold"
 														onClick={header.column.getToggleSortingHandler()}
 													>
 														{flexRender(
@@ -387,7 +387,7 @@ export default function DataTable({ data: initialData, columns }) {
 									<SelectValue placeholder={table.getState().pagination.pageSize} />
 								</SelectTrigger>
 								<SelectContent side="top">
-									{[10, 20, 30, 40, 50].map((pageSize) => (
+									{[10, 20, 30, 40, 50, 100, 500].map((pageSize) => (
 										<SelectItem key={pageSize} value={`${pageSize}`}>
 											{pageSize}
 										</SelectItem>

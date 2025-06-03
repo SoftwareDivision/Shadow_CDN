@@ -202,7 +202,7 @@ export default function MainLayout() {
 						}}
 					/>
 				</main>
-				<footer className="sticky top-[100vh] mt-auto border-t">
+				<footer className="sticky top-[100vh] mt-auto border-2">
 					<div className="container mx-auto py-4 px-4">
 						<div className="text-center text-sm font-bold">
 							© {new Date().getFullYear()} Aarkay Techno Consultants Pvt. Ltd. All rights reserved.

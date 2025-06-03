@@ -35,6 +35,7 @@ import {
 	getProductDetails,
 	getShiftDetails,
 } from '@/lib/api';
+import Loader from '@/components/Loader';
 
 const schema = yup.object().shape({
 	country: yup.string().required('Country is required'),
@@ -210,8 +211,8 @@ export default function L1BarcodeGeneration() {
 		fetchError || submitError || fetchplantError || fetchMachineError || fetchShiftError || fetchProductError;
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center py-8">
-				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+			<div className="flex items-center justify-center h-full">
+				<Loader />
 			</div>
 		);
 	}

@@ -1,6 +1,6 @@
 import React from 'react';
-import { SectionCards } from './section-cards';
-import { ChartAreaInteractive } from './chart-area-interactive';
+import SectionCards from './section-cards';
+import ChartAreaInteractive from './chart-area-interactive';
 import DataTable from '@/components/DataTable';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -242,10 +242,10 @@ function Dashboard() {
 	return (
 		<>
 			<div className="@container/main  flex flex-1 flex-col gap-2">
-				<div className="flex flex-col gap-4  md:gap-4 ">
+				<div className="flex flex-col gap-4  md:gap-4">
 					<SectionCards />
 					<ChartAreaInteractive />
-					<Card className="p-4 shadow-md">
+					<Card className="w-full p-4 shadow-md">
 						<DataTable data={data} columns={columns} />
 					</Card>
 				</div>

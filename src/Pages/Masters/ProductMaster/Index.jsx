@@ -80,6 +80,7 @@ function ProductMaster() {
 			accessorKey: 'actions',
 			header: 'Actions',
 			id: 'actions',
+			size: 80,
 			cell: ({ row }) => (
 				<DropdownMenu>
 					<DropdownMenuTrigger>
