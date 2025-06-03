@@ -126,8 +126,8 @@ function AddOrEdit() {
 				<h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} Product</h2>
 			</div>
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-				<div className="space-y-2">
-					<div className="space-y-2 col-span-6">
+				<div className="grid grid-cols-3 gap-4 space-y-2">
+					<div className="space-y-2">
 						<Label>Brand Name</Label>
 						<Input {...register('bname')} className={errors.bname ? 'border-red-500' : ''} />
 						{errors.bname && <span className="text-sm text-red-500">{errors.bname.message}</span>}
@@ -278,14 +278,14 @@ function AddOrEdit() {
 						{errors.unnoclass && <span className="text-sm text-red-500">{errors.unnoclass.message}</span>}
 					</div>
 
-					<div className="space-y-2">
+					<div className="space-y-2 w-full">
 						<Label>Active Flag</Label>
 						<Controller
 							name="act"
 							control={control}
 							render={({ field }) => (
 								<Select onValueChange={field.onChange} value={field.value}>
-									<SelectTrigger>
+									<SelectTrigger className="w-full">
 										<SelectValue placeholder="Select status" />
 									</SelectTrigger>
 									<SelectContent>

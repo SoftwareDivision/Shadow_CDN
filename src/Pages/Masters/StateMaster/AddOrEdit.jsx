@@ -96,55 +96,56 @@ function AddOrEdit() {
 				<h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} State</h2>
 			</div>
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-				<div className="space-y-2">
-					<label htmlFor="state" className="text-sm font-medium">
-						State Name
-					</label>
-					<Input id="state" {...register('state')} className={errors.state ? 'border-red-500' : ''} />
-					{errors.state && <span className="text-sm text-red-500">{errors.state.message}</span>}
-				</div>
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div className="space-y-2">
+						<label htmlFor="state" className="text-sm font-medium">
+							State Name
+						</label>
+						<Input id="state" {...register('state')} className={errors.state ? 'border-red-500' : ''} />
+						{errors.state && <span className="text-sm text-red-500">{errors.state.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="st_code" className="text-sm font-medium">
-						State Code (2 characters)
-					</label>
-					<Input
-						id="st_code"
-						{...register('st_code')}
-						className={errors.st_code ? 'border-red-500' : ''}
-						maxLength={2}
-					/>
-					{errors.st_code && <span className="text-sm text-red-500">{errors.st_code.message}</span>}
-				</div>
+					<div className="space-y-2">
+						<label htmlFor="st_code" className="text-sm font-medium">
+							State Code (2 characters)
+						</label>
+						<Input
+							id="st_code"
+							{...register('st_code')}
+							className={errors.st_code ? 'border-red-500' : ''}
+							maxLength={2}
+						/>
+						{errors.st_code && <span className="text-sm text-red-500">{errors.st_code.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="district" className="text-sm font-medium">
-						District
-					</label>
-					<Input
-						id="district"
-						{...register('district')}
-						className={errors.district ? 'border-red-500' : ''}
-					/>
-					{errors.district && <span className="text-sm text-red-500">{errors.district.message}</span>}
-				</div>
+					<div className="space-y-2">
+						<label htmlFor="district" className="text-sm font-medium">
+							District
+						</label>
+						<Input
+							id="district"
+							{...register('district')}
+							className={errors.district ? 'border-red-500' : ''}
+						/>
+						{errors.district && <span className="text-sm text-red-500">{errors.district.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="city" className="text-sm font-medium">
-						City
-					</label>
-					<Input id="city" {...register('city')} className={errors.city ? 'border-red-500' : ''} />
-					{errors.city && <span className="text-sm text-red-500">{errors.city.message}</span>}
-				</div>
+					<div className="space-y-2">
+						<label htmlFor="city" className="text-sm font-medium">
+							City
+						</label>
+						<Input id="city" {...register('city')} className={errors.city ? 'border-red-500' : ''} />
+						{errors.city && <span className="text-sm text-red-500">{errors.city.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="tahsil" className="text-sm font-medium">
-						Tahsil
-					</label>
-					<Input id="tahsil" {...register('tahsil')} className={errors.tahsil ? 'border-red-500' : ''} />
-					{errors.tahsil && <span className="text-sm text-red-500">{errors.tahsil.message}</span>}
+					<div className="space-y-2">
+						<label htmlFor="tahsil" className="text-sm font-medium">
+							Tahsil
+						</label>
+						<Input id="tahsil" {...register('tahsil')} className={errors.tahsil ? 'border-red-500' : ''} />
+						{errors.tahsil && <span className="text-sm text-red-500">{errors.tahsil.message}</span>}
+					</div>
 				</div>
-
 				<div className="flex justify-end space-x-2">
 					<Button
 						type="button"

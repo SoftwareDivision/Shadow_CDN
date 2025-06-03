@@ -88,27 +88,28 @@ function AddOrEdit() {
 				<h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} Country</h2>
 			</div>
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-				<div className="space-y-2">
-					<label htmlFor="cname" className="text-sm font-medium">
-						Country Name
-					</label>
-					<Input id="cname" {...register('cname')} className={errors.cname ? 'border-red-500' : ''} />
-					{errors.cname && <span className="text-sm text-red-500">{errors.cname.message}</span>}
-				</div>
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div className="space-y-2">
+						<label htmlFor="cname" className="text-sm font-medium">
+							Country Name
+						</label>
+						<Input id="cname" {...register('cname')} className={errors.cname ? 'border-red-500' : ''} />
+						{errors.cname && <span className="text-sm text-red-500">{errors.cname.message}</span>}
+					</div>
 
-				<div className="space-y-2">
-					<label htmlFor="code" className="text-sm font-medium">
-						Country Code (2 characters)
-					</label>
-					<Input
-						id="code"
-						{...register('code')}
-						className={errors.code ? 'border-red-500' : ''}
-						maxLength={2}
-					/>
-					{errors.code && <span className="text-sm text-red-500">{errors.code.message}</span>}
+					<div className="space-y-2">
+						<label htmlFor="code" className="text-sm font-medium">
+							Country Code (2 characters)
+						</label>
+						<Input
+							id="code"
+							{...register('code')}
+							className={errors.code ? 'border-red-500' : ''}
+							maxLength={2}
+						/>
+						{errors.code && <span className="text-sm text-red-500">{errors.code.message}</span>}
+					</div>
 				</div>
-
 				<div className="flex justify-end space-x-2">
 					<Button
 						type="button"
