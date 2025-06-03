@@ -13,7 +13,6 @@ export const useAuth = () => {
 			console.log('data', data);
 			useAuthToken.getState().setToken(data);
 			useAuthToken.getState().setRefreshToken(data);
-			useAuthToken.getState().setCompany(data.user.company_ID);
 			if (variables.rememberMe) {
 				localStorage.setItem('authToken', data.token);
 			}

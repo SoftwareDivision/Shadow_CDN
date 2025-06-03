@@ -76,11 +76,11 @@ function Dashboard() {
 				brand: selectedBrand,
 				productsize: selectedProductSize,
 			};
-			console.log('Report Params on Load:', reportParams);
+			// console.log('Report Params on Load:', reportParams);
 
 			try {
 				const result = await getProductionReport(tokendata, reportParams);
-				console.log('Report Data on Load:', result);
+				// console.log('Report Data on Load:', result);
 				setReportData(result);
 			} catch (error) {
 				enqueueSnackbar(error.message || 'Failed to fetch report', { variant: 'error' });
