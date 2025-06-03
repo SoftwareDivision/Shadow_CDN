@@ -36,6 +36,16 @@ import {
 	getShiftDetails,
 } from '@/lib/api';
 import Loader from '@/components/Loader';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const schema = yup.object().shape({
 	country: yup.string().required('Country is required'),
@@ -80,6 +90,8 @@ export default function L1BarcodeGeneration() {
 	const [products, setProducts] = useState([]);
 	const [productSizes, setProductSizes] = useState([]);
 	const tokendata = token.data.token;
+	const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+	const [formData, setFormData] = useState(null);
 
 	// Data fetching
 	const {
@@ -196,9 +208,15 @@ export default function L1BarcodeGeneration() {
 		}
 	}, [initialData, reset, plantData, machineData, shiftData]);
 
-	const onSubmit = async (data) => {
+	const onSubmit = (data) => {
+		setFormData(data);
+		setShowConfirmDialog(true);
+	};
+
+	const handleConfirm = async () => {
 		try {
-			await submitForm(data);
+			await submitForm(formData);
+			setShowConfirmDialog(false);
 		} catch (error) {
 			console.error('Submission error:', error);
 		}
@@ -745,22 +763,6 @@ export default function L1BarcodeGeneration() {
 							</div>
 						</div>
 
-						{/* Add this inside CardContent */}
-						{/* <div className="mb-5 p-4 border rounded-lg">
-							<h3 className="font-bold mb-2">Form Validation Errors</h3>
-							{Object.entries(errors).length > 0 ? (
-								<ul className="list-disc pl-5">
-									{Object.entries(errors).map(([fieldName, error]) => (
-										<li key={fieldName} className="text-destructive">
-											<strong>{fieldName}:</strong> {error.message}
-										</li>
-									))}
-								</ul>
-							) : (
-								<p className="text-green-600">No validation errors</p>
-							)}
-						</div> */}
-
 						<div className="col-span-full mt-5">
 							<Button type="submit" className="w-full" disabled={isLoading}>
 								{isSubmitting ? (
@@ -772,6 +774,30 @@ export default function L1BarcodeGeneration() {
 									'Generate Barcode'
 								)}
 							</Button>
+
+							<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>Confirm Barcode Generation</AlertDialogTitle>
+										<AlertDialogDescription>
+											Are you sure you want to generate the barcode? This action cannot be undone.
+										</AlertDialogDescription>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<AlertDialogAction onClick={handleConfirm} disabled={isSubmitting}>
+											{isSubmitting ? (
+												<span className="flex items-center gap-2">
+													<Spinner className="h-4 w-4" />
+													Generating...
+												</span>
+											) : (
+												'Confirm'
+											)}
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
 						</div>
 					</form>
 				</CardContent>

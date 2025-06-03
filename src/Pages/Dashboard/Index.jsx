@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import SectionCards from './section-cards';
 import ChartAreaInteractive from './chart-area-interactive';
 import DataTable from '@/components/DataTable';
@@ -12,241 +12,133 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { format } from 'date-fns';
 import { CheckCircle2Icon, GripVerticalIcon, LoaderIcon, MoreVerticalIcon } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
-import { Card } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getProductionReport } from '@/lib/api';
+import { useAuthToken } from '@/hooks/authStore';
+import { enqueueSnackbar } from 'notistack';
+
+function TableSkeleton() {
+	return (
+		<div className="flex flex-col animate-pulse bg-gray-100 border border-gray-200 shadow-2xs rounded-xl dark:bg-gray-800 dark:border-gray-700">
+			{/* Header skeleton */}
+			<div className="p-4 md:p-5 flex justify-between gap-x-3">
+				<div className="flex-1 space-y-2">
+					<div className="h-3 w-24 bg-gray-300 rounded dark:bg-gray-600" />
+					<div className="h-6 w-32 bg-gray-400 rounded dark:bg-gray-500" />
+				</div>
+				<div className="shrink-0 size-11 bg-gray-300 dark:bg-gray-600 rounded-full" />
+			</div>
+			{[...Array(5)].map((_, index) => (
+				<div key={index} className="py-3 px-4 md:px-5 border-t border-gray-200 dark:border-gray-700">
+					<div className="h-4 w-full bg-gray-300 rounded dark:bg-gray-600" />
+				</div>
+			))}
+		</div>
+	);
+}
 
 function Dashboard() {
-	function DragHandle({ id }) {
-		const { attributes, listeners } = useSortable({ id });
+	const [reportData, setReportData] = useState(null);
+	const [isLoadingReport, setIsLoadingReport] = useState(false);
+	const { token } = useAuthToken.getState();
+	const tokendata = token.data.token;
 
-		return (
-			<Button
-				{...attributes}
-				{...listeners}
-				variant="ghost"
-				size="icon"
-				className="size-7 text-muted-foreground hover:bg-transparent"
-			>
-				<GripVerticalIcon className="size-3 text-muted-foreground" />
-				<span className="sr-only">Drag to reorder</span>
-			</Button>
-		);
-	}
+	useEffect(() => {
+		const fetchReportOnLoad = async () => {
+			setIsLoadingReport(true);
+			const data = {
+				fromDate: new Date(),
+				toDate: new Date(),
+				reportType: 'summary',
+				shift: 'all',
+				plantId: 'all',
+				brand: 'all',
+				productsize: 'all',
+			};
 
-	const columns = [
-		// {
-		// 	id: 'drag',
-		// 	header: () => null,
-		// 	cell: ({ row }) => <DragHandle id={row.original.id} />,
-		// },
-		{
-			id: 'select',
-			header: ({ table }) => (
-				<div className="flex items-center justify-center">
-					<Checkbox
-						checked={
-							table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
-						}
-						onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-						aria-label="Select all"
-					/>
-				</div>
-			),
-			cell: ({ row }) => (
-				<div className="flex items-center justify-center">
-					<Checkbox
-						checked={row.getIsSelected()}
-						onCheckedChange={(value) => row.toggleSelected(!!value)}
-						aria-label="Select row"
-					/>
-				</div>
-			),
-			enableSorting: false,
-			enableHiding: false,
-		},
-		{
-			accessorKey: 'header',
-			header: 'Custom Header',
-			cell: ({ row }) => row.original.header,
-			enableHiding: false,
-		},
-		{
-			accessorKey: 'type',
-			header: 'Section Type',
-			cell: ({ row }) => (
-				<div className="w-32">
-					<Badge variant="outline" className="px-1.5 text-muted-foreground">
-						{row.original.type}
-					</Badge>
-				</div>
-			),
-		},
-		{
-			accessorKey: 'status',
-			header: 'Status',
-			cell: ({ row }) => (
-				<Badge variant="outline" className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3">
-					{row.original.status === 'Done' ? (
-						<CheckCircle2Icon className="text-green-500 dark:text-green-400" />
-					) : (
-						<LoaderIcon />
-					)}
-					{row.original.status}
-				</Badge>
-			),
-		},
-		{
-			accessorKey: 'target',
-			header: () => <div className="w-full text-center">Target</div>,
-			cell: ({ row }) => row.original.target,
-		},
-		{
-			accessorKey: 'limit',
-			header: () => <div className="w-full text-center">Limit</div>,
-			cell: ({ row }) => row.original.limit,
-		},
-		{
-			accessorKey: 'reviewer',
-			header: 'Reviewer',
-			cell: ({ row }) => row.original.reviewer,
-		},
-		{
-			id: 'actions',
-			cell: () => (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							variant="ghost"
-							className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
-							size="icon"
-						>
-							<MoreVerticalIcon />
-							<span className="sr-only">Open menu</span>
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-32">
-						<DropdownMenuItem>Edit</DropdownMenuItem>
-						<DropdownMenuItem>Make a copy</DropdownMenuItem>
-						<DropdownMenuItem>Favorite</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>Delete</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			),
-		},
-	];
+			const formattedFromDate = data.fromDate ? format(data.fromDate, 'yyyy-MM-dd') : '';
+			const formattedToDate = data.toDate ? format(data.toDate, 'yyyy-MM-dd') : '';
 
-	const data = [
+			const selectedShift = data.shift === 'all' ? '' : data.shift;
+			const selectedPlant = data.plantId === 'all' ? '' : data.plantId;
+			const selectedBrand = data.brand === 'all' ? '' : data.brand;
+			const selectedProductSize = data.productsize === 'all' ? '' : data.productsize;
+
+			const reportParams = {
+				fromDate: formattedFromDate,
+				toDate: formattedToDate,
+				reportType: data.reportType,
+				shift: selectedShift,
+				plant: selectedPlant,
+				brand: selectedBrand,
+				productsize: selectedProductSize,
+			};
+			console.log('Report Params on Load:', reportParams);
+
+			try {
+				const result = await getProductionReport(tokendata, reportParams);
+				console.log('Report Data on Load:', result);
+				setReportData(result);
+			} catch (error) {
+				enqueueSnackbar(error.message || 'Failed to fetch report', { variant: 'error' });
+			} finally {
+				setIsLoadingReport(false);
+			}
+		};
+
+		fetchReportOnLoad();
+	}, []);
+
+	const summaryReportColumns = [
 		{
-			id: 1,
-			header: 'Introduction',
-			type: 'Narrative',
-			status: 'Done',
-			target: '1000',
-			limit: '1200',
-			reviewer: 'Eddie Lake',
+			accessorKey: 'plantname',
+			header: 'Plant Name',
 		},
 		{
-			id: 2,
-			header: 'Technical Approach',
-			type: 'Technical',
-			status: 'In Progress',
-			target: '800',
-			limit: '1000',
-			reviewer: 'Assign reviewer',
+			accessorKey: 'shift',
+			header: 'Shift',
 		},
 		{
-			id: 3,
-			header: 'Data Analysis',
-			type: 'Data',
-			status: 'Not Started',
-			target: '1200',
-			limit: '1500',
-			reviewer: 'Assign reviewer',
+			accessorKey: 'brandname',
+			header: 'Brand Name',
 		},
 		{
-			id: 4,
-			header: 'Conclusion',
-			type: 'Narrative',
-			status: 'Not Started',
-			target: '1000',
-			limit: '1200',
-			reviewer: 'Assign reviewer',
+			accessorKey: 'productsize',
+			header: 'Product Size',
 		},
 		{
-			id: 5,
-			header: 'Introduction',
-			type: 'Narrative',
-			status: 'Done',
-			target: '1000',
-			limit: '1200',
-			reviewer: 'Eddie Lake',
+			accessorKey: 'boxcount',
+			header: 'Box Qty.',
 		},
 		{
-			id: 6,
-			header: 'Technical Approach',
-			type: 'Technical',
-			status: 'In Progress',
-			target: '800',
-			limit: '1000',
-			reviewer: 'Assign reviewer',
+			accessorKey: 'l1netqty',
+			header: 'Net Wt.',
 		},
 		{
-			id: 7,
-			header: 'Data Analysis',
-			type: 'Data',
-			status: 'Not Started',
-			target: '1200',
-			limit: '1500',
-			reviewer: 'Assign reviewer',
-		},
-		{
-			id: 8,
-			header: 'Conclusion',
-			type: 'Narrative',
-			status: 'Not Started',
-			target: '1000',
-			limit: '1200',
-			reviewer: 'Assign reviewer',
-		},
-		{
-			id: 9,
-			header: 'Introduction',
-			type: 'Narrative',
-			status: 'Done',
-			target: '1000',
-			limit: '1200',
-			reviewer: 'Eddie Lake',
-		},
-		{
-			id: 10,
-			header: 'Technical Approach',
-			type: 'Technical',
-			status: 'In Progress',
-			target: '800',
-			limit: '1000',
-			reviewer: 'Assign reviewer',
-		},
-		{
-			id: 11,
-			header: 'Data Analysis',
-			type: 'Data',
-			status: 'Not Started',
-			target: '1200',
-			limit: '1500',
-			reviewer: 'Assign reviewer',
+			accessorKey: 'l1netunit',
+			header: 'Net Unit',
 		},
 	];
 
 	return (
 		<>
-			<div className="@container/main  flex flex-1 flex-col gap-2">
-				<div className="flex flex-col gap-4  md:gap-4">
+			<div className="@container/main flex flex-1 flex-col gap-2">
+				<div className="flex flex-col gap-4 md:gap-4">
 					<SectionCards />
 					<ChartAreaInteractive />
 					<Card className="w-full p-4 shadow-md">
-						<DataTable data={data} columns={columns} />
+						<CardHeader className="items-center pb-0 -ml-6">
+							<CardTitle>Brand-Wise Production (Today)</CardTitle>
+							<CardDescription>Overall Production Details</CardDescription>
+						</CardHeader>
+						{isLoadingReport ? (
+							<TableSkeleton />
+						) : (
+							<DataTable data={reportData || []} columns={summaryReportColumns} />
+						)}
 					</Card>
 				</div>
 			</div>

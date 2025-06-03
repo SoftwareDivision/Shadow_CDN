@@ -155,7 +155,7 @@ export default function ChartDataInteractive() {
 			<div className="col-span-2">
 				<Card className="@container/card shadow-md border-1">
 					<CardHeader className="relative">
-						<CardTitle>Total Production</CardTitle>
+						<CardTitle>Total Production (Last 3 months)</CardTitle>
 						<CardDescription>
 							<span className="@[540px]/card:block hidden">Total for the last 3 months</span>
 							<span className="@[540px]/card:hidden">Last 3 months</span>
