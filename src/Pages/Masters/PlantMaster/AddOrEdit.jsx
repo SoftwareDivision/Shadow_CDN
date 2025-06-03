@@ -49,7 +49,7 @@ function AddOrEdit() {
 			pName: '',
 			pCode: '',
 			license: '',
-			company_ID: '',
+			company_ID: token.data.user.company_ID,
 			issue_dt: new Date(),
 			validity_dt: new Date(),
 		},
@@ -133,7 +133,7 @@ function AddOrEdit() {
 						{errors.license && <span className="text-sm text-red-500">{errors.license.message}</span>}
 					</div>
 
-					<div className="space-y-2">
+					<div className="space-y-2 hidden">
 						<label htmlFor="company_ID" className="text-sm font-medium">
 							Company ID
 						</label>
