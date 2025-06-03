@@ -66,6 +66,10 @@ const Storage_Report = lazy(() => import('../Pages/Reports/Storage Report/Index'
 const Dispatch_Report = lazy(() => import('../Pages/Reports/Dispatch Report/Index'));
 const RE11_Status_Report = lazy(() => import('../Pages/Reports/RE11 Status Report/Index'));
 const RE2_Status_Report = lazy(() => import('../Pages/Reports/RE2 Status Report/Index'));
+const L1_Box_Deletion_Report = lazy(() => import('../Pages/Reports/L1 Box Deletion Report/Index'));
+const L1_Barcode_Reprint_Report = lazy(() => import('../Pages/Reports/L1 Barcode Reprint Report/Index'));
+const L2_Barcode_Reprint_Report = lazy(() => import('../Pages/Reports/L2 Barcode Reprint Report/Index'));
+const Production_Material_Transfer_Report = lazy(() => import('../Pages/Reports/Production Material Transfer Report/Index'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -668,6 +672,44 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+
+							<Route
+								path="/l1-box-deletion-report" // This is the URL path
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<L1_Box_Deletion_Report />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/l1-barcode-reprint-report" // This is the URL path
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef} >
+										<L1_Barcode_Reprint_Report />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/l2-barcode-reprint-report" // This is the URL path
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef} >
+										<L2_Barcode_Reprint_Report />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path='/production-material-transfer-report'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<Production_Material_Transfer_Report />
+									</SuspenseWrapper>
+								}
+							/>
+
+
 						</Route>
 						{/* Catch-all 404 page */}
 						<Route

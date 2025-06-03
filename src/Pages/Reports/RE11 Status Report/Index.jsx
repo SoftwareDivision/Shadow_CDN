@@ -56,8 +56,8 @@ function RE11_Status_Report() {
     } = useForm({
         resolver: yupResolver(formSchema),
         defaultValues: {
-            fromDate: null,
-            toDate: null,
+            fromDate: new Date(),
+            toDate: new Date(),
             re11Status: 'all',
             customerName: 'all',
             indentNo: 'all',
@@ -271,7 +271,7 @@ function RE11_Status_Report() {
                                             )}
                                         >
                                             <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {fromDate ? format(fromDate, "PPP") : <span>Pick a date</span>}
+                                            {fromDate ? format(fromDate, "PPP") : format(new Date(), "PPP")}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0">

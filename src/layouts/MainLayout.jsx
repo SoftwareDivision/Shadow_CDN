@@ -97,6 +97,10 @@ export default function MainLayout() {
 		'/storage-report': { parent: 'Reports', current: 'Storage Report' },
 		'/re11-status-report': { parent: 'Reports', current: 'RE11 Status Report' },
 		'/re2-status-report': { parent: 'Reports', current: 'RE2 Status Report' },
+		'/l1-box-deletion-report': { parent: 'Reports', current: 'L1 Box Deletion Report' },
+		'/l1-barcode-reprint-report': { parent: 'Reports', current: 'L1 Barcode Reprint Report' },
+		'/l2-barcode-reprint-report': { parent: 'Reports', current: 'L2 Barcode Reprint Report' },
+		'/production-material-transfer-report': { parent: 'Reports', current: 'Production Material Transfer Report' },
 	};
 
 	const getPathInfo = (path) => {

@@ -283,6 +283,27 @@ export const reprintL2Barcode = (token, data) => {
 };
 export const sendreprintL2Barcode = (token, data) => postData('/L2ReprintReport/REPrintdetailsLTwo', token, data);
 
+// L1 Box Deletion Report
+export const getl1BoxDeletionReport = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/Reports/Getl1boxdata?${queryParams}`, token);
+};
+// L1 Reprint Report
+export const getl1ReprintReport = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/Reports/Getl1reprintdata?${queryParams}`, token);
+};
+// L2 Reprint Report
+export const getl2ReprintReport = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/Reports/Getl2reprintdata?${queryParams}`, token);
+};
+// Production Material Transfer Report
+export const getPrd_Material_Trns_Report = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/Reports/Getprotransfetchdata?${queryParams}`, token);
+};
+
 //dashboard
 export const getDasboardcardtDetails = (t) => getAll('/Dashboard/Getdashboardcard', t);
 export const getMagzinestockDetails = (t) => getAll('/Dashboard/GetMagazinesstock', t);

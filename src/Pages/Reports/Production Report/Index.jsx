@@ -60,10 +60,10 @@ function Production_Report() {
     } = useForm({
         resolver: yupResolver(formSchema),
         defaultValues: {
-            reportType: 'Detailed',
+            reportType: '',
             plantId: 'all',
-            fromDate: null,
-            toDate: null,
+            fromDate: new Date(),
+            toDate: new Date(),
             shift: 'all',
             brand: 'all',
             productsize: 'all',
@@ -269,17 +269,28 @@ function Production_Report() {
                 </div>
 
                 {/* Updated RadioGroup for Summary and Detailed Summary */}
-                <div className="relative flex justify-center"> {/* Added flex and justify-center */}
-                    <RadioGroup name="reportType" defaultValue="Detailed" className="flex space-x-4" onValueChange={(value) => setValue("reportType", value)}> {/* Added onValueChange */}
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Detailed" id="detailed_summary" />
-                            <label htmlFor="detailed_summary">Detailed Summary</label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="summary" id="summary" />
-                            <label htmlFor="summary">Summary</label>
-                        </div>
-                    </RadioGroup>
+                <div className="relative flex justify-center">
+                    <Controller
+                        name="reportType"
+                        control={control}
+                        render={({ field }) => (
+                            <div className="flex flex-col gap-2">
+                                <RadioGroup defaultValue="" className="flex space-x-4" onValueChange={field.onChange} value={field.value}                                >
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="Detailed" id="detailed_summary" />
+                                        <label htmlFor="detailed_summary">Detailed Summary</label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="summary" id="summary" />
+                                        <label htmlFor="summary">Summary</label>
+                                    </div>
+                                </RadioGroup>
+                                {errors.reportType && (
+                                    <span className="text-destructive text-center text-sm">{errors.reportType.message}</span>
+                                )}
+                            </div>
+                        )}
+                    />
                 </div>
 
                 {/* Hirizontal Line Separator */}
@@ -313,7 +324,7 @@ function Production_Report() {
                                             )}
                                         >
                                             <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {fromDate ? format(fromDate, "PPP") : <span>Pick a date</span>}
+                                            {fromDate ? format(fromDate, "PPP") : format(new Date(), "PPP")}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0">
@@ -344,7 +355,7 @@ function Production_Report() {
                                             )}
                                         >
                                             <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {toDate ? format(toDate, "PPP") : <span>Pick a date</span>}
+                                            {toDate ? format(toDate, "PPP") : format(new Date(), "PPP")}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0">
