@@ -49,7 +49,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     user: {
       name: user?.user?.username || "Admin",
       email: user?.user?.company_ID || "soft@atcgroup.co.in",
-      avatar: user?.user?.avatar || "/avatars/shadcn.jpg",
+      avatar: user?.user?.avatar || "https://github.com/shadcn.png",
     },
     teams: [
       {

@@ -267,8 +267,6 @@ export const getRe2StatusReport = (token, params) => {
 	return getAll(`/Reports/GetRE2statusdata?${queryParams}`, token);
 };
 
-// Export API instance if needed elsewhere
-
 // reprint
 export const reprintL1Barcode = (token, data) => {
 	const queryParams = new URLSearchParams(data);
