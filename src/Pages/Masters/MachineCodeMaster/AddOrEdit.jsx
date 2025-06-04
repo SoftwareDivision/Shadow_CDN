@@ -44,7 +44,7 @@ function AddOrEdit() {
 		resolver: yupResolver(schema),
 		defaultValues: {
 			id: 0,
-			company_ID: '',
+			company_ID: token.data.user.company_ID,
 			pname: '',
 			pcode: '',
 			mcode: '',
@@ -124,7 +124,7 @@ function AddOrEdit() {
 			</div>
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 				<div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-					<div className="space-y-2">
+					<div className="space-y-2 hidden">
 						<label htmlFor="company_ID" className="text-sm font-medium">
 							Company ID
 						</label>

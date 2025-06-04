@@ -182,7 +182,7 @@ function AddOrEdit() {
 						/>
 						{errors.mfgcode && <span className="text-sm text-red-500">{errors.mfgcode.message}</span>}
 					</div>
-					<div className="flex-1 space-y-2 ">
+					<div className="flex-1 space-y-2 hidden">
 						<label htmlFor="company_ID" className="text-sm font-medium">
 							Company ID
 						</label>
