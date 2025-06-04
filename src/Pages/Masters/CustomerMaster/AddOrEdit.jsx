@@ -11,15 +11,12 @@ import { useSnackbar } from 'notistack';
 import { createCustomer, updateCustomer, getUOMDetails } from '@/lib/api';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
-} from '@/components/ui/select';
-
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger, } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const magazineSchema = yup.object().shape({
@@ -64,7 +61,7 @@ function AddOrEdit() {
     const tokendata = token.data.token;
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
-    
+
     // Add UOM state
     const [uoms, setUoms] = useState([]);
 
@@ -75,7 +72,7 @@ function AddOrEdit() {
     });
 
     const {
-        register,        
+        register,
         control,
         handleSubmit,
         formState: { errors },
@@ -84,7 +81,7 @@ function AddOrEdit() {
         resolver: yupResolver(schema),
         defaultValues: {
             id: 0,
-            cid: '',
+            cid: token.data.user.company_ID,
             cName: '',
             addr: '',
             gstno: '',
@@ -163,8 +160,8 @@ function AddOrEdit() {
     return (
         <Card className="p-4">
             <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                    <div>
+                <div className="grid grid-cols-3 gap-4 mb-4 ">
+                    <div className='hidden'>
                         <label htmlFor="mfgloccode" className="text-sm font-medium">
                             Customer ID
                         </label>
@@ -258,7 +255,7 @@ function AddOrEdit() {
                 <div className="mb-4">
                     <div className="flex justify-between items-center mb-2">
                         <h3 className="text-lg font-semibold">Magazines</h3>
-                        <Button type="button" onClick={() => appendMagazine({ id: 0, cid: 0, magazine: '', license: '', validity: '', wt: '', unit: '' })}>
+                        <Button type="button"  variant="outline" onClick={() => appendMagazine({ id: 0, cid: 0, magazine: '', license: '', validity: '', wt: '', unit: '' })}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Magazine
                         </Button>
@@ -290,11 +287,35 @@ function AddOrEdit() {
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        <Input
-                                            type="date"
-                                            {...register(`magazines.${index}.validity`)}
-                                            className={errors.magazines?.[index]?.validity ? 'border-red-500' : ''}
-                                        />
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full justify-start text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {field.value ? format(new Date(field.value), "PPP") : format(new Date(), "PPP")}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={field.value ? new Date(field.value) : new Date()}
+                                                    onSelect={(date) => {
+                                                        register(`magazines.${index}.validity`).onChange(date);
+                                                    }}
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                        {errors.magazines?.[index]?.validity && (
+                                            <span className="text-destructive text-sm">
+                                                {errors.magazines?.[index]?.validity.message}
+                                            </span>
+                                        )}
                                     </TableCell>
                                     <TableCell>
                                         <Input
@@ -352,7 +373,7 @@ function AddOrEdit() {
                 <div className="mb-4">
                     <div className="flex justify-between items-center mb-2">
                         <h3 className="text-lg font-semibold">Members</h3>
-                        <Button type="button" onClick={() => appendMember({ id: 0, cid: 0, name: '', email: '', contactNo: '' })}>
+                        <Button type="button"  variant="outline" onClick={() => appendMember({ id: 0, cid: 0, name: '', email: '', contactNo: '' })}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Member
                         </Button>

@@ -19,6 +19,7 @@ import {
   Workflow,
   FileSpreadsheet,
   PrinterIcon,
+  ShieldUser
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -112,7 +113,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             title: "Customer Master",
             url: "/customer-master",
           },
-          
+
           {
             title: "Transport Master", // Fix typo in title
             url: "/transport-master", // Match with route path
@@ -121,7 +122,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             title: "Reset masters",
             url: "/reset-type-master", // Remove the 's'
           },
-          
+
 
         ],
       },
@@ -192,6 +193,50 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ],
       },
       {
+        title: "Admin",
+        url: "#",
+        icon: ShieldUser,
+        items: [
+          {
+            title: "Shift Management",
+            url: "/shift-management",
+          },
+          {
+            title: "L1 Box Deletion",
+            url: "/l1boxdeletion"
+          }
+        ],
+      },
+      {
+        title: "Form",
+        url: "#",
+        icon: ShieldUser,
+        items: [
+          {
+            title: "Form RE2",
+            url: "#",
+            items: [
+              {
+                title: "Shift Management",
+                url: "/shiftmanagement"
+              },
+              {
+                title: "L1 Box Deletion",
+                url: "/l1boxdeletion"
+              },
+              {
+                title: "Attendance Tracking",
+                url: "/attendancetracking"
+              }
+            ]
+          },
+          {
+            title: "Form RE3",
+            url: "/formre3"
+          }
+        ]
+      },      
+      {
         title: "Reports",
         url: "#",
         icon: FileSpreadsheet,
@@ -217,8 +262,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/re2-status-report",
           },
           {
-            title:"L1 Box Deletion Report",
-            url:"/l1-box-deletion-report",
+            title: "L1 Box Deletion Report",
+            url: "/l1-box-deletion-report",
           },
           {
             title: "L1 Barcode Reprint Report",
@@ -229,8 +274,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/l2-barcode-reprint-report",
           },
           {
-            title:"Production Material Transfer Report",
-            url:"/production-material-transfer-report",
+            title: "Production Material Transfer Report",
+            url: "/production-material-transfer-report",
           }
         ],
       },

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -10,8 +10,8 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
-import { createProduct, updateProduct } from '@/lib/api';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createProduct, getAllBrands, updateProduct } from '@/lib/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 
 const schema = yup.object().shape({
@@ -53,6 +53,7 @@ function AddOrEdit() {
 	const {
 		register,
 		handleSubmit,
+		setValue,
 		formState: { errors },
 		reset,
 		control,
@@ -86,11 +87,34 @@ function AddOrEdit() {
 		},
 	});
 
-	React.useEffect(() => {
-		if (state) {
-			reset(state);
+	const [brands, setBrands] = React.useState([]);
+
+
+	//plant details
+	const {
+		data: brandData,
+		isLoading: isBrandFetching,
+		error: fetchBrandError,
+	} = useQuery({
+		queryKey: ['brandData'],
+		queryFn: () => getAllBrands(tokendata),
+		enabled: !!tokendata,
+	});
+
+	useEffect(() => {
+		if (brandData) {
+			const brandOptions = brandData?.map((plant) => ({
+				value: plant.bname,
+				text: plant.bname,
+				disabled: false,
+			}));
+			brandOptions.unshift({ value: 'all', text: 'All', disabled: false });
+			setBrands(brandOptions);
 		}
-	}, [state, reset]);
+
+	}, [reset, brandData]);
+
+	console.log('brandData', brandData);
 
 	const mutation = useMutation({
 		mutationFn: (data) => {
@@ -116,6 +140,16 @@ function AddOrEdit() {
 		},
 	});
 
+	const loading = isBrandFetching;
+	const allerrors = fetchBrandError;
+
+	if (allerrors) {
+		enqueueSnackbar(allerrors.message || 'Failed to fetch data', { variant: 'error' });
+	}
+	if (loading) {
+		return <div>Loading...</div>;
+	}
+
 	const onSubmit = (data) => {
 		mutation.mutate(data);
 	};
@@ -126,31 +160,120 @@ function AddOrEdit() {
 				<h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} Product</h2>
 			</div>
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-				<div className="grid grid-cols-3 gap-4 space-y-2">
+				<div className="grid grid-cols-4 gap-4 space-y-2">
 					<div className="space-y-2">
-						<Label>Brand Name</Label>
-						<Input {...register('bname')} className={errors.bname ? 'border-red-500' : ''} />
-						{errors.bname && <span className="text-sm text-red-500">{errors.bname.message}</span>}
+						<Controller
+							name="bname"
+							control={control}
+							render={({ field }) => (
+								<div className="flex flex-col gap-y-2">
+									<Label>Brand Name</Label>
+									<Select
+										value={field.value}
+										onValueChange={(value) => {
+											field.onChange(value);
+											const selectedBrand = brandData?.find((brand) => brand.bname === value);
+											if (selectedBrand) {
+												setValue('bid', selectedBrand.bid);
+												setValue('ptype', selectedBrand.ptype);
+											} else {
+												setValue('bid', '');
+												setValue('ptype', '');
+											}
+										}}
+									>
+										<SelectTrigger className="w-full">
+											<SelectValue placeholder="Select Brand..." />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectGroup>
+												{brandData?.map((brand) => (
+													<SelectItem
+														key={brand.bname}
+														value={brand.bname}
+													>
+														{brand.bname}
+													</SelectItem>
+												))}
+											</SelectGroup>
+										</SelectContent>
+									</Select>
+									{errors.bname && (
+										<span className="text-destructive text-sm">{errors.bname.message}</span>
+									)}
+								</div>
+							)}
+						/>
 					</div>
 
 					<div className="space-y-2">
 						<Label>Brand ID</Label>
-						<Input {...register('bid')} className={errors.bid ? 'border-red-500' : ''} />
+						<Input
+							{...register('bid')}
+							className={errors.bid ? 'border-red-500' : ''}
+							readOnly
+						/>
 						{errors.bid && <span className="text-sm text-red-500">{errors.bid.message}</span>}
 					</div>
 
 					<div className="space-y-2">
-						<Label>Product Type</Label>
-						<Input {...register('ptype')} className={errors.ptype ? 'border-red-500' : ''} />
-						{errors.ptype && <span className="text-sm text-red-500">{errors.ptype.message}</span>}
+						<Controller
+							name="ptype"
+							control={control}
+							render={({ field }) => (
+								<div className="flex flex-col gap-y-2">
+									<Label>Product Type</Label>
+									<Select
+										value={field.value}
+										onValueChange={(value) => {
+											field.onChange(value);
+											const selectedpname = brandData?.find((brand) => brand.pname === value);
+											if (selectedpname) {
+												setValue('ptypecode', selectedpname.pcode);
+											} else {
+												setValue('ptypecode', '');
+											}
+										}}
+									>
+										<SelectTrigger className="w-full">
+											<SelectValue placeholder="Select Product Type..." />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectGroup>
+												{[...new Set(brandData?.map(brand => brand.pname))]
+													.filter(Boolean)
+													.map((ptype) => (
+														<SelectItem
+															key={ptype}
+															value={ptype}
+														>
+															{ptype}
+														</SelectItem>
+													))}
+											</SelectGroup>
+										</SelectContent>
+									</Select>
+									{errors.ptype && (
+										<span className="text-destructive text-sm">{errors.ptype.message}</span>
+									)}
+								</div>
+							)}
+						/>
 					</div>
+
 
 					<div className="space-y-2">
 						<Label>Product Type Code</Label>
-						<Input {...register('ptypecode')} className={errors.ptypecode ? 'border-red-500' : ''} />
+						<Input {...register('ptypecode')}
+							className={errors.ptypecode ? 'border-red-500' : ''}
+							readOnly
+						/>
 						{errors.ptypecode && <span className="text-sm text-red-500">{errors.ptypecode.message}</span>}
 					</div>
 
+				</div>
+
+				<div className="grid grid-cols-3 gap-4 space-y-2">
 					<div className="space-y-2">
 						<Label>Class</Label>
 						<Input type="number" {...register('class')} className={errors.class ? 'border-red-500' : ''} />
@@ -336,3 +459,6 @@ function AddOrEdit() {
 }
 
 export default AddOrEdit;
+
+
+

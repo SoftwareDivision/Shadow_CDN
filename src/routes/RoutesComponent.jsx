@@ -33,8 +33,6 @@ const UOMAddOrEdit = lazy(() => import('../Pages/Masters/UOMMaster/AddOrEdit'));
 const ProductMaster = lazy(() => import('../Pages/Masters/ProductMaster/Index'));
 const ProductAddOrEdit = lazy(() => import('../Pages/Masters/ProductMaster/AddOrEdit'));
 const RE2FileGeneration = lazy(() => import('../Pages/Storages/RE2FileGeneration/RE2FileGeneration'));
-const shiftMaster = lazy(() => import('../Pages/Masters/shiftMaster/Index'));
-const shiftAddOrEdit = lazy(() => import('../Pages/Masters/shiftMaster/AddOrEdit'));
 const BrandMaster = lazy(() => import('../Pages/Masters/BrandMaster/Index'));
 const BrandAddOrEdit = lazy(() => import('../Pages/Masters/BrandMaster/AddOrEdit'));
 const CustomerMaster = lazy(() => import('../Pages/Masters/CustomerMaster/Index'));
@@ -70,6 +68,14 @@ const L1_Box_Deletion_Report = lazy(() => import('../Pages/Reports/L1 Box Deleti
 const L1_Barcode_Reprint_Report = lazy(() => import('../Pages/Reports/L1 Barcode Reprint Report/Index'));
 const L2_Barcode_Reprint_Report = lazy(() => import('../Pages/Reports/L2 Barcode Reprint Report/Index'));
 const Production_Material_Transfer_Report = lazy(() => import('../Pages/Reports/Production Material Transfer Report/Index'));
+
+// Admin
+const Shift_Management = lazy(() => import('../Pages/Admin/Shift Management/Index'));
+const Shift_ManagementAddOrEdit = lazy(() => import('../Pages/Admin/Shift Management/AddOrEdit'));
+const L1BoxDeletion = lazy(() => import('../Pages/Admin/L1 Box Deletion/Index'));
+
+// Form
+const FormRe3 = lazy(() => import('../Pages/Forms/Form RE3 Report/Index'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -709,6 +715,51 @@ export default function RoutesComponent() {
 								}
 							/>
 
+							<Route
+								path='/shift-management'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<Shift_Management />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path='/shift-management/add'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<Shift_ManagementAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path='/shift-management/edit/:id'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<Shift_ManagementAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+
+							<Route
+								path='/l1boxdeletion'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<L1BoxDeletion />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path='/formre3'
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<FormRe3 />
+									</SuspenseWrapper>
+								}
+							/>
+
+
 
 						</Route>
 						{/* Catch-all 404 page */}
@@ -722,7 +773,7 @@ export default function RoutesComponent() {
 						/>
 					</Routes>
 				</Suspense>
-			</ErrorBoundary>
+			</ErrorBoundary >
 		</>
 	);
 }

@@ -16,6 +16,11 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { useQuery } from '@tanstack/react-query';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getAllProducts, getUOMDetails } from '@/lib/api';
+import { Popover, PopoverContent, PopoverTrigger, } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
 
 
 const detailSchema = yup.object().shape({
@@ -59,14 +64,35 @@ function AddOrEdit() {
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
 
+    const [products, setProducts] = React.useState([]);
+    const [uoms, setUoms] = React.useState([]);
+    const [mfgLocations, setMfgLocations] = React.useState([]);
+
+    const { data: productData } = useQuery({
+        queryKey: ['products'],
+        queryFn: () => getAllProducts(tokendata),
+        enabled: !!tokendata
+    });
+
+    const { data: uomData } = useQuery({
+        queryKey: ['uoms'],
+        queryFn: () => getUOMDetails(tokendata),
+        enabled: !!tokendata
+    });
+
+    const { data: mfgLoc } = useQuery({
+        queryKey: ['classes'],
+        queryFn: () => getMfgLocationDetails(tokendata),
+        enabled: !!tokendata
+    });
+
     const {
         register,
         control,
         handleSubmit,
         formState: { errors },
         reset,
-        setValue,
-        watch
+        setValue,        
     } = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
@@ -91,6 +117,8 @@ function AddOrEdit() {
     });
 
     useEffect(() => {
+
+
         if (state?.magzineData) {
             const data = state.magzineData;
             reset({
@@ -117,8 +145,8 @@ function AddOrEdit() {
                 }))
             });
         }
-    }, [state, reset]);
-console.log('state', state);
+    }, [state, reset, mfgLocations, uomData]);
+    console.log('state', state);
 
     const mutation = useMutation({
         mutationFn: (data) => {
@@ -158,29 +186,11 @@ console.log('state', state);
 
     const onSubmit = (data) => {
         mutation.mutate(data);
+        console.log('data', data);
     };
 
-    const [products, setProducts] = React.useState([]);
-    const [uoms, setUoms] = React.useState([]);
-    const [mfgLocations, setMfgLocations] = React.useState([]);
 
-    const { data: productData } = useQuery({
-        queryKey: ['products'],
-        queryFn: () => getAllProducts(tokendata),
-        enabled: !!tokendata
-    });
 
-    const { data: uomData } = useQuery({
-        queryKey: ['uoms'],
-        queryFn: () => getUOMDetails(tokendata),
-        enabled: !!tokendata
-    });
-
-    const { data: mfgLoc } = useQuery({
-        queryKey: ['classes'],
-        queryFn: () => getMfgLocationDetails(tokendata),
-        enabled: !!tokendata
-    });
 
     useEffect(() => {
         if (mfgLoc) {
@@ -222,6 +232,7 @@ console.log('state', state);
             <div>
                 <h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} Magazine</h2>
             </div>
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="space-y-2">
@@ -233,21 +244,25 @@ console.log('state', state);
                             control={control}
                             render={({ field }) => (
                                 <Select
-                                    value={field.value}
+                                    value={field.value || ""}
                                     onValueChange={(value) => {
                                         field.onChange(value);
-                                        const selectedLoc = mfgLoc.find(loc => loc.mfgloc === value);
+                                        const selectedLoc = mfgLoc?.find(loc => loc.mfgloc === value);
                                         if (selectedLoc) {
-                                            setValue('mfgloccode', selectedLoc.mfgloccode);
+                                            setValue('mfgloccode', selectedLoc.mfgloccode, {
+                                                shouldValidate: true,
+                                                shouldDirty: true
+                                            });
                                         }
                                     }}
+                                    defaultValue={field.value}
                                 >
                                     <SelectTrigger className={`w-full ${errors.mfgloc ? 'border-red-500' : ''}`}>
                                         <SelectValue placeholder="Select location..." />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectGroup>
-                                            {mfgLocations.map((location) => (
+                                            {mfgLocations?.map((location) => (
                                                 <SelectItem
                                                     key={location.value}
                                                     value={location.value}
@@ -299,11 +314,35 @@ console.log('state', state);
                         <label htmlFor="issuedate" className="text-sm font-medium">
                             Issue Date
                         </label>
-                        <Input
-                            type="date"
-                            id="issuedate"
-                            {...register('issuedate')}
-                            className={errors.issuedate ? 'border-red-500' : ''}
+                        <Controller
+                            name="issuedate"
+                            control={control}
+                            render={({ field }) => (
+                                <div>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-full justify-start text-left font-normal",
+                                                    !field.value && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {field.value ? format(new Date(field.value), "PPP") : format(new Date(), "PPP")}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value ? new Date(field.value) : new Date()}
+                                                onSelect={field.onChange}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            )}
                         />
                         {errors.issuedate && <span className="text-sm text-red-500">{errors.issuedate.message}</span>}
                     </div>
@@ -312,11 +351,35 @@ console.log('state', state);
                         <label htmlFor="validitydt" className="text-sm font-medium">
                             Validity Date
                         </label>
-                        <Input
-                            type="date"
-                            id="validitydt"
-                            {...register('validitydt')}
-                            className={errors.validitydt ? 'border-red-500' : ''}
+                        <Controller
+                            name="validitydt"
+                            control={control}
+                            render={({ field }) => (
+                                <div>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-full justify-start text-left font-normal",
+                                                    !field.value && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {field.value ? format(new Date(field.value), "PPP") : format(new Date(), "PPP")}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value ? new Date(field.value) : new Date()}
+                                                onSelect={field.onChange}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            )}
                         />
                         {errors.validitydt && <span className="text-sm text-red-500">{errors.validitydt.message}</span>}
                     </div>
@@ -348,13 +411,24 @@ console.log('state', state);
                         />
                         {errors.margin && <span className="text-sm text-red-500">{errors.margin.message}</span>}
                     </div>
-                </div>
 
-                <div className="flex items-center space-x-2">
-                    <Checkbox id="autoallot_flag" {...register('autoallot_flag')} />
-                    <label htmlFor="autoallot_flag" className="text-sm font-medium cursor-pointer">
-                        Enable Auto Allotment
-                    </label>
+
+                    <div className="flex items-center mt-5 space-x-2">
+                        <Controller
+                            name="autoallot_flag"
+                            control={control}
+                            render={({ field }) => (
+                                <Checkbox 
+                                    id="autoallot_flag"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            )}
+                        />
+                        <label htmlFor="autoallot_flag" className="text-sm font-medium cursor-pointer">
+                            Enable Auto Allotment
+                        </label>
+                    </div>
                 </div>
 
                 <div className="space-y-4">
@@ -532,7 +606,7 @@ console.log('state', state);
                     </div>
                 </div>
             </form>
-        </Card> 
+        </Card>
     );
 }
 

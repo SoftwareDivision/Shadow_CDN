@@ -13,6 +13,12 @@ import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { createTransport, getUOMDetails, updateTransport } from '@/lib/api';
+import { Popover, PopoverContent, PopoverTrigger, } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
+
 
 // Vehicle Schema with foreign key relationship
 const vehicleSchema = yup.object().shape({
@@ -177,11 +183,9 @@ function AddOrEdit() {
 	};
 
 	return (
-		<Card className="p-4 shadow-md w-full mx-auto">
-			<div>
-				<h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} Transporter</h2>
-			</div>
-			<form onSubmit={handleSubmit(onSubmit)} className="container mx-auto py-2">
+		<Card className="p-4">
+
+			<form onSubmit={handleSubmit(onSubmit)}>
 				<div className="grid grid-cols-3 gap-4 mb-4">
 					{/* Transport Details */}
 					<div className="col-span-3">
@@ -281,6 +285,7 @@ function AddOrEdit() {
 							<h2 className="text-xl font-semibold">Vehicles</h2>
 							<Button
 								type="button"
+								variant="outline"
 								onClick={() =>
 									appendVehicle({ id: 0, vehicleNo: '', license: '', validity: '', wt: '', unit: '' })
 								}
@@ -316,11 +321,35 @@ function AddOrEdit() {
 											/>
 										</TableCell>
 										<TableCell>
-											<Input
-												type="date"
-												{...register(`vehicles.${index}.validity`)}
-												error={errors.vehicles?.[index]?.validity?.message}
-											/>
+											<Popover>
+												<PopoverTrigger asChild>
+													<Button
+														variant={"outline"}
+														className={cn(
+															"w-full justify-start text-left font-normal",
+															!field.value && "text-muted-foreground"
+														)}
+													>
+														<CalendarIcon className="mr-2 h-4 w-4" />
+														{field.value ? format(new Date(field.value), "PPP") : format(new Date(), "PPP")}
+													</Button>
+												</PopoverTrigger>
+												<PopoverContent className="w-auto p-0">
+													<Calendar
+														mode="single"
+														selected={field.value ? new Date(field.value) : new Date()}
+														onSelect={(date) => {
+															register(`vehicles.${index}.validity`).onChange(date);
+														}}
+														initialFocus
+													/>
+												</PopoverContent>
+											</Popover>
+											{errors.vehicles?.[index]?.validity && (
+												<span className="text-destructive text-sm">
+													{errors.vehicles?.[index]?.validity.message}
+												</span>
+											)}
 										</TableCell>
 										<TableCell>
 											<Input
@@ -374,6 +403,7 @@ function AddOrEdit() {
 							<h2 className="text-xl font-semibold">Members</h2>
 							<Button
 								type="button"
+								variant="outline"
 								onClick={() => appendMember({ id: 0, name: '', email: '', contactNo: '' })}
 							>
 								<Plus className="h-4 w-4 mr-1" />
@@ -429,7 +459,7 @@ function AddOrEdit() {
 				</div>
 
 				<div className="flex justify-end gap-4">
-					<Button variant="outline" onClick={() => navigate('/transport-master')}>
+					<Button variant="outline" type='button' onClick={() => navigate('/transport-master')}>
 						Cancel
 					</Button>
 					<Button type="submit" disabled={mutation.isLoading}>

@@ -38,7 +38,7 @@ const handleResponse = (res) => {
 	const { status, statusCode, data, message } = res.data;
 	console.log('API Response:', res.data);
 	if ((status && statusCode === 200) || statusCode === 201) return data;
-	if (statusCode === 400 || statusCode === 404) {
+	if (statusCode === 400 || statusCode === 404 || statusCode === 404) {
 		enqueueSnackbar(message, {
 			variant: 'error',
 			anchorOrigin: { vertical: 'top', horizontal: 'right' },
@@ -303,6 +303,27 @@ export const getPrd_Material_Trns_Report = (token, data) => {
 	const queryParams = new URLSearchParams(data);
 	return getAll(`/Reports/Getprotransfetchdata?${queryParams}`, token);
 };
+
+// ADMIN
+
+// Shift Management
+export const getAllShiftManagement = (t) => getAll('/shiftmanagement/GetAllShifts', t);
+export const createShiftManagement = (t, data) => postData('/shiftmanagement/CreateShift', t, data);
+export const deleteShiftManagement = (t, id) => deleteData(`/shiftmanagement/DeleteShift/${id}`, t);
+export const updateShiftManagement = (t, d) => putData(`/shiftmanagement/UpdateShift/${d.id}`, t, d);
+
+export const l1BoxDeletion = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/L1boxDeletion/DeleteBarcodeData?${queryParams}`, token);
+};
+
+// From RE3
+export const getFromRE3Report = (token, data) => {
+	const { fromDate, toDate, magname } = data;
+	return getAll(`/FormRE3/FormRE3/${fromDate}/${toDate}/${magname}`, token);
+};
+
+
 
 //dashboard
 export const getDasboardcardtDetails = (t) => getAll('/Dashboard/Getdashboardcard', t);

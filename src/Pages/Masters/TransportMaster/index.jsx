@@ -137,22 +137,20 @@ function TransportMaster() {
     };
 
     return (
-        <div className="container mx-auto py-6">
-            <Card className="p-6">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-semibold">Transport Master</h1>
-                    <Button onClick={handleAdd}>
-                        <PlusIcon className="mr-2 h-4 w-4" />
-                        Add Transport
-                    </Button>
-                </div>
-                <DataTable
-                    columns={columns}
-                    data={transportData || []}
-                    isLoading={isLoading}
-                />
-            </Card>
-        </div>
+        <Card className="p-4 shadow-md">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-semibold">Transport Master</h1>
+                <Button onClick={handleAdd}>
+                    <PlusIcon className="mr-2 h-4 w-4" />
+                    Add Transport
+                </Button>
+            </div>
+            <DataTable
+                columns={columns}
+                data={transportData || []}
+                isLoading={isLoading}
+            />
+        </Card>
     );
 }
 

@@ -48,6 +48,8 @@ export default function MainLayout() {
 		'/magzine-transfer': { parent: 'Home', current: 'Magzine-Transfer' },
 		'/magzine-transfer/transfer': { parent: 'Home', current: 'Magzine-Transfer' },
 		'/magzine-master': { parent: 'Home', current: 'Magzine-Master' },
+		'/magzine-master/add': { parent: 'Home', current: 'Add Magzine' },	
+		'/magzine-master/edit': { parent: 'Home', current: 'Edit Magzine' },
 		'/plant-master': { parent: 'Home', current: 'Plant-Master' },
 		'/plant-master/add': { parent: 'Home', current: 'Add Plant' },
 		'/mfg-masters': { parent: 'Home', current: 'MFG-Masters' },
@@ -101,6 +103,11 @@ export default function MainLayout() {
 		'/l1-barcode-reprint-report': { parent: 'Reports', current: 'L1 Barcode Reprint Report' },
 		'/l2-barcode-reprint-report': { parent: 'Reports', current: 'L2 Barcode Reprint Report' },
 		'/production-material-transfer-report': { parent: 'Reports', current: 'Production Material Transfer Report' },
+		'/shift-management': { parent: 'Admin', current: 'Shift Management' },
+		'/shift-management/add': { parent: 'Admin', current: 'Add Shift' },
+		'/shift-management/edit': { parent: 'Admin', current: 'Edit Shift' },
+		'/l1boxdeletion': { parent: 'Admin', current: 'L1 Box Deletion' },
+		'/formre3': { parent: 'Form', current: 'Form RE-3' },
 	};
 
 	const getPathInfo = (path) => {
