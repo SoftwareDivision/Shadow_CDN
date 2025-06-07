@@ -109,6 +109,7 @@ export default function MainLayout() {
 		'/l1boxdeletion': { parent: 'Admin', current: 'L1 Box Deletion' },
 		'/ReGenerateRE2FileGeneration': { parent: 'Admin', current: 'Re Generate-RE2' },
 		'/formre3': { parent: 'Form', current: 'Form RE-3' },
+		'/formre4': { parent: 'Form', current: 'Form RE-4' },
 	};
 
 	const getPathInfo = (path) => {

@@ -9,7 +9,7 @@ import { CalendarIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 // Assuming getPlantDetails, getShiftDetails, getBrands, and getProductSizes are available in your api.js
-import { getMagzineDetails, getFromRE3Report } from '@/lib/api';
+import { getMagzineDetails, getFromRE4Report } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
 
 import { Card } from '@/components/ui/card';
@@ -21,7 +21,7 @@ import { Calendar } from '@/components/ui/calendar';
 import DataTable from '@/components/DataTable';
 
 
-function FormRE3_Report() {
+function FormRE4_Report() {
     const { token } = useAuthToken.getState();
     const tokendata = token.data.token;
 
@@ -105,11 +105,11 @@ function FormRE3_Report() {
 
         try {
             // Make the API call using the new function
-            const result = await getFromRE3Report(tokendata, reportParams);
+            const result = await getFromRE4Report(tokendata, reportParams);
 
             enqueueSnackbar('Report fetched successfully', { variant: 'success' });
 
-            console.log('Report Data:', result.StockSoldSummary);
+            console.log('Report Data:', result);
             setReportData(result.StockSoldSummary); // Store the report data
             setIsLoadingReport(false);
         } catch (error) {
@@ -139,27 +139,32 @@ function FormRE3_Report() {
             }
         },
         {
-            accessorKey: 'bname',
-            header: 'Name',
+            header: '(Des) Name',
+            cell: ({ row }) => {
+                const magazine = row.original.bname;
+                const size = row.original.productsize;
+                return (
+                    <div className="text-center">
+                        <div>{magazine}</div>
+                        <div>{size}</div>
+                    </div>
+                );
+            },
         },
         {
             accessorKey: 'class',
-            header: 'Class',
+            header: '(Des) Class',
         },
         {
             accessorKey: 'div',
-            header: 'Division',
+            header: '(Des) Division',
         },
         {
             accessorKey: 'opening',
             header: 'Opening',
         },
         {
-            header: () =>
-                <div>
-                    <div>Explosives recieved</div>
-                    <div>by licensee</div>
-                </div>,
+            header: '(Sold by) Name',
             cell: ({ row }) => {
                 const magazine = row.original.recbname;
                 const size = row.original.recproductsize;
@@ -170,6 +175,14 @@ function FormRE3_Report() {
                     </div>
                 );
             },
+        },
+        {
+            accessorKey: 'class',
+            header: '(Sold by) Class',
+        },
+        {
+            accessorKey: 'div',
+            header: '(Sold by) Division',
         },
         {
             accessorKey: 'quantity',
@@ -183,8 +196,9 @@ function FormRE3_Report() {
             accessorKey: 'licence',
             header: () => (
                 <div>
-                    <div>Name, Address and </div>
-                    <div>licence number Of supplier</div>
+                    <div> Nane , Adress and licence</div>
+                    <div>number of person to</div>
+                    <div> Whom explosives are sold</div>
                 </div>
             ),
         },
@@ -194,16 +208,20 @@ function FormRE3_Report() {
                 <div>
                     <div>Mode Of transport</div>
                     <div>and road van licence</div>
-                    <div>number if transported by road</div>
+                    <div>number is transported by road</div>
                 </div>
             ),
+        },
+        {
+            accessorKey: 'passno',
+            header: 'Pass No.',
         },
         {
             accessorKey: 'closing',
             header: 'Closing Balance',
         },
         {
-            accessorKey: 'gh',
+            accessorKey: 'remarks',
             header: 'Remarks',
         },
         {
@@ -219,7 +237,7 @@ function FormRE3_Report() {
     return (
         <Card className="p-4 shadow-md">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-semibold">Form RE3 Report</h1>
+                <h1 className="text-2xl font-semibold">Form RE4 Report</h1>
             </div>
             {/* Updated onSubmit handler */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -361,4 +379,4 @@ function FormRE3_Report() {
     );
 }
 
-export default FormRE3_Report;
+export default FormRE4_Report;

@@ -78,8 +78,14 @@ const Shift_ManagementAddOrEdit = lazy(() => import('../Pages/Admin/Shift Manage
 const L1BoxDeletion = lazy(() => import('../Pages/Admin/L1 Box Deletion/Index'));
 const ReGenerateRE2FileGeneration = lazy(() => import('../Pages/Admin/ReGenerateRe2/Index'));
 
-// Form
-const FormRe3 = lazy(() => import('../Pages/Forms/Form RE3 Report/Index'));
+//Form RE2
+const FormRE2 = lazy(() => import('@/Pages/Forms/Form RE2/Form RE2 Report/Index'));
+
+// Form RE3
+const FormRE3 = lazy(() => import('../Pages/Forms/Form RE3 Report/Index'));
+
+//Form RE4
+const FormRE4 = lazy(() => import('../Pages/Forms/Form RE4/Form RE4 Report/Index'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -754,6 +760,15 @@ export default function RoutesComponent() {
 							/>
 
 							<Route
+								path="/formre2"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<FormRE2 />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
 								path="/ReGenerateRE2FileGeneration"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
@@ -766,7 +781,16 @@ export default function RoutesComponent() {
 								path="/formre3"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
-										<FormRe3 />
+										<FormRE3 />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/formre4"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<FormRE4 />
 									</SuspenseWrapper>
 								}
 							/>

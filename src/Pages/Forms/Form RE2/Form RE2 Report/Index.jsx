@@ -9,19 +9,31 @@ import { CalendarIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 // Assuming getPlantDetails, getShiftDetails, getBrands, and getProductSizes are available in your api.js
-import { getMagzineDetails, getFromRE3Report } from '@/lib/api';
+import { getPlantDetails, getFromRE2Report } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
 
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger, } from '@/components/ui/popover';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import DataTable from '@/components/DataTable';
 
 
-function FormRE3_Report() {
+
+function FormRE2Report() {
     const { token } = useAuthToken.getState();
     const tokendata = token.data.token;
 
@@ -29,7 +41,7 @@ function FormRE3_Report() {
     const formSchema = yup.object().shape({
         fromDate: yup.date().required('From date is required'),
         toDate: yup.date().required('To date is required'),
-        magname: yup.string().required('Magazine is required'),
+        plantId: yup.string().required('Plant is required'),
     });
 
     const {
@@ -42,46 +54,46 @@ function FormRE3_Report() {
     } = useForm({
         resolver: yupResolver(formSchema),
         defaultValues: {
-            fromDate: new Date(),
-            toDate: new Date(),
-            magname: '',
-
+            plantId: 'all',
+            fromDate: new Date().toISOString(),
+            toDate: new Date().toISOString(),
         },
     });
 
 
     const [fromDate, setFromDate] = React.useState(null);
     const [toDate, setToDate] = React.useState(null);
-    const [magazine, setMagzine] = useState([]);
+    const [plants, setPlants] = React.useState([]);
     const [reportData, setReportData] = React.useState(null);
     const [isLoadingReport, setIsLoadingReport] = React.useState(false);
     const [reportType, setReportType] = React.useState('Detailed');
 
     const { enqueueSnackbar } = useSnackbar();
 
-
-    //shift details
+    //plant details
     const {
-        data: magazineData,
-        isLoading: isShiftFetching,
-        error: fetchShiftError,
+        data: plantData,
+        isLoading: isPlantFetching,
+        error: fetchplantError,
     } = useQuery({
-        queryKey: ['magazineData'],
-        queryFn: () => getMagzineDetails(tokendata),
+        queryKey: ['plantData'],
+        queryFn: () => getPlantDetails(tokendata),
         enabled: !!tokendata,
     });
 
     useEffect(() => {
-
-        if (magazineData) {
-            const magOptions = [...new Set(magazineData?.map((mag) => mag.mcode))].sort().map((mag) => ({
-                value: mag,
-                text: mag,
+        if (plantData) {
+            const plantOptions = plantData?.map((plant) => ({
+                value: plant.pCode,
+                text: plant.pName,
                 disabled: false,
             }));
-            setMagzine(magOptions);
+            plantOptions.unshift({ value: 'all', text: 'All', disabled: false });
+            setPlants(plantOptions);
         }
-    }, [reset, , magazineData]);
+        console.log('Plant Data:', plantData);
+
+    }, [reset, plantData]);
 
     // Handle form submission
     const onSubmit = async (data) => {
@@ -92,25 +104,25 @@ function FormRE3_Report() {
         const formattedFromDate = data.fromDate ? format(data.fromDate, 'yyyy-MM-dd') : '';
         const formattedToDate = data.toDate ? format(data.toDate, 'yyyy-MM-dd') : '';
 
-        // Handle 'all' values for shift, plant, brand and productsize
-        const selectedMagazine = data.magname;
+        // Handle 'all' values for shift, plant, brand and productsize      
+        const selectedPlant = data.plantId === 'all' ? '' : data.plantId;
 
         setReportType(data.reportType);
+        // Ensure parameters match API endpoint types
         const reportParams = {
-            fromDate: formattedFromDate,
-            toDate: formattedToDate,
-            magname: selectedMagazine,
+            fromDate: formattedFromDate.toString(), // Ensure string type
+            toDate: formattedToDate.toString(), // Ensure string type
+            plant: selectedPlant?.toString() || null // Match optional string parameter
         };
         console.log('Report Params:', reportParams);
 
         try {
             // Make the API call using the new function
-            const result = await getFromRE3Report(tokendata, reportParams);
+            const result = await getFromRE2Report(tokendata, reportParams);
 
             enqueueSnackbar('Report fetched successfully', { variant: 'success' });
-
-            console.log('Report Data:', result.StockSoldSummary);
-            setReportData(result.StockSoldSummary); // Store the report data
+            console.log('Report Data:', result);
+            setReportData(result); // Store the report data
             setIsLoadingReport(false);
         } catch (error) {
             enqueueSnackbar(error.message || 'Failed to fetch report', { variant: 'error' });
@@ -119,8 +131,8 @@ function FormRE3_Report() {
 
     console.log('Report Data from setreportData:', reportData)
 
-    const loading = isLoadingReport || isShiftFetching;
-    const allerrors = fetchShiftError;
+    const loading = isLoadingReport || isPlantFetching;
+    const allerrors = fetchplantError;
 
     if (allerrors) {
         enqueueSnackbar(allerrors.message || 'Failed to fetch data', { variant: 'error' });
@@ -131,95 +143,67 @@ function FormRE3_Report() {
 
     const detailedReportColumns = [
         {
-            accessorKey: 'mfgdt',
+            accessorKey: 'gendt',
             header: 'Date',
             cell: ({ row }) => {
-                const date = row.getValue('mfgdt');
+                const date = row.getValue('gendt');
                 return date ? format(new Date(date), 'dd/MM/yyyy') : '';
             }
         },
         {
+            accessorKey: 'shift',
+            header: 'Shitf',
+        },
+        {
             accessorKey: 'bname',
-            header: 'Name',
+            header: 'Brand Name of Explosive',
         },
         {
-            accessorKey: 'class',
-            header: 'Class',
-        },
-        {
-            accessorKey: 'div',
-            header: 'Division',
-        },
-        {
-            accessorKey: 'opening',
-            header: 'Opening',
-        },
-        {
-            header: () =>
-                <div>
-                    <div>Explosives recieved</div>
-                    <div>by licensee</div>
-                </div>,
+            header: 'Class & Division',
             cell: ({ row }) => {
-                const magazine = row.original.recbname;
-                const size = row.original.recproductsize;
-                return (
-                    <div className="text-center">
-                        <div>{magazine}</div>
-                        <div>{size}</div>
-                    </div>
-                );
+                const magazine = row.original.class;
+                const size = row.original.div;
+                return `${magazine} - ${size}`;
             },
         },
         {
-            accessorKey: 'quantity',
-            header: 'Quantity',
+            accessorKey: 'productsize',
+            header: 'Dimension of Finished Product',
         },
         {
-            accessorKey: 'batch',
+            accessorKey: 'srno_ranges',
             header: 'Batch No.',
         },
         {
-            accessorKey: 'licence',
-            header: () => (
-                <div>
-                    <div>Name, Address and </div>
-                    <div>licence number Of supplier</div>
-                </div>
-            ),
+            accessorKey: 'netwt',
+            header: 'Quantity Manufactured',
         },
         {
-            accessorKey: 'transport',
-            header: () => (
-                <div>
-                    <div>Mode Of transport</div>
-                    <div>and road van licence</div>
-                    <div>number if transported by road</div>
-                </div>
-            ),
+            accessorKey: 'dateoftest',
+            header: 'Date Of Test',
         },
         {
-            accessorKey: 'closing',
-            header: 'Closing Balance',
+            accessorKey: 'srno_count',
+            header: 'No.of Packages',
         },
         {
-            accessorKey: 'gh',
+            accessorKey: 'maglic',
+            header: 'Magazine and Storage House Licence No. to which the Explosive Send',
+        },
+        {
+            accessorKey: 'test',
             header: 'Remarks',
         },
         {
-            accessorKey: 'fgh',
-            header: () =>
-                <div>
-                    <div>Signature of licensee</div>
-                    <div>or person in charge</div>
-                </div>
-        }
+            accessorKey: 'test',
+            header: 'Signature of Person InCharge or License',
+        },
     ];
 
     return (
         <Card className="p-4 shadow-md">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-semibold">Form RE3 Report</h1>
+                <h1 className="text-2xl font-semibold">Form RE2 Report</h1>
             </div>
             {/* Updated onSubmit handler */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -228,9 +212,8 @@ function FormRE3_Report() {
                 <div className="grid grid-cols-1 gap-5">
                     {/* MFG Date Wise */}
                     <div>
-                        <h6 className="mb-2 font-semibold">Stock Date Wise :</h6>
+                        <h6 className="mb-2 font-semibold">MFG Date Wise :</h6>
                         <div className="grid grid-cols-2 gap-4">
-
                             {/* From Date */}
                             <div>
                                 <label htmlFor="fromDate" className="text-sm font-medium">
@@ -252,7 +235,7 @@ function FormRE3_Report() {
                                     <PopoverContent className="w-auto p-0">
                                         <Calendar
                                             mode="single"
-                                            selected={fromDate}
+                                            selected={fromDate || new Date()}
                                             onSelect={(date) => { setFromDate(date); setValue("fromDate", date); }}
                                             initialFocus
                                         />
@@ -262,6 +245,7 @@ function FormRE3_Report() {
                                     <span className="text-destructive text-sm">{errors.fromDate.message}</span>
                                 )}
                             </div>
+
                             {/* To Date */}
                             <div>
                                 <label htmlFor="toDate" className="text-sm font-medium">
@@ -289,7 +273,7 @@ function FormRE3_Report() {
                                         />
                                     </PopoverContent>
                                 </Popover>
-                                {errors.toDate && ( // Corrected from errors.fromDate
+                                {errors.fromDate && (
                                     <span className="text-destructive text-sm">{errors.toDate.message}</span>
                                 )}
                             </div>
@@ -297,50 +281,55 @@ function FormRE3_Report() {
                     </div>
                 </div>
 
-
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center">
+                        <span className="bg-transparent  px-2 text-sm font-medium">Plant Details</span>
+                    </div>
+                </div>
 
                 <div className="grid grid-cols-2 gap-5">
+                    <Controller
+                        name="plantId"
+                        control={control}
+                        render={({ field }) => (
+                            // plantName                           
+                            <div className="flex flex-col gap-y-2">
+                                <Label>Plant Name</Label>
+                                <Select
+                                    value={field.value}
+                                    onValueChange={(value) => {
+                                        field.onChange(value);
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Select plant..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
 
-                    {/* Magazine dropdown */}
-                    <div className="flex flex-col gap-y-2">
-                        <Controller
-                            name="magname"
-                            control={control}
-                            render={({ field }) => (
-                                <div className="flex flex-col gap-y-2">
-                                    <Label>Magazine Name</Label>
-                                    <Select
-                                        value={field.value}
-                                        onValueChange={(value) => {
-                                            field.onChange(value);
-                                        }}
-                                    >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select Magazine..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                {magazine.map((mag) => (
-                                                    <SelectItem
-                                                        key={mag.value}
-                                                        value={mag.value}
-                                                        disabled={mag.disabled}
-                                                    >
-                                                        {mag.text}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.magname && ( // Corrected from errors.mag
-                                        <span className="text-destructive text-sm">{errors.magname.message}</span>
-                                    )}
-                                </div>
-                            )}
-                        />
-                    </div>
-
+                                        <SelectGroup>
+                                            {plants.map((plant) => (
+                                                <SelectItem
+                                                    key={plant.value}
+                                                    value={plant.value}
+                                                    disabled={plant.disabled}
+                                                >
+                                                    {plant.text}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                {errors.plantId && (
+                                    <span className="text-destructive text-sm">{errors.plantId.message}</span>
+                                )}
+                            </div>
+                        )}
+                    />
                 </div>
+
 
                 {/* Submit Button */}
                 <Button type="submit" disabled={isLoadingReport}>
@@ -350,9 +339,10 @@ function FormRE3_Report() {
 
             <div>
                 {reportData ? (
-                    <DataTable columns={detailedReportColumns} data={reportData} />
+                    <DataTable
+                        columns={detailedReportColumns} data={reportData} />
                 ) : (
-                    <p className="text-center">No report data available.</p>
+                    <p className='text-center'>No report data available.</p>
                 )}
 
             </div>
@@ -361,4 +351,4 @@ function FormRE3_Report() {
     );
 }
 
-export default FormRE3_Report;
+export default FormRE2Report;
