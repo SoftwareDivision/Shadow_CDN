@@ -36,7 +36,7 @@ export default function LoginForm() {
 									<h5 className="text-2xl font-bold text-primary mb-2">
 										AARKAY EXPLO - TRACK & TRACE
 									</h5>
-									<h4 className="text-lg text-muted-foreground">
+									<h4 className="text-sm text-muted-foreground">
 										Complete Solution for Explosives Manufacturer
 									</h4>
 								</div>

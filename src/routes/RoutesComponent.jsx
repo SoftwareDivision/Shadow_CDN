@@ -6,6 +6,7 @@ import NotFound from '../components/NotFound';
 import MainLayout from '../layouts/MainLayout';
 import AuthLayout from '../layouts/AuthLayout';
 import Loader from '@/components/Loader';
+import RegenerateRE2FileGeneration from '@/Pages/Admin/ReGenerateRe2/Index';
 
 // Lazy-loaded pages
 const Dashboard = lazy(() => import('../Pages/Dashboard/Index'));
@@ -67,12 +68,15 @@ const RE2_Status_Report = lazy(() => import('../Pages/Reports/RE2 Status Report/
 const L1_Box_Deletion_Report = lazy(() => import('../Pages/Reports/L1 Box Deletion Report/Index'));
 const L1_Barcode_Reprint_Report = lazy(() => import('../Pages/Reports/L1 Barcode Reprint Report/Index'));
 const L2_Barcode_Reprint_Report = lazy(() => import('../Pages/Reports/L2 Barcode Reprint Report/Index'));
-const Production_Material_Transfer_Report = lazy(() => import('../Pages/Reports/Production Material Transfer Report/Index'));
+const Production_Material_Transfer_Report = lazy(() =>
+	import('../Pages/Reports/Production Material Transfer Report/Index'),
+);
 
 // Admin
 const Shift_Management = lazy(() => import('../Pages/Admin/Shift Management/Index'));
 const Shift_ManagementAddOrEdit = lazy(() => import('../Pages/Admin/Shift Management/AddOrEdit'));
 const L1BoxDeletion = lazy(() => import('../Pages/Admin/L1 Box Deletion/Index'));
+const ReGenerateRE2FileGeneration = lazy(() => import('../Pages/Admin/ReGenerateRe2/Index'));
 
 // Form
 const FormRe3 = lazy(() => import('../Pages/Forms/Form RE3 Report/Index'));
@@ -691,7 +695,7 @@ export default function RoutesComponent() {
 							<Route
 								path="/l1-barcode-reprint-report" // This is the URL path
 								element={
-									<SuspenseWrapper loadingBarRef={loadingBarRef} >
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<L1_Barcode_Reprint_Report />
 									</SuspenseWrapper>
 								}
@@ -700,14 +704,14 @@ export default function RoutesComponent() {
 							<Route
 								path="/l2-barcode-reprint-report" // This is the URL path
 								element={
-									<SuspenseWrapper loadingBarRef={loadingBarRef} >
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<L2_Barcode_Reprint_Report />
 									</SuspenseWrapper>
 								}
 							/>
 
 							<Route
-								path='/production-material-transfer-report'
+								path="/production-material-transfer-report"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<Production_Material_Transfer_Report />
@@ -716,7 +720,7 @@ export default function RoutesComponent() {
 							/>
 
 							<Route
-								path='/shift-management'
+								path="/shift-management"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<Shift_Management />
@@ -724,7 +728,7 @@ export default function RoutesComponent() {
 								}
 							/>
 							<Route
-								path='/shift-management/add'
+								path="/shift-management/add"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<Shift_ManagementAddOrEdit />
@@ -732,7 +736,7 @@ export default function RoutesComponent() {
 								}
 							/>
 							<Route
-								path='/shift-management/edit/:id'
+								path="/shift-management/edit/:id"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<Shift_ManagementAddOrEdit />
@@ -740,9 +744,8 @@ export default function RoutesComponent() {
 								}
 							/>
 
-
 							<Route
-								path='/l1boxdeletion'
+								path="/l1boxdeletion"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<L1BoxDeletion />
@@ -751,16 +754,22 @@ export default function RoutesComponent() {
 							/>
 
 							<Route
-								path='/formre3'
+								path="/ReGenerateRE2FileGeneration"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RegenerateRE2FileGeneration />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/formre3"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<FormRe3 />
 									</SuspenseWrapper>
 								}
 							/>
-
-
-
 						</Route>
 						{/* Catch-all 404 page */}
 						<Route
@@ -773,7 +782,7 @@ export default function RoutesComponent() {
 						/>
 					</Routes>
 				</Suspense>
-			</ErrorBoundary >
+			</ErrorBoundary>
 		</>
 	);
 }

@@ -48,7 +48,7 @@ export default function MainLayout() {
 		'/magzine-transfer': { parent: 'Home', current: 'Magzine-Transfer' },
 		'/magzine-transfer/transfer': { parent: 'Home', current: 'Magzine-Transfer' },
 		'/magzine-master': { parent: 'Home', current: 'Magzine-Master' },
-		'/magzine-master/add': { parent: 'Home', current: 'Add Magzine' },	
+		'/magzine-master/add': { parent: 'Home', current: 'Add Magzine' },
 		'/magzine-master/edit': { parent: 'Home', current: 'Edit Magzine' },
 		'/plant-master': { parent: 'Home', current: 'Plant-Master' },
 		'/plant-master/add': { parent: 'Home', current: 'Add Plant' },
@@ -107,6 +107,7 @@ export default function MainLayout() {
 		'/shift-management/add': { parent: 'Admin', current: 'Add Shift' },
 		'/shift-management/edit': { parent: 'Admin', current: 'Edit Shift' },
 		'/l1boxdeletion': { parent: 'Admin', current: 'L1 Box Deletion' },
+		'/ReGenerateRE2FileGeneration': { parent: 'Admin', current: 'Re Generate-RE2' },
 		'/formre3': { parent: 'Form', current: 'Form RE-3' },
 	};
 

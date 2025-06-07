@@ -99,13 +99,17 @@ function SectionCards() {
 		},
 	});
 
-	// Transform API data to include all plants for today
 	const loadingSheetsData = React.useMemo(() => {
 		if (!plantData) return null;
 		const todayData = Object.entries(plantData)
 			.filter(([key, value]) => value.mfgDate === today)
 			.reduce((acc, [key, value]) => {
-				acc[value.plantName] = { pCodeCount: value.pCodeCount || 0 };
+				const baseName = value.plantName.split(/[-\d]/)[0].trim();
+
+				if (!acc[baseName]) {
+					acc[baseName] = { pCodeCount: 0 };
+				}
+				acc[baseName].pCodeCount += value.pCodeCount || 0;
 				return acc;
 			}, {});
 		return todayData;
@@ -169,7 +173,7 @@ function SectionCards() {
 								</div>
 							</div>
 							<a
-								href="#"
+								href="/production-report"
 								className={`py-3 px-4 md:px-5 inline-flex justify-between items-center text-sm text-${
 									card.color
 								}-800 border-t ${colorClasses[card.color].border} ${colorClasses[card.color].hoverBg} ${

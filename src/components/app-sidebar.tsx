@@ -204,6 +204,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "L1 Box Deletion",
             url: "/l1boxdeletion"
+          },
+          {
+            title: "Regenerate RE2",
+            url: "/ReGenerateRE2FileGeneration"
           }
         ],
       },

@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { generateRE2File, getRE2GenData } from '@/lib/api';
+import { getregeneratere2, regenerateRE2File } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import DataTable from '@/components/DataTable';
 
-const RE2FileGeneration = () => {
+const RegenerateRE2FileGeneration = () => {
 	const { token } = useAuthToken.getState();
 	const [loading, setLoading] = useState(false);
 	const [re2Data, setRE2Data] = useState([]);
@@ -27,8 +27,8 @@ const RE2FileGeneration = () => {
 		error: fetchError,
 		refetch,
 	} = useQuery({
-		queryKey: ['re2GenerateData'],
-		queryFn: () => getRE2GenData(token.data.token),
+		queryKey: ['regenaratere2GenerateData'],
+		queryFn: () => getregeneratere2(token.data.token),
 		enabled: !!token,
 	});
 
@@ -48,7 +48,7 @@ const RE2FileGeneration = () => {
 
 	const mutation = useMutation({
 		mutationFn: async (payload) => {
-			return await generateRE2File(token.data.token, payload);
+			return await regenerateRE2File(token.data.token, payload);
 		},
 		onSuccess: (data) => {
 			downloadCSV(data);
@@ -211,7 +211,7 @@ const RE2FileGeneration = () => {
 		<>
 			<Card className="p-4 shadow-md">
 				<div className="flex items-center justify-between">
-					<h2 className="text-2xl font-bold">RE2 File Generation</h2>
+					<h2 className="text-2xl font-bold">Regenerate RE2</h2>
 				</div>
 
 				{/* Error Alerts */}
@@ -288,4 +288,4 @@ const RE2FileGeneration = () => {
 	);
 };
 
-export default RE2FileGeneration;
+export default RegenerateRE2FileGeneration;

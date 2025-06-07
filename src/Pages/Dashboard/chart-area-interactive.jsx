@@ -67,11 +67,13 @@ export default function ChartDataInteractive() {
 		const endDate = new Date();
 		const dates = generateDateRange(endDate, 90);
 
-		// Transform plantData into map by date and plant
 		const plantDataMap = Object.entries(plantData).reduce((acc, [key, value]) => {
 			const { mfgDate, plantName, pCodeCount } = value;
+			const baseName = plantName.split(/[-\d]/)[0].trim();
+
 			if (!acc[mfgDate]) acc[mfgDate] = {};
-			acc[mfgDate][plantName] = pCodeCount || 0;
+			if (!acc[mfgDate][baseName]) acc[mfgDate][baseName] = 0;
+			acc[mfgDate][baseName] += pCodeCount || 0;
 			return acc;
 		}, {});
 

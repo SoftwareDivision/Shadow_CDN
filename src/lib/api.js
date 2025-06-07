@@ -180,12 +180,14 @@ export const updateProduct = (t, d) => putData(`/ProductMasters/UpdateProduct/${
 
 // RE2 APIs
 export const getRE2GenData = (t) => getAll('/RE2FileGenerations/GetRE2GenData', t);
-export const createRE2Generate = (t, d) => {
-	return postData(`/RE2FileGenerations/GettableDetailre`, t, d);
-};
+export const getregeneratere2 = (t) => getAll('/RE2FileGenerations/Getregenratere2', t);
 
 export const generateRE2File = (token, payload) => {
 	return postData('/RE2FileGenerations/GenerateRE2File', token, payload);
+};
+//ReGenerateRE2File
+export const regenerateRE2File = (token, payload) => {
+	return postData('/RE2FileGenerations/ReGenerateRE2File', token, payload);
 };
 
 // Reset Type Master APIs
@@ -320,8 +322,6 @@ export const getFromRE3Report = (token, data) => {
 	const { fromDate, toDate, magname } = data;
 	return getAll(`/FormRE3/FormRE3/${fromDate}/${toDate}/${magname}`, token);
 };
-
-
 
 //dashboard
 export const getDasboardcardtDetails = (t) => getAll('/Dashboard/Getdashboardcard', t);
