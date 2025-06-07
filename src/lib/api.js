@@ -174,6 +174,7 @@ export const updateUOM = (t, data) => putData(`/UomMaster/UpdateUOM/${data.id}`,
 export const deleteUOM = (t, id) => deleteData(`/UomMaster/DeleteUOM/${id}`, t);
 
 export const getAllProducts = (t) => getAll('/ProductMasters/GetAllProducts', t);
+export const getProductById = (t, id) => getAll(`/ProductMasters/GetProductById/${id}`, t);
 export const createProduct = (t, data) => postData('/ProductMasters/CreateProduct', t, data);
 export const deleteProduct = (t, id) => deleteData(`/ProductMasters/DeleteProduct/${id}`, t);
 export const updateProduct = (t, d) => putData(`/ProductMasters/UpdateProduct/${d.id}`, t, d);
@@ -315,12 +316,24 @@ export const l1BoxDeletion = (token, data) => {
 	return getAll(`/L1boxDeletion/DeleteBarcodeData?${queryParams}`, token);
 };
 
+//Form RE2
+export const getFromRE2Report = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/L2ReprintReport/GetRe2formdata?${queryParams}`, token);
+};
+
+
 // From RE3
 export const getFromRE3Report = (token, data) => {
 	const { fromDate, toDate, magname } = data;
 	return getAll(`/FormRE3/FormRE3/${fromDate}/${toDate}/${magname}`, token);
 };
 
+// From RE4
+export const getFromRE4Report = (token, data) => {
+	const { fromDate, toDate, magname } = data;
+	return getAll(`FormRE4/FormRE4/${fromDate}/${toDate}/${magname}`, token);
+};
 
 
 //dashboard

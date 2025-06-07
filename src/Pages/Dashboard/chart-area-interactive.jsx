@@ -268,7 +268,7 @@ export default function ChartDataInteractive() {
 										dataKey="EMULSION"
 										type="natural"
 										fill="url(#fillEMULSION)"
-										stroke="var(--bs-success)"
+										stroke="var(--bs-warning)"
 										stackId="a"
 									></Area>
 									<Area
@@ -282,7 +282,7 @@ export default function ChartDataInteractive() {
 										dataKey="PETN"
 										type="natural"
 										fill="url(#fillPETN)"
-										stroke="var(--bs-warning)"
+										stroke="var(--bs-success)"
 										stackId="a"
 									></Area>
 									<Area

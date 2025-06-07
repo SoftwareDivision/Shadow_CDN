@@ -108,6 +108,7 @@ export default function MainLayout() {
 		'/shift-management/edit': { parent: 'Admin', current: 'Edit Shift' },
 		'/l1boxdeletion': { parent: 'Admin', current: 'L1 Box Deletion' },
 		'/formre3': { parent: 'Form', current: 'Form RE-3' },
+		'/formre4': { parent: 'Form', current: 'Form RE-4' },
 	};
 
 	const getPathInfo = (path) => {
