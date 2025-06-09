@@ -91,7 +91,7 @@ const RegenerateRE2FileGeneration = () => {
 			accessorKey: 'productSize',
 		},
 		{
-			header: 'Magazine Name',
+			header: 'Magazine',
 			accessorKey: 'magazineName',
 		},
 		{
