@@ -108,8 +108,10 @@ export default function MainLayout() {
 		'/shift-management/edit': { parent: 'Admin', current: 'Edit Shift' },
 		'/l1boxdeletion': { parent: 'Admin', current: 'L1 Box Deletion' },
 		'/ReGenerateRE2FileGeneration': { parent: 'Admin', current: 'Re Generate-RE2' },
-		'/formre3': { parent: 'Form', current: 'Form RE-3' },
-		'/formre4': { parent: 'Form', current: 'Form RE-4' },
+		'/formre3': { parent: 'Form', current: 'Form RE 3' },
+		'/formre4': { parent: 'Form', current: 'Form RE 4' },
+		'/formre4allotment': { parent: 'Form', current: 'Form RE 4 Allotment' },
+		'/magallotManual': { parent: 'Form', current: 'Magzine Allotment' },
 	};
 
 	const getPathInfo = (path) => {

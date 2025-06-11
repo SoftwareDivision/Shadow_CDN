@@ -108,7 +108,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Form RE2",
           url: "#",
           children: [
-            { title: "Magzine Alloted", url: "/shiftmanagement" },
+            { title: "Magzine Alloted", url: "/magallotManual" },
             { title: "Mag Alloted for Testing", url: "/l1boxdeletion" },
             { title: "Magzine Transfer", url: "/attendancetracking" },
             { title: "Form RE2 Report", url: "/formre2" },
@@ -119,7 +119,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Form RE4",
           url: "#",
           children: [          
-            { title: "Magzine Transfer", url: "/attendancetracking" },
+            { title: "Form RE4 Alottment", url: "/formre4allotment" },
             { title: "Form RE4 Report", url: "/formre4" },
           ],
         },

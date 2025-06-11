@@ -80,11 +80,13 @@ const ReGenerateRE2FileGeneration = lazy(() => import('../Pages/Admin/ReGenerate
 
 //Form RE2
 const FormRE2 = lazy(() => import('@/Pages/Forms/Form RE2/Form RE2 Report/Index'));
+const FormRE3ManualAllot = lazy(() => import('../Pages/Forms/Form RE2/Magzine Allotted/Index'));
 
 // Form RE3
 const FormRE3 = lazy(() => import('../Pages/Forms/Form RE3 Report/Index'));
 
 //Form RE4
+const FormRE4_Allotment = lazy(() => import('../Pages/Forms/Form RE4/Form RE4 Allotment/Index'));
 const FormRE4 = lazy(() => import('../Pages/Forms/Form RE4/Form RE4 Report/Index'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
@@ -767,6 +769,15 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+							<Route
+								path="//magallotManual"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<FormRE3ManualAllot />
+									</SuspenseWrapper>
+								}
+							/>
+
 
 							<Route
 								path="/ReGenerateRE2FileGeneration"
@@ -787,6 +798,14 @@ export default function RoutesComponent() {
 							/>
 
 							<Route
+								path="/formre4allotment"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<FormRE4_Allotment />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
 								path="/formre4"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
@@ -794,6 +813,8 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+
+
 						</Route>
 						{/* Catch-all 404 page */}
 						<Route

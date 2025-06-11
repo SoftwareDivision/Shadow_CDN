@@ -331,9 +331,19 @@ export const getFromRE3Report = (token, data) => {
 };
 
 // From RE4
+export const getFromRE4Allotment = (token, data) => {
+	const { fromDate } = data;
+	return getAll(`/DispatchTransactions/GetRE11indentedata/${fromDate}`, token);
+};
+
+export const getFromRE4AllotData = (token, data) => {
+    const { indent, fromDate, bname, bcode, magname, truckno, re12 } = data;
+	return getAll(`/FormRE4/GetRe4TableDate/${indent}/${fromDate}/${bname}/${bcode}/${magname}/${truckno}/${re12}`, token);    
+};
+
 export const getFromRE4Report = (token, data) => {
 	const { fromDate, toDate, magname } = data;
-	return getAll(`FormRE4/FormRE4/${fromDate}/${toDate}/${magname}`, token);
+	return getAll(`/FormRE4/FormRE4/${fromDate}/${toDate}/${magname}`, token);
 };
 
 //dashboard
