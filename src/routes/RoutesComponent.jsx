@@ -6,7 +6,6 @@ import NotFound from '../components/NotFound';
 import MainLayout from '../layouts/MainLayout';
 import AuthLayout from '../layouts/AuthLayout';
 import Loader from '@/components/Loader';
-import RegenerateRE2FileGeneration from '@/Pages/Admin/ReGenerateRe2/Index';
 
 // Lazy-loaded pages
 const Dashboard = lazy(() => import('../Pages/Dashboard/Index'));
@@ -77,6 +76,9 @@ const Shift_Management = lazy(() => import('../Pages/Admin/Shift Management/Inde
 const Shift_ManagementAddOrEdit = lazy(() => import('../Pages/Admin/Shift Management/AddOrEdit'));
 const L1BoxDeletion = lazy(() => import('../Pages/Admin/L1 Box Deletion/Index'));
 const ReGenerateRE2FileGeneration = lazy(() => import('../Pages/Admin/ReGenerateRe2/Index'));
+const ReGenerateRE12FileGeneration = lazy(() => import('../Pages/Admin/Regeneratere12/Index'));
+//search form
+const TraceBarcode = lazy(() => import('../Pages/Search/TraceBarcode/Index'));
 
 //Form RE2
 const FormRE2 = lazy(() => import('@/Pages/Forms/Form RE2/Form RE2 Report/Index'));
@@ -84,7 +86,6 @@ const FormRE3ManualAllot = lazy(() => import('../Pages/Forms/Form RE2/Magzine Al
 
 // Form RE3
 const FormRE3 = lazy(() => import('../Pages/Forms/Form RE3 Report/Index'));
-
 //Form RE4
 const FormRE4_Allotment = lazy(() => import('../Pages/Forms/Form RE4/Form RE4 Allotment/Index'));
 const FormRE4 = lazy(() => import('../Pages/Forms/Form RE4/Form RE4 Report/Index'));
@@ -783,7 +784,24 @@ export default function RoutesComponent() {
 								path="/ReGenerateRE2FileGeneration"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
-										<RegenerateRE2FileGeneration />
+										<ReGenerateRE2FileGeneration />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/ReGenerateRE12FileGeneration"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ReGenerateRE12FileGeneration />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/trace-barcode"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<TraceBarcode />
 									</SuspenseWrapper>
 								}
 							/>

@@ -239,6 +239,9 @@ export const deleteTransport = (t, id) => deleteData(`/TransportMasters/DeleteTr
 //re12
 export const getRe12IndentDetails = (t) => getAll('/RE12Gens/GetRe12s', t);
 export const createRe12Indent = (token, data) => postData('/RE12Gens/CreateRe12', token, data);
+//Regenre12
+export const getRegenRe12IndentDetails = (t) => getAll('/RE12Gens/GetRegenerate12', t);
+export const createRegenRe12Indent = (token, data) => postData('/RE12Gens/CreateRegenRe12', token, data);
 
 //Indent Only
 export const getIndentOnly = (t) => getAll('/Re11IndentInfos/GetOnlyIndents', t);
@@ -349,4 +352,15 @@ export const getFromRE4Report = (token, data) => {
 //dashboard
 export const getDasboardcardtDetails = (t) => getAll('/Dashboard/Getdashboardcard', t);
 export const getMagzinestockDetails = (t) => getAll('/Dashboard/GetMagazinesstock', t);
+
+//search barcode & trace
+export const getTracedatabyl1barcode = (token, data) => {
+	return getAll(`/Search_Form/Getsearchdata?l1barcode=${data}`, token);
+};
+export const getTracedatabyl2barcode = (token, data) => {
+	return getAll(`/Search_Form/GetL2searchdata?l2barcode=${data}`, token);
+};
+export const getTracedatabyl3barcode = (token, data) => {
+	return getAll(`/Search_Form/GetL3searchdata?l3barcode=${data}`, token);
+};
 export default api;

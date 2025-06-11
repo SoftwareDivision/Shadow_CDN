@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ReceiptText, Database, Frame, GalleryVerticalEnd, LucideTruck, Map, MessageCircle, PieChart, Store, Workflow, FileSpreadsheet, PrinterIcon, ShieldUser, ChevronRight, Home, } from "lucide-react";
+import { ReceiptText, Database, Frame, GalleryVerticalEnd, LucideTruck, Map, MessageCircle, PieChart, Store, Workflow, FileSpreadsheet, PrinterIcon, ShieldUser, ChevronRight, Home, Search, } from "lucide-react";
 
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, } from "@/components/ui/sidebar";
 
@@ -93,10 +93,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       items: [
         { title: "Shift Management", url: "/shift-management" },
         { title: "L1 Box Deletion", url: "/l1boxdeletion" },
-        {
-          title: "Regenerate RE2",
-          url: "/ReGenerateRE2FileGeneration"
-        }
+        {title: "Regenerate RE2",url: "/ReGenerateRE2FileGeneration"},
+        { title: "Regenerate RE12", url: "/ReGenerateRE12FileGeneration" },
+      ],  
+    },
+    {
+      title: "Search",
+      url: "#",
+      icon: Search,
+      items: [
+        { title: "Trace Barcode Details", url: "/trace-barcode" },
       ],  
     },
     {

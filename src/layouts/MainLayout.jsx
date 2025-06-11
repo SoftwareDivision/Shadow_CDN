@@ -112,6 +112,9 @@ export default function MainLayout() {
 		'/formre4': { parent: 'Form', current: 'Form RE 4' },
 		'/formre4allotment': { parent: 'Form', current: 'Form RE 4 Allotment' },
 		'/magallotManual': { parent: 'Form', current: 'Magzine Allotment' },
+		'/ReGenerateRE12FileGeneration': { parent: 'Admin', current: 'Re Generate-RE12' },
+		'/trace-barcode': { parent: 'Search', current: 'Trace Barcode' },
+		
 	};
 
 	const getPathInfo = (path) => {
