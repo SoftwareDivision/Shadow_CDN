@@ -108,13 +108,13 @@ const RE11IndentFileGeneration = () => {
 													<TableHead className="font-semibold w-[15%]">Brand</TableHead>
 													<TableHead className="font-semibold w-[15%]">Size</TableHead>
 													<TableHead className="font-semibold text-right w-[15%]">
-														Required Weight
+														Required Cases
 													</TableHead>
 													<TableHead className="font-semibold text-right w-[15%]">
-														Load Weight
+														Load Cases
 													</TableHead>
 													<TableHead className="font-semibold text-right w-[15%]">
-														Remaining Weight
+														Remaining Cases
 													</TableHead>
 													<TableHead className="font-semibold text-center w-[10%]">
 														Status
@@ -128,34 +128,26 @@ const RE11IndentFileGeneration = () => {
 														<TableCell>{item.bname}</TableCell>
 														<TableCell>{item.psize}</TableCell>
 														<TableCell className="text-right">
-															<span className="font-medium">{item.reqWt}</span>
-															<span className="text-muted-foreground ml-1">
-																{item.unit}
-															</span>
+															<span className="font-medium">{item.reqCase}</span>
+															<span className="text-muted-foreground ml-1">Cases</span>
 														</TableCell>
 														<TableCell className="text-right">
-															<span className="font-medium">{item.loadWt}</span>
-															<span className="text-muted-foreground ml-1">
-																{item.unit}
-															</span>
+															<span className="font-medium">{item.loadcase}</span>
+															<span className="text-muted-foreground ml-1">Cases</span>
 														</TableCell>
 														<TableCell className="text-right">
-															<span className="font-medium">{item.remWt}</span>
-															<span className="text-muted-foreground ml-1">
-																{item.unit}
-															</span>
+															<span className="font-medium">{item.remcase}</span>
+															<span className="text-muted-foreground ml-1">Cases</span>
 														</TableCell>
 														<TableCell className="text-center">
 															<span
 																className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-																	item.completedLoadingProduct === 0
-																		? 'bg-yellow-800 text-white border border-yellow-800'
-																		: ' bg-green-800 text-white border border-green-800'
+																	item.remcase === 0
+																		? 'bg-green-800 text-white border border-green-800'
+																		: '  bg-yellow-800 text-white border border-yellow-800'
 																}`}
 															>
-																{item.completedLoadingProduct === 0
-																	? 'Pending'
-																	: 'Completed'}
+																{item.remcase === 0 ? 'Completed' : 'Pending'}
 															</span>
 														</TableCell>
 													</TableRow>
