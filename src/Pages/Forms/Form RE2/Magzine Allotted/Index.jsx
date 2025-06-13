@@ -11,7 +11,8 @@ import { cn } from '@/lib/utils';
 import { Search } from 'lucide-react';
 import { getPlantDetails, getMagzineDetails, getProductionReport, getProductDetails } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
-
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -78,6 +79,7 @@ function MagAllotManual() {
     const [reportData, setReportData] = React.useState(null);
     const [isLoadingReport, setIsLoadingReport] = React.useState(false);
     const [reportType, setReportType] = React.useState('Detailed');
+    const [selectedRows, setSelectedRows] = useState([]);
 
     const { enqueueSnackbar } = useSnackbar();
 
@@ -113,6 +115,13 @@ function MagAllotManual() {
         enabled: !!tokendata,
     });
 
+    const handleSelectAll = (checked) => {
+        if (checked) {
+            setSelectedRows('' || []);
+        } else {
+            setSelectedRows([]);
+        }
+    };
 
     useEffect(() => {
         if (plantData) {
@@ -514,7 +523,7 @@ function MagAllotManual() {
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select product size..." /> {/* Changed placeholder */}
                                         </SelectTrigger>
-                                        <SelectContent>                               
+                                        <SelectContent>
                                             <SelectGroup>
                                                 {productSizes.map((size, index) => ( // Changed 'plant' to 'size'
                                                     <SelectItem
@@ -603,7 +612,7 @@ function MagAllotManual() {
                         />
                     </div>
 
-                    
+
                 </div>
 
                 {/* Submit Button */}
@@ -612,17 +621,65 @@ function MagAllotManual() {
                 </Button>
             </form >
 
-            <div>
-                {reportData ? (
-                    <DataTable
-                        columns={reportType === 'Detailed' ? detailedReportColumns : summaryReportColumns} // Use 'columns' for Detailed, 'summaryReportColumns' for Summary
-                        data={reportData}
-                    />
-                ) : (
-                    <p className='text-center'>No report data available.</p>
-                )}
-
-            </div>
+            {/* Display RE2 Data */}
+            {re2Data.length > 0 && (
+                <Card className="p-4 shadow-md mt-4">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-2xl font-bold">RE2 Data</h2>
+                        <div className="flex items-center gap-4">
+                            <div className="font-semibold">
+                                <Badge variant="default">
+                                    Total Cases: {new Set(re2Data?.map((item) => item.l1Barcode)).size}
+                                </Badge>
+                            </div>
+                            <Button onClick={handleGenerateRE2} className="flex items-center gap-2" variant="outline">
+                                <FileSpreadsheet className="h-4 w-4" />
+                                Generate RE File
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="rounded-md border">
+                        <div className="max-h-[400px] overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                            <Table>
+                                <TableHeader className="bg-muted">
+                                    <TableRow>
+                                        <TableHead className="font-medium sticky top-0 z-10 border-b">
+                                            <Checkbox
+                                                className="border-blue-600 border-2"
+                                                checked={re2Data?.length > 0 && selectedRows.length === re2Data?.length}
+                                                onCheckedChange={handleSelectAll}
+                                                aria-label="Select all"
+                                            />
+                                            {'  '} Select all
+                                        </TableHead>
+                                        <TableHead className="font-medium sticky top-0 z-10 border-b text-center">
+                                            L1 Barcode
+                                        </TableHead>
+                                        <TableHead className="font-medium sticky top-0 z-10 border-b text-center">
+                                            L2 Barcode
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {re2Data?.map((item, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell className="">
+                                                <Checkbox
+                                                    className="border-blue-600 border-2"
+                                                    checked={selectedRows.includes(item.l1Barcode)}
+                                                    onCheckedChange={() => handleSelectRow(item.l1Barcode)}
+                                                />
+                                            </TableCell>
+                                            <TableCell className="font-medium text-center">{item.l1Barcode}</TableCell>
+                                            <TableCell className="font-medium text-center">{item.l2Barcode}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </div>
+                </Card>
+            )}
 
         </Card >
     );
