@@ -68,7 +68,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ],
     },
     {
-      title: "Storge",
+      title: "Storage",
       url: "#",
       icon: Store,
       items: [

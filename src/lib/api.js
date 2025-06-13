@@ -228,6 +228,8 @@ export const deleteCustomer = (t, id) => deleteData(`/CustomerMasters/DeleteCust
 export const getAllLoadingSheets = (t) => getAll('/AllLoadingSheets/GetAllLoadingSheets', t);
 export const getCreateLoadingData = (t) => getAll('/AllLoadingSheets/GetCreateLoadingData', t);
 export const createLoadingSheet = (token, data) => postData('/AllLoadingSheets/CreateAllLoadingSheet', token, data);
+export const createMutipleTruckLoadingSheet = (token, data) =>
+	postData('/AllLoadingSheets/CreateMultipleTruckLoadingSheet', token, data);
 export const updateLoadingSheet = (t, data) => putData(`/AllLoadingSheets/UpdateAllLoadingSheet/${data.id}`, t, data);
 
 // Transport APIs
