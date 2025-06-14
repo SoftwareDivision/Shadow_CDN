@@ -9,7 +9,7 @@ import { CalendarIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Search } from 'lucide-react';
-import { getPlantDetails, getMagzineDetails, allotFormRE2Data, getProductDetails, getMagzineAllottData } from '@/lib/api';
+import { getPlantDetails, magazineAllotedforTesting, getProductDetails } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -36,17 +36,21 @@ import DataTable from '@/components/DataTable';
 
 
 
-function MagAllotManual() {
+function MagAllotForTest() {
     const { token } = useAuthToken.getState();
     const tokendata = token.data.token;
 
     // Form validation schema - Added brand and productSize
     const formSchema = yup.object().shape({
         fromDate: yup.date().required('MFG Date is required'),
+        testDate: yup.date().required('Test Date is required'),
         plantId: yup.string().required('Plant Name is required'),
         brand: yup.string().required('Brand is required'),
         productsize: yup.string().required('Product Size is required'),
-        magazine: yup.string().required('Magazine is required'),
+        l1barcode: yup.string().required('L1 Barcode is required'),
+        l1netweight: yup.string().required('L1 Net Weight is required'),
+
+
     });
 
     const {
@@ -56,32 +60,31 @@ function MagAllotManual() {
         reset,
         register,
         control,
-        getValues, // Added getValues here
         formState: { errors },
     } = useForm({
         resolver: yupResolver(formSchema),
         defaultValues: {
             fromDate: new Date(),
+            testDate: new Date(),
             plantId: '',
             pcode: '',
             brand: '',
             bcode: '',
             productsize: '',
             productcode: '',
-            magazine: '',
-            class: '',
-            shift: '',
+            l1barcode: '',
+            l1netweight: '',
 
         },
     });
 
 
     const [fromDate, setFromDate] = React.useState(null);
+    const [testDate, setTestDate] = React.useState(null);
     const [plants, setPlants] = React.useState([]);
-    const [magazine, setMagzine] = useState([]);
     const [products, setProducts] = useState([]);
     const [productSizes, setProductSizes] = useState([]);
-    const [reportData, setReportData] = React.useState(null); // Or initialize with [] if it's always an array
+    const [reportData, setReportData] = React.useState(null);
     const [isLoadingReport, setIsLoadingReport] = React.useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
 
@@ -98,17 +101,6 @@ function MagAllotManual() {
         enabled: !!tokendata,
     });
 
-
-    const {
-        data: magazineData,
-        isLoading: isShiftFetching,
-        error: fetchShiftError,
-    } = useQuery({
-        queryKey: ['magazineData'],
-        queryFn: () => getMagzineDetails(tokendata),
-        enabled: !!tokendata,
-    });
-
     const {
         data: productData,
         isLoading: isProductFetching,
@@ -119,21 +111,7 @@ function MagAllotManual() {
         enabled: !!tokendata,
     });
 
-    const handleSelectAll = (checked) => {
-        if (checked) {
-            // Select all l1Barcodes from the current reportData
-            const allBarcodes = reportData?.map((item) => item) || [];
-            setSelectedRows(allBarcodes);
-        } else {
-            setSelectedRows([]);
-        }
-    };
-
-    const handleSelectRow = (row) => {
-        setSelectedRows((prev) =>
-            prev.includes(row) ? prev.filter((id) => id !== row) : [...prev, row],
-        );
-    };
+    console.log('productData', productData);
 
     useEffect(() => {
         if (plantData) {
@@ -144,52 +122,8 @@ function MagAllotManual() {
             }));
             setPlants(plantOptions);
         }
-        if (magazineData) {
-            const magOptions = [...new Set(magazineData?.map((mag) => mag.mcode))].sort().map((mag) => ({
-                value: mag,
-                text: mag,
-                disabled: false,
-            }));
-            setMagzine(magOptions);
-        }
-    }, [reset, plantData, magazineData]);
 
-
-    const handleGetRowData = async () => {
-
-        setIsLoadingReport(true);
-        setReportData(null); // Clear previous report data
-
-        const data = getValues(); // Get current form values
-
-        // Format dates to YYYY-MM-DD if they exist
-        const formattedFromDate = data.fromDate ? format(data.fromDate, 'yyyy-MM-dd') : '';
-        const selectedPlantCode = data.pcode;
-        const selectedBrandCode = data.bcode;
-        const selectedProductSizeCode = data.productcode;
-
-        const reportParams = {
-            fromDate: formattedFromDate,
-            plantcode: selectedPlantCode,
-            brandcode: selectedBrandCode,
-            productsizecode: selectedProductSizeCode,
-        };
-        console.log('Report Params for Magzine Allotted:', reportParams);
-
-        try {
-            // Assuming getMagzineAllottedReport is an API function in api.js
-            const result = await getMagzineAllottData(tokendata, reportParams);
-
-            enqueueSnackbar('Barcode Details fetched successfully', { variant: 'success' });
-
-            console.log('Barcode Details Data:', result);
-            setReportData(result); // Store the report data
-            setIsLoadingReport(false);
-        } catch (error) {
-            enqueueSnackbar(error.message || 'Failed to fetch Barcode Details', { variant: 'error' });
-            setIsLoadingReport(false); // Ensure loading state is reset on error
-        }
-    };
+    }, [reset, plantData]);
 
     // Handle form submission
     const onSubmit = async (data) => {
@@ -197,24 +131,27 @@ function MagAllotManual() {
 
         // Format dates to YYYY-MM-DD if they exist
         const formattedFromDate = data.fromDate ? format(data.fromDate, 'yyyy-MM-dd') : '';
+        const formattedTestDate = data.testDate ? format(data.testDate, 'yyyy-MM-dd') : '';
         const selectedPlant = data.plantId;
         const selectedPlantCode = data.pcode;
         const selectedBrand = data.brand;
         const selectedBrandCode = data.bcode;
         const selectedProductSize = data.productsize;
         const selectedProductSizeCode = data.productcode;
-        const selectMagzine = data.magazine;
+        const selectedL1Barcode = data.l1barcode;
+        const selectedL1NetWeight = data.l1netweight;
 
         const reportParams = {
             mfgDt: formattedFromDate,
+            dateoftest: formattedTestDate,
             plantName: selectedPlant,
             pcode: selectedPlantCode,
             bname: selectedBrand,
             bid: selectedBrandCode,
             productSize: selectedProductSize,
             psize: selectedProductSizeCode,
-            magname: selectMagzine,
-            smallModels: selectedRows
+            l1barcode: selectedL1Barcode,
+            l1netwt: selectedL1NetWeight
 
         };
         console.log('Report Params:', reportParams);
@@ -222,7 +159,7 @@ function MagAllotManual() {
 
         try {
             // Make the API call using the new function
-            const result = await allotFormRE2Data(tokendata, reportParams);
+            const result = await magazineAllotedforTesting(tokendata, reportParams);
             reset();
             setSelectedRows([]);
             setReportData(null);
@@ -238,8 +175,8 @@ function MagAllotManual() {
 
 
 
-    const loading = isLoadingReport || isShiftFetching || isPlantFetching || isProductFetching;
-    const allerrors = fetchShiftError || fetchplantError || fetchProductError;
+    const loading = isLoadingReport || isPlantFetching || isProductFetching;
+    const allerrors = fetchplantError || fetchProductError;
 
     if (allerrors) {
         enqueueSnackbar(allerrors.message || 'Failed to fetch data', { variant: 'error' });
@@ -252,7 +189,7 @@ function MagAllotManual() {
     return (
         <Card className="p-4 shadow-md">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-semibold">Magazine Allotment - Manually</h1>
+                <h1 className="text-2xl font-semibold">Magazine Allotment for Testing</h1>
             </div>
             {/* Updated onSubmit handler */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -478,6 +415,7 @@ function MagAllotManual() {
                                             const selected = productData.find((p) => p.psize === value);
                                             if (selected) {
                                                 setValue('productcode', selected.psizecode);
+                                                setValue('l1netweight', selected.l1netwt);
                                                 setValue('class', selected.class);
                                                 setValue('division', selected.division);
                                             }
@@ -523,134 +461,76 @@ function MagAllotManual() {
                         )}
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={handleGetRowData}
-                        disabled={isLoadingReport}
-                        className="bg-blue-400 text-white rounded mt-5 flex items-center gap-2 px-4 h-10 w-32"
-                    >
-                        <Search className="h-4 w-4" />
-                        {isLoadingReport ? 'Searching...' : 'Search'}
-                    </button>
-
+                    <div className="flex flex-col gap-y-2">
+                        <Label>L1 Net Weight</Label>
+                        <Input
+                            {...register('l1netweight')}
+                            readOnly
+                            placeholder='L1 Net Weight...'
+                            className={errors.l1netweight ? 'border-red-500' : ''}
+                        />
+                        {errors.l1netweight && (
+                            <span className="text-destructive text-sm">{errors.l1netweight.message}</span>
+                        )}
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-5 gap-5">
-                    {/* Magazine dropdown */}
-                    <div className="flex flex-col gap-y-2">
-                        <Controller
-                            name="magazine"
-                            control={control}
-                            render={({ field }) => (
-                                <div className="flex flex-col gap-y-2">
-                                    <Label>Magazine Name</Label>
-                                    <Select
-                                        value={field.value}
-                                        onValueChange={(value) => {
-                                            field.onChange(value);
-                                        }}
-                                    >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select Magazine..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                {magazine.map((mag) => (
-                                                    <SelectItem
-                                                        key={mag.value}
-                                                        value={mag.value}
-                                                        disabled={mag.disabled}
-                                                    >
-                                                        {mag.text}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.magazine && (
-                                        <span className="text-destructive text-sm">{errors.magazine.message}</span>
+                <div className="grid grid-cols-4 gap-5">
+
+                    <div>
+                        <label htmlFor="testDate" className="text-sm font-medium">
+                            Testing Date
+                        </label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !testDate && "text-muted-foreground"
                                     )}
-                                </div>
-                            )}
-                        />
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {testDate ? format(testDate, "PPP") : format(new Date(), "PPP")}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                                <Calendar
+                                    mode="single"
+                                    selected={testDate}
+                                    onSelect={(date) => { setTestDate(date); setValue("testDate", date); }}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        {errors.testDate && (
+                            <span className="text-destructive text-sm">{errors.testDate.message}</span>
+                        )}
                     </div>
 
-
                 </div>
 
+                <div className="grid grid-cols-2 gap-5">
+                    <div className="flex flex-col gap-y-2">
+                        <Label>L1 Net Weight</Label>
+                        <Input
+                            {...register('l1barcode')}
+                            placeholder='L1 Barcode...'
+                            className={errors.l1barcode ? 'border-red-500' : ''}
+                        />
+                        {errors.l1barcode && (
+                            <span className="text-destructive text-sm">{errors.l1barcode.message}</span>
+                        )}
+                    </div>
+                </div>
                 {/* Submit Button */}
                 <Button type="submit" disabled={isLoadingReport}>
                     {isLoadingReport ? 'Adding Stock...' : 'Add Stock'}
                 </Button>
             </form >
 
-            {/* Display RE2 Data */}
-            {/* {reportData && reportData.length > 0 && ( */} {/* Ensure reportData is not null before checking length */}
-            <Card className="p-4 shadow-md mt-4">
-                <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-bold">RE2 Data</h2>
-                    <div className="flex items-center gap-4">
-                        <div className="font-semibold">
-                            <Badge variant="default" className='bg-green-900'>
-                                Selected Cases: {selectedRows.length}
-                            </Badge>
-                        </div>
-                        <div className="font-semibold">
-                            <Badge variant="default">
-                                Total Cases: {reportData ? new Set(reportData.map((item) => item.l1Barcode)).size : 0}
-                            </Badge>
-                        </div>
-                    </div>
-                </div>
-                <div className="rounded-md border">
-                    <div className="max-h-[400px] overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                        <Table>
-                            <TableHeader className="bg-muted">
-                                <TableRow>
-                                    <TableHead className="font-medium sticky top-0 z-10 border-b">
-                                        <Checkbox
-                                            className="border-blue-600 border-2"
-                                            checked={reportData && reportData.length > 0 && selectedRows.length === reportData.length}
-                                            onCheckedChange={(checked) => handleSelectAll(checked)} // Pass the checked state to the handler
-                                            aria-label="Select all"
-                                        />
-                                        {'  '} Select all
-                                    </TableHead>
-                                    <TableHead className="font-medium sticky top-0 z-10 border-b text-center">
-                                        L1 Barcode
-                                    </TableHead>
-                                    <TableHead className="font-medium sticky top-0 z-10 border-b text-center">
-                                        L1 Net Weight
-                                    </TableHead>
-                                    <TableHead className="font-medium sticky top-0 z-10 border-b text-center">
-                                        L1 Net Unit
-                                    </TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {reportData?.map((item, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell className="">
-                                            <Checkbox
-                                                className="border-blue-600 border-2"
-                                                checked={selectedRows.includes(item)} // Correctly checks if the row's barcode is in selectedRows
-                                                onCheckedChange={() => handleSelectRow(item)} // Calls handleSelectRow with the item's barcode
-                                            />
-                                        </TableCell>
-                                        <TableCell className="font-medium text-center">{item.l1Barcode}</TableCell>
-                                        <TableCell className="font-medium text-center">{item.l1NetWt}</TableCell>
-                                        <TableCell className="font-medium text-center">{item.l1NetUnit}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </div>
-            </Card>
-            {/* )} */}
-
         </Card >
     );
 }
 
-export default MagAllotManual;
+export default MagAllotForTest;

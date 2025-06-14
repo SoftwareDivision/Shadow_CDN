@@ -82,7 +82,9 @@ const TraceBarcode = lazy(() => import('../Pages/Search/TraceBarcode/Index'));
 
 //Form RE2
 const FormRE2 = lazy(() => import('@/Pages/Forms/Form RE2/Form RE2 Report/Index'));
-const FormRE3ManualAllot = lazy(() => import('../Pages/Forms/Form RE2/Magzine Allotted/Index'));
+const FormRE2ManualAllot = lazy(() => import('../Pages/Forms/Form RE2/Magzine Allotted/Index'));
+const MagAllotForTest = lazy(() => import('../Pages/Forms/Form RE2/Magazine Alloted for Testing/Index'));
+const MagzineTransfer = lazy(() => import('../Pages/Forms/Form RE2/Magzine Transfer/Index'));
 
 // Form RE3
 const FormRE3 = lazy(() => import('../Pages/Forms/Form RE3 Report/Index'));
@@ -771,13 +773,31 @@ export default function RoutesComponent() {
 								}
 							/>
 							<Route
-								path="//magallotManual"
+								path="/magallotManual"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
-										<FormRE3ManualAllot />
+										<FormRE2ManualAllot />
 									</SuspenseWrapper>
 								}
 							/>
+							<Route
+								path="/magallotfortest"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<MagAllotForTest />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/magzinetransfer"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<MagzineTransfer />
+									</SuspenseWrapper>
+								}
+							/>
+
+
 
 
 							<Route

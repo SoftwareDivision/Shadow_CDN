@@ -8,27 +8,16 @@ import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { Search } from 'lucide-react';
-import { getPlantDetails, getMagzineDetails, allotFormRE2Data, getProductDetails, getMagzineAllottData } from '@/lib/api';
+import { Search, CirclePlus } from 'lucide-react';
+import { getPlantDetails, getMagzineDetails, magazineTransfer, getProductDetails, GetMagTranfData } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger, } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -47,6 +36,7 @@ function MagAllotManual() {
         brand: yup.string().required('Brand is required'),
         productsize: yup.string().required('Product Size is required'),
         magazine: yup.string().required('Magazine is required'),
+        magazineto: yup.string().required('Magazine Transfer To is required'),
     });
 
     const {
@@ -167,18 +157,20 @@ function MagAllotManual() {
         const selectedPlantCode = data.pcode;
         const selectedBrandCode = data.bcode;
         const selectedProductSizeCode = data.productcode;
+        const selectedMagazine = data.magazine;
 
         const reportParams = {
             fromDate: formattedFromDate,
             plantcode: selectedPlantCode,
             brandcode: selectedBrandCode,
             productsizecode: selectedProductSizeCode,
+            magname: selectedMagazine
         };
         console.log('Report Params for Magzine Allotted:', reportParams);
 
         try {
             // Assuming getMagzineAllottedReport is an API function in api.js
-            const result = await getMagzineAllottData(tokendata, reportParams);
+            const result = await GetMagTranfData(tokendata, reportParams);
 
             enqueueSnackbar('Barcode Details fetched successfully', { variant: 'success' });
 
@@ -204,6 +196,7 @@ function MagAllotManual() {
         const selectedProductSize = data.productsize;
         const selectedProductSizeCode = data.productcode;
         const selectMagzine = data.magazine;
+        const selectedMagazineTo = data.magazineto;
 
         const reportParams = {
             mfgDt: formattedFromDate,
@@ -214,7 +207,8 @@ function MagAllotManual() {
             productSize: selectedProductSize,
             psize: selectedProductSizeCode,
             magname: selectMagzine,
-            smallModels: selectedRows
+            smallModels: selectedRows,
+            MagnameTo: selectedMagazineTo
 
         };
         console.log('Report Params:', reportParams);
@@ -222,17 +216,17 @@ function MagAllotManual() {
 
         try {
             // Make the API call using the new function
-            const result = await allotFormRE2Data(tokendata, reportParams);
+            const result = await magazineTransfer(tokendata, reportParams);
             reset();
             setSelectedRows([]);
             setReportData(null);
 
-            enqueueSnackbar('Stock Added successfully', { variant: 'success' });
+            enqueueSnackbar('Magazine Transfered successfully', { variant: 'success' });
             console.log('Report Data:', result);
 
             setIsLoadingReport(false);
         } catch (error) {
-            enqueueSnackbar(error.message || 'Failed to Add Stock', { variant: 'error' });
+            enqueueSnackbar(error.message || 'Magazine Transfer Failed', { variant: 'error' });
         }
     };
 
@@ -523,16 +517,6 @@ function MagAllotManual() {
                         )}
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={handleGetRowData}
-                        disabled={isLoadingReport}
-                        className="bg-blue-400 text-white rounded mt-5 flex items-center gap-2 px-4 h-10 w-32"
-                    >
-                        <Search className="h-4 w-4" />
-                        {isLoadingReport ? 'Searching...' : 'Search'}
-                    </button>
-
                 </div>
 
                 <div className="grid grid-cols-5 gap-5">
@@ -575,13 +559,66 @@ function MagAllotManual() {
                         />
                     </div>
 
+                    <button
+                        type="button"
+                        onClick={handleGetRowData}
+                        disabled={isLoadingReport}
+                        className="bg-blue-400 text-white rounded mt-5 flex items-center gap-2 px-4 h-10 w-32"
+                    >
+                        <Search className="h-4 w-4" />
+                        {isLoadingReport ? 'Searching...' : 'Search'}
+                    </button>
+
+                    {/* Magazine dropdown */}
+                    <div className="flex flex-col gap-y-2">
+                        <Controller
+                            name="magazineto"
+                            control={control}
+                            render={({ field }) => (
+                                <div className="flex flex-col gap-y-2">
+                                    <Label>Magazine Transfer To</Label>
+                                    <Select
+                                        value={field.value}
+                                        onValueChange={(value) => {
+                                            field.onChange(value);
+                                        }}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Select Magazine..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                {magazine.map((mag) => (
+                                                    <SelectItem
+                                                        key={mag.value}
+                                                        value={mag.value}
+                                                        disabled={mag.disabled}
+                                                    >
+                                                        {mag.text}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.magazineto && (
+                                        <span className="text-destructive text-sm">{errors.magazineto.message}</span>
+                                    )}
+                                </div>
+                            )}
+                        />
+                    </div>
+
+                    {/* Submit Button */}
+                    <Button type="submit" disabled={isLoadingReport}
+                        className=" rounded mt-5 flex items-center gap-2 px-4 h-10 w-40"
+                    >
+                        <CirclePlus className="h-4 w-4" />
+                        {isLoadingReport ? 'Adding Stock...' : 'Add Stock'}
+                    </Button>
+
 
                 </div>
 
-                {/* Submit Button */}
-                <Button type="submit" disabled={isLoadingReport}>
-                    {isLoadingReport ? 'Adding Stock...' : 'Add Stock'}
-                </Button>
             </form >
 
             {/* Display RE2 Data */}
@@ -622,9 +659,9 @@ function MagAllotManual() {
                                     <TableHead className="font-medium sticky top-0 z-10 border-b text-center">
                                         L1 Net Weight
                                     </TableHead>
-                                    <TableHead className="font-medium sticky top-0 z-10 border-b text-center">
+                                    {/* <TableHead className="font-medium sticky top-0 z-10 border-b text-center">
                                         L1 Net Unit
-                                    </TableHead>
+                                    </TableHead> */}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -639,7 +676,7 @@ function MagAllotManual() {
                                         </TableCell>
                                         <TableCell className="font-medium text-center">{item.l1Barcode}</TableCell>
                                         <TableCell className="font-medium text-center">{item.l1NetWt}</TableCell>
-                                        <TableCell className="font-medium text-center">{item.l1NetUnit}</TableCell>
+                                        {/* <TableCell className="font-medium text-center">{item.l1NetUnit}</TableCell> */}
                                     </TableRow>
                                 ))}
                             </TableBody>
