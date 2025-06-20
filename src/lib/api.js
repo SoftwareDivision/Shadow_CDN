@@ -2,10 +2,12 @@
 
 import axios from 'axios';
 import { enqueueSnackbar } from 'notistack';
+import { API_BASE_URL, WS_URL, Networktype } from './env-config';
 
+console.log('API_BASE_URL', API_BASE_URL, Networktype);
 // Axios Instance
 const api = axios.create({
-	baseURL: import.meta.env.VITE_API_BASE_URL,
+	baseURL: Networktype ? import.meta.env.VITE_API_BASE_URL : API_BASE_URL,
 	headers: { 'Content-Type': 'application/json-patch+json' },
 });
 
@@ -342,8 +344,11 @@ export const getFromRE4Allotment = (token, data) => {
 };
 
 export const getFromRE4AllotData = (token, data) => {
-    const { indent, fromDate, bname, bcode, magname, truckno, re12 } = data;
-	return getAll(`/FormRE4/GetRe4TableDate/${indent}/${fromDate}/${bname}/${bcode}/${magname}/${truckno}/${re12}`, token);    
+	const { indent, fromDate, bname, bcode, magname, truckno, re12 } = data;
+	return getAll(
+		`/FormRE4/GetRe4TableDate/${indent}/${fromDate}/${bname}/${bcode}/${magname}/${truckno}/${re12}`,
+		token,
+	);
 };
 
 export const getFromRE4Report = (token, data) => {

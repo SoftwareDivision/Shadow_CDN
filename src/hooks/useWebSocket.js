@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuthToken } from './authStore';
 import { useSnackbar } from 'notistack';
+import { API_BASE_URL, WS_URL, Networktype } from '../lib/env-config';
 
 export function useWebSocket() {
 	const [socket, setSocket] = useState(null);
@@ -16,8 +17,8 @@ export function useWebSocket() {
 			// enqueueSnackbar('Please login first', { variant: 'error' });
 			return;
 		}
-
-		const ws = new WebSocket(`${import.meta.env.VITE_WS_URL}?token=${encodeURIComponent(token.data.token)}`);
+		const wsUrl = Networktype ? import.meta.env.VITE_WS_URL : WS_URL;
+		const ws = new WebSocket(`${wsUrl}?token=${encodeURIComponent(token.data.token)}`);
 
 		ws.onopen = () => {
 			setSocket(ws);
