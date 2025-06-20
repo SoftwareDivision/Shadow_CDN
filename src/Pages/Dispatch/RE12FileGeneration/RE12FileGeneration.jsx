@@ -71,11 +71,12 @@ const RE12FileGeneration = () => {
 
 	// Define columns for data table
 	const columns = [
+		{ header: 'LoadSheetNo', accessorKey: 'loadingSheet' },
 		{ header: 'Indent No', accessorKey: 'indentNo' },
 		{ header: 'Truck No', accessorKey: 'truckNo' },
-		{ header: 'Brand Name', accessorKey: 'brandName' },
+		{ header: 'Brand', accessorKey: 'brandName' },
 		{ header: 'Product Size', accessorKey: 'productSize' },
-		{ header: 'Magazine Name', accessorKey: 'magname' },
+		{ header: 'Magazine ', accessorKey: 'magname' },
 		{ header: 'Quantity', accessorKey: 'loadcase' },
 		{
 			header: 'Actions',

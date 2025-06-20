@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuthToken } from '@/hooks/authStore';
 import { useAuth } from '@/hooks/useAuth';
+import logo from '@/assets/images/logo.jpg';
+import logo2 from '@/assets/images/logo2.png';
 
 export default function LoginForm() {
 	const [email, setEmail] = useState('');
@@ -27,11 +29,7 @@ export default function LoginForm() {
 					<form className="p-6 md:p-8" onSubmit={handleSubmit}>
 						<div className="flex flex-col items-center text-center">
 							<div className="flex items-center gap-6 mb-6">
-								<img
-									src="/src/assets/images/logo.jpg"
-									alt="Aarkay Explo Logo"
-									className="w-24 h-24 object-contain"
-								/>
+								<img src={logo} alt="Aarkay Explo Logo" className="w-24 h-24 object-contain" />
 								<div className="text-left">
 									<h5 className="text-2xl font-bold text-primary mb-2">
 										AARKAY EXPLO - TRACK & TRACE
@@ -106,11 +104,7 @@ export default function LoginForm() {
 					</form>
 					<div className="hidden md:block w-[1px] bg-border absolute right-1/2 inset-y-8"></div>
 					<div className="bg-muted relative hidden md:block">
-						<img
-							src="/src/assets/images/logo2.png"
-							alt="Logo"
-							className="absolute inset-0 h-full w-full object-cover"
-						/>
+						<img src={logo2} alt="Logo" className="absolute inset-0 h-full w-full object-cover" />
 					</div>
 				</CardContent>
 			</Card>

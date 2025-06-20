@@ -54,6 +54,7 @@ function LoadingSheetPage() {
 			},
 		},
 		{ header: 'Loading Sheet No', accessorKey: 'loadingSheetNo' },
+		{ header: 'Indent No', accessorKey: 'loadingSheetNo' },
 		{ header: 'Truck No', accessorKey: 'truckNo' },
 		{
 			header: 'Status',
