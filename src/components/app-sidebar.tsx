@@ -37,6 +37,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         { title: "State Master", url: "/state-master" },
         { title: "MFG Masters", url: "/mfg-masters" },
         { title: "MFG Location Master", url: "/mfg-location-master" },
+        { title: "Plant Type Master", url: "/plant-type-master" },
         { title: "Plant Master", url: "/plant-master" },
         { title: "Brand Master", url: "/brand-master" },
         { title: "Machine Code Master", url: "/machine-code-master" },

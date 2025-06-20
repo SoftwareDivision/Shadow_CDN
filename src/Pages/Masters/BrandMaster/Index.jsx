@@ -82,9 +82,13 @@ function BrandMaster() {
 
 	const columns = [
 		{
+			accessorKey: 'plant_type',
+			header: 'Plant Type',
+		},
+		{
 			accessorKey: 'pname',
 			header: 'Plant Name',
-		},
+		},		
 		{
 			accessorKey: 'pcode',
 			header: 'Plant Code',

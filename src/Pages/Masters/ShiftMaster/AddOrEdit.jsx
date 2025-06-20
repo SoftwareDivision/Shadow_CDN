@@ -70,7 +70,7 @@ function AddOrEdit() {
             enqueueSnackbar(`Shift ${id ? 'updated' : 'created'} successfully`, { // Fix message
                 variant: 'success',
             });
-        
+
             setTimeout(() => {
                 navigate('/shift-master'); // Fix navigation path
             }, 100);
@@ -98,7 +98,11 @@ function AddOrEdit() {
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
                         <label htmlFor="shift" className="text-sm font-medium block mb-1">Shift</label>
-                        <Input id="shift" {...register('shift')} className={errors.shift ? 'border-red-500' : ''} />
+                        <Input id="shift" {...register('shift')}
+                            className={errors.shift ? 'border-red-500' : ''}
+                            placeholder='Enter Shift Name...'
+                            style={{ textTransform: 'uppercase' }}
+                        />
                         {errors.shift && <span className="text-sm text-red-500">{errors.shift.message}</span>}
                     </div>
 

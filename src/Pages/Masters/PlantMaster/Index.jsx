@@ -2,29 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, MoreVertical, Loader2 } from 'lucide-react';
+import { PlusIcon, MoreVertical, Loader2, Pencil as PencilIcon, Trash as TrashIcon } from 'lucide-react';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import DataTable from '@/components/DataTable';
 import { getPlantDetails, deletePlant } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from '@/components/ui/alert-dialog';
 
 function PlantMaster() {
 	const navigate = useNavigate();
@@ -61,9 +46,9 @@ function PlantMaster() {
 	};
 
 	const columns = [
+		{ header: 'Plant Type', accessorKey: 'plant_type' },
 		{ header: 'Plant Name', accessorKey: 'pName' },
 		{ header: 'Plant Code', accessorKey: 'pCode' },
-		{ header: 'Plant Type', accessorKey: 'plant_type' },
 		{ header: 'License', accessorKey: 'license' },
 		{ header: 'Company ID', accessorKey: 'company_ID' },
 		{
@@ -82,17 +67,27 @@ function PlantMaster() {
 			id: 'actions',
 			cell: ({ row }) => (
 				<DropdownMenu>
-					<DropdownMenuTrigger>
-						<MoreVertical className="h-5 w-5" />
+					<DropdownMenuTrigger asChild>
+						<Button variant="ghost" className="h-8 w-8 p-0">
+							<MoreVertical className="h-4 w-4" />
+							<span className="sr-only">Open menu</span>
+						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent>
-						<DropdownMenuItem onClick={() => handleEdit(row.original)}>Edit</DropdownMenuItem>
+					<DropdownMenuContent align="end">
+						<DropdownMenuItem
+							onClick={() => handleEdit(row.original)}
+							className="text-blue-600 hover:text-blue-900"
+						>
+							<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+							Edit
+						</DropdownMenuItem>
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
 								<DropdownMenuItem
 									className="text-red-600 hover:text-red-900"
 									onSelect={(e) => e.preventDefault()}
 								>
+									<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
 									Delete
 								</DropdownMenuItem>
 							</AlertDialogTrigger>
@@ -100,8 +95,8 @@ function PlantMaster() {
 								<AlertDialogHeader>
 									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 									<AlertDialogDescription>
-										This action cannot be undone. This will permanently delete the plant "
-										{row.original.pName}" and all associated data.
+										This action cannot be undone. This will permanently delete the country "
+										{row.original.cname}" and all associated data.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>

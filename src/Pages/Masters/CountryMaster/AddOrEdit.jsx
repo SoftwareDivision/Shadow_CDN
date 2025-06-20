@@ -104,8 +104,9 @@ function AddOrEdit() {
 						<Input
 							id="code"
 							{...register('code')}
-							className={errors.code ? 'border-red-500' : ''}
+							className={errors.code ? 'border-red-500' : '' }
 							maxLength={2}
+							style={{ textTransform: 'uppercase' }}
 						/>
 						{errors.code && <span className="text-sm text-red-500">{errors.code.message}</span>}
 					</div>

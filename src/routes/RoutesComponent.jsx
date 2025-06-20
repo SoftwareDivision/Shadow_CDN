@@ -14,7 +14,8 @@ const LoginForm = lazy(() => import('../Pages/Auth/LoginForm'));
 const BarcodeGeneratorPage = lazy(() => import('../Pages/Operations/BarcodeGeneratorPage/BarcodeGeneratorPage'));
 const Magzine_Transfer = lazy(() => import('../Pages/Storages/Magzine_Transfer/Index'));
 const TransferDialog = lazy(() => import('../Pages/Storages/Magzine_Transfer/TransferDialog'));
-
+const PlantTypeMaster = lazy(() => import('../Pages/Masters/PlantTypeMaster/Index'));
+const PlantTypeAddOrEdit = lazy(() => import('../Pages/Masters/PlantTypeMaster/AddOrEdit'));
 const PlantMaster = lazy(() => import('../Pages/Masters/PlantMaster/Index'));
 const PlantAddOrEdit = lazy(() => import('../Pages/Masters/PlantMaster/AddOrEdit'));
 const MFGMasters = lazy(() => import('../Pages/Masters/MFG_Masters/Index'));
@@ -257,6 +258,33 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<PlantAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/plant-type-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<PlantTypeMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/plant-type-master/add"
+
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<PlantTypeAddOrEdit />
+
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/plant-type-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<PlantTypeAddOrEdit />
 									</SuspenseWrapper>
 								}
 							/>

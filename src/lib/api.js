@@ -47,10 +47,10 @@ const handleResponse = (res) => {
 	throw new Error(message || 'Operation failed');
 };
 
-const handleError = (err, fallback = 'Api Is Not Working') => {
+const handleError = (err) => {
 	console.error('API Error:', err);
 	const msg = err.response?.data?.data || err.response?.data?.message;
-	throw new Error(msg || fallback);
+	throw new Error(msg);
 };
 
 // Generic Token Request
@@ -129,6 +129,11 @@ export const getPlantDetails = (t) => getAll('/PlantMaster/GetAllPlants', t);
 export const deletePlant = (t, id) => deleteData(`/PlantMaster/DeletePlant/${id}`, t);
 export const createPlant = (t, data) => postData('/PlantMaster/CreatePlant', t, data);
 export const updatePlant = (t, d) => putData(`/PlantMaster/UpdatePlant/${d.id}`, t, d);
+
+export const getPlantTypeDetails = (t) => getAll('/PlantTypeMaster/GetAllPlantTypes', t);
+export const deletePlantType = (t, id) => deleteData(`/PlantTypeMaster/DeletePlantType/${id}`, t);
+export const createPlantType = (t, data) => postData('/PlantTypeMaster/CreatePlantType', t, data);
+export const updatePlantType = (t, d) => putData(`/PlantTypeMaster/UpdatePlantType/${d.id}`, t, d);
 
 export const getAllUsers = (t) => getAll('/Users/GetAllUsers', t);
 
