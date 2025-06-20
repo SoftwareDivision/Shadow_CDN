@@ -330,6 +330,26 @@ export const getFromRE2Report = (token, data) => {
 	const queryParams = new URLSearchParams(data);
 	return getAll(`/L2ReprintReport/GetRe2formdata?${queryParams}`, token);
 };
+export const getMagzineAllottData = (token, data) => {
+	const { fromDate, plantcode, brandcode, productsizecode } = data;
+	return getAll(
+		`/MagzineAllotment/GetL1barcodeDetails/${fromDate}/${plantcode}/${brandcode}/${productsizecode}`,
+		token,
+	);
+};
+export const GetMagTranfData = (token, data) => {
+	const { fromDate, plantcode, brandcode, productsizecode, magname } = data;
+	return getAll(
+		`/formre2magallot/GetMagtransData/${fromDate}/${plantcode}/${brandcode}/${productsizecode}/${magname}`,
+		token,
+	);
+};
+
+export const allotFormRE2Data = (token, data) => postData('/formre2magallot/SetFormMagzineAllotment', token, data);
+
+export const magazineAllotedforTesting = (token, data) => putData('/formre2magallot/SetFormTesting', token, data);
+
+export const magazineTransfer = (token, data) => putData('/formre2magallot/UpdateMag', token, data);
 
 // From RE3
 export const getFromRE3Report = (token, data) => {

@@ -115,8 +115,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "#",
           children: [
             { title: "Magzine Alloted", url: "/magallotManual" },
-            { title: "Mag Alloted for Testing", url: "/l1boxdeletion" },
-            { title: "Magzine Transfer", url: "/attendancetracking" },
+            { title: "Mag Alloted for Testing", url: "/magallotfortest" },
+            { title: "Magzine Transfer", url: "/magzinetransfer" },
             { title: "Form RE2 Report", url: "/formre2" },
           ],
         },
