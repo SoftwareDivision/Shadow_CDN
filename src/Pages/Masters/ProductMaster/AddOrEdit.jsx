@@ -120,6 +120,13 @@ function AddOrEdit() {
 		mutation.mutate(data);
 	};
 
+	useEffect(() => {
+		if (state) {
+			reset(state);
+		}
+	}, [reset, state]);
+
+
 	//plant details
 	const {
 		data: brandData,
