@@ -116,7 +116,10 @@ export default function MainLayout() {
 		'/magzinetransfer': { parent: 'Form', current: 'Magzine Transfer' },
 		'/ReGenerateRE12FileGeneration': { parent: 'Admin', current: 'Re Generate-RE12' },
 		'/trace-barcode': { parent: 'Search', current: 'Trace Barcode' },
-		
+		'/rolemaster': { parent: 'Masters', current: 'Role Master' },
+		'/rolemaster/add': { parent: 'Masters', current: 'Add Role' },
+		'/usermaster': { parent: 'Masters', current: 'User Management' },
+		'/usermaster/add': { parent: 'Masters', current: 'Add User' },
 	};
 
 	const getPathInfo = (path) => {
@@ -134,6 +137,15 @@ export default function MainLayout() {
 		}
 		if (path.startsWith('/plant-master/edit/')) {
 			return { parent: 'Masters', current: 'Edit MFG Location' };
+		}
+		if (path.startsWith('/plant-master/edit/')) {
+			return { parent: 'Masters', current: 'Edit MFG Location' };
+		}
+		if (path.startsWith('/rolemaster/edit/')) {
+			return { parent: 'Masters', current: 'Edit Role' };
+		}
+		if (path.startsWith('/usermaster/edit/')) {
+			return { parent: 'Masters', current: 'Edit User' };
 		}
 
 		return breadcrumbMap[path] || { parent: 'Home', current: 'Unknown' };

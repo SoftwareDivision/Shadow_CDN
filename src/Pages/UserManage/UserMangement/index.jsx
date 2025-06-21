@@ -1,9 +1,9 @@
 import { useAuthToken } from '@/hooks/authStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import React, { useEffect } from 'react';
+import React from 'react';
 import DataTable from '@/components/DataTable';
 import { Card } from '@/components/ui/card';
-import { deleteCountry, getCountryDetails } from '@/lib/api';
+import { deleteUser, getAllUsers } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { MoreVertical, Pencil as PencilIcon, Plus as PlusIcon, Trash as TrashIcon, Loader2 } from 'lucide-react';
 import { useSnackbar } from 'notistack';
@@ -26,35 +26,35 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-function CountryMaster() {
+function UserManagement() {
 	const { token } = useAuthToken.getState();
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
 
 	const {
-		data: countryData,
+		data: userData,
 		isLoading,
 		error,
 	} = useQuery({
-		queryKey: ['countryData'],
+		queryKey: ['userData'],
 		queryFn: async () => {
-			const response = await getCountryDetails(tokendata);
+			const response = await getAllUsers(tokendata);
 			return response || [];
 		},
 		enabled: !!tokendata,
 	});
 
 	const deleteMutation = useMutation({
-		mutationFn: (id) => deleteCountry(tokendata, id),
+		mutationFn: (id) => deleteUser(tokendata, id),
 		onSuccess: () => {
-			queryClient.invalidateQueries(['countryData']);
-			enqueueSnackbar('Country deleted successfully', {
+			queryClient.invalidateQueries(['userData']);
+			enqueueSnackbar('User deleted successfully', {
 				variant: 'success',
 			});
 		},
 		onError: (error) => {
-			enqueueSnackbar(error.message || 'Failed to delete country', {
+			enqueueSnackbar(error.message || 'Failed to delete role', {
 				variant: 'error',
 			});
 		},
@@ -62,16 +62,13 @@ function CountryMaster() {
 
 	const navigate = useNavigate();
 	const handleEdit = (row) => {
-		navigate(`/country-master/edit/${row.id}`, {
-			state: { countryData: row },
+		navigate(`/usermaster/edit/${row.id}`, {
+			state: { userData: row },
 		});
 	};
 
-	useEffect(() => {
-		console.log(token.data.user);
-	}, []);
-
 	const handleDelete = (row) => {
+		console.log(row);
 		deleteMutation.mutate(row.id);
 	};
 
@@ -85,12 +82,12 @@ function CountryMaster() {
 
 	const columns = [
 		{
-			accessorKey: 'cname',
-			header: 'Country Name',
+			accessorKey: 'username',
+			header: 'Username',
 		},
 		{
-			accessorKey: 'code',
-			header: 'Country Code',
+			accessorKey: 'role',
+			header: 'Role',
 		},
 		{
 			accessorKey: 'actions',
@@ -150,14 +147,14 @@ function CountryMaster() {
 	return (
 		<Card className="p-4 shadow-md">
 			<div className="flex justify-between items-center">
-				<h2 className="text-2xl font-bold">Country Master</h2>
-				<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/country-master/add')}>
-					<PlusIcon className="h-4 w-4" /> Add Country
+				<h2 className="text-2xl font-bold">User Management</h2>
+				<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/usermaster/add')}>
+					<PlusIcon className="h-4 w-4" /> Add User
 				</Button>
 			</div>
-			<DataTable columns={columns} data={countryData} />
+			<DataTable columns={columns} data={userData} />
 		</Card>
 	);
 }
 
-export default CountryMaster;
+export default UserManagement;
