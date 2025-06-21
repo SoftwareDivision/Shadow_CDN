@@ -8,7 +8,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnackbarProvider } from 'notistack';
 import { WebSocketProvider } from './hooks/WebSocketContext';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			staleTime: 5 * 60 * 1000, // Cache data for 10 minutes
+			cacheTime: 5 * 60 * 1000, // Keep inactive data for 15 minutes
+			retry: 2, // Retry failed requests once
+		},
+	},
+});
 
 createRoot(document.getElementById('root')).render(
 	<StrictMode>

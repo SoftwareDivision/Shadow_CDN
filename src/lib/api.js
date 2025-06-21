@@ -132,9 +132,13 @@ export const deletePlant = (t, id) => deleteData(`/PlantMaster/DeletePlant/${id}
 export const createPlant = (t, data) => postData('/PlantMaster/CreatePlant', t, data);
 export const updatePlant = (t, d) => putData(`/PlantMaster/UpdatePlant/${d.id}`, t, d);
 
+//user management
 export const getAllUsers = (t) => getAll('/Users/GetAllUsers', t);
+export const createUser = (t, data) => postData('/Users/PostUser', t, data);
+export const updateUser = (t, d) => putData(`/Users/PutUser/${d.id}`, t, d);
+export const deleteUser = (t, id) => deleteData(`/Users/DeleteUser/${id}`, t);
 
-// Add these functions to your api.js file
+// machine masters
 export const getMachineCodeDetails = (t) => getAll('/MachineCodeMasters/GetAllMachineCodes', t);
 export const deleteMachineCode = (t, id) => deleteData(`/MachineCodeMasters/DeleteMachineCode/${id}`, t);
 export const createMachineCode = (t, data) => postData('/MachineCodeMasters/CreateMachineCode', t, data);
@@ -390,4 +394,11 @@ export const getTracedatabyl2barcode = (token, data) => {
 export const getTracedatabyl3barcode = (token, data) => {
 	return getAll(`/Search_Form/GetL3searchdata?l3barcode=${data}`, token);
 };
+
+//rolemanage
+export const getroleDetails = (t) => getAll('/RoleMaster/GetRoleMasterList', t);
+export const deleterole = (t, id) => deleteData(`/RoleMaster/DeleteRoleMaster/${id}`, t);
+export const createrole = (t, data) => postData('/RoleMaster/CreateRoleMaster', t, data);
+export const updaterole = (t, d) => putData(`/RoleMaster/UpdateRoleMaster/${d.id}`, t, d);
+
 export default api;

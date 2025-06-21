@@ -92,6 +92,12 @@ const FormRE3 = lazy(() => import('../Pages/Forms/Form RE3 Report/Index'));
 const FormRE4_Allotment = lazy(() => import('../Pages/Forms/Form RE4/Form RE4 Allotment/Index'));
 const FormRE4 = lazy(() => import('../Pages/Forms/Form RE4/Form RE4 Report/Index'));
 
+const RoleMaster = lazy(() => import('../Pages/UserManage/RoleManage/index'));
+const RolemasterAddorEdit = lazy(() => import('../Pages/UserManage/RoleManage/AddorEdit'));
+
+const UserManagement = lazy(() => import('../Pages/UserManage/UserMangement/index'));
+const UsermasterAddorEdit = lazy(() => import('../Pages/UserManage/UserMangement/AddorEdit'));
+
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
 		loadingBarRef.current?.continuousStart();
@@ -797,9 +803,6 @@ export default function RoutesComponent() {
 								}
 							/>
 
-
-
-
 							<Route
 								path="/ReGenerateRE2FileGeneration"
 								element={
@@ -851,8 +854,54 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
-
-
+							<Route
+								path="/rolemaster"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RoleMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/rolemaster/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RolemasterAddorEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/rolemaster/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RolemasterAddorEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/usermaster"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<UserManagement />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/usermaster/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<UsermasterAddorEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/usermaster/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<UsermasterAddorEdit />
+									</SuspenseWrapper>
+								}
+							/>
 						</Route>
 						{/* Catch-all 404 page */}
 						<Route
