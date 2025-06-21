@@ -168,13 +168,10 @@ function AddOrEdit() {
 			setUom(uomOptions);
 		}
 
-	}, [reset, brandData, uomData]);
-
-	useEffect(() => {
 		if (state) {
 			reset(state);
 		}
-	}, [reset, state]);
+	}, [reset, brandData, uomData, state]);
 
 	const loading = isBrandFetching || isUomFetching;
 	const allerrors = fetchBrandError || fetchUomError;
