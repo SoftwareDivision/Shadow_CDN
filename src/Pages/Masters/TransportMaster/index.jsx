@@ -57,55 +57,54 @@ function TransportMaster() {
         },
         {
             id: 'actions',
-            cell: ({ row }) => {
-                const transport = row.original;
-                return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <MoreVertical className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEdit(transport)}>
-                                <PencilIcon className="mr-2 h-4 w-4" />
-                                Edit
-                            </DropdownMenuItem>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                        <TrashIcon className="mr-2 h-4 w-4" />
+            cell: ({ row }) => (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-5 w-5" />
+                            <span className="sr-only">Open menu</span>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                            onClick={() => handleEdit(row.original)}
+                            className="text-blue-600 hover:text-blue-900"
+                        >
+                            <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                            Edit
+                        </DropdownMenuItem>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <DropdownMenuItem
+                                    className="text-red-600 hover:text-red-900"
+                                    onSelect={(e) => e.preventDefault()}
+                                >
+                                    <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                    Delete
+                                </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete the shift "{row.original.shift}"
+                                        and all associated data.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={() => handleDelete(row.original)}
+                                        className="bg-red-600 hover:bg-red-700"
+                                    >
                                         Delete
-                                    </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            This action cannot be undone. This will permanently delete the
-                                            transport and remove all related data.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction
-                                            onClick={() => handleDelete(transport.id)}
-                                            className="bg-red-600 hover:bg-red-700"
-                                        >
-                                            {deleteMutation.isLoading ? (
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            ) : (
-                                                <TrashIcon className="mr-2 h-4 w-4" />
-                                            )}
-                                            Delete
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                );
-            },
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ),
         },
     ];
 

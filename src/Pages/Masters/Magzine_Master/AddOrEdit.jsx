@@ -92,7 +92,7 @@ function AddOrEdit() {
         handleSubmit,
         formState: { errors },
         reset,
-        setValue,        
+        setValue,
     } = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
@@ -384,7 +384,7 @@ function AddOrEdit() {
                         {errors.validitydt && <span className="text-sm text-red-500">{errors.validitydt.message}</span>}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2">                        
                         <label htmlFor="totalwt" className="text-sm font-medium">
                             Total Weight (KGs)
                         </label>
@@ -418,7 +418,7 @@ function AddOrEdit() {
                             name="autoallot_flag"
                             control={control}
                             render={({ field }) => (
-                                <Checkbox 
+                                <Checkbox
                                     id="autoallot_flag"
                                     checked={field.value}
                                     onCheckedChange={field.onChange}

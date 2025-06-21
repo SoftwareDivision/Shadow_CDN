@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, MoreVertical, Loader2 } from 'lucide-react';
+import { MoreVertical, Pencil as PencilIcon, Plus as PlusIcon, Trash as TrashIcon, Loader2 } from 'lucide-react';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import DataTable from '@/components/DataTable';
@@ -82,43 +82,53 @@ function ProductMaster() {
 			id: 'actions',
 			size: 80,
 			cell: ({ row }) => (
-				<DropdownMenu>
-					<DropdownMenuTrigger>
-						<MoreVertical className="h-5 w-5" />
-					</DropdownMenuTrigger>
-					<DropdownMenuContent>
-						<DropdownMenuItem onClick={() => handleEdit(row.original)}>Edit</DropdownMenuItem>
-						<AlertDialog>
-							<AlertDialogTrigger asChild>
-								<DropdownMenuItem
-									className="text-red-600 hover:text-red-900"
-									onSelect={(e) => e.preventDefault()}
-								>
-									Delete
-								</DropdownMenuItem>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-									<AlertDialogDescription>
-										This action cannot be undone. This will permanently delete the product "
-										{row.original.bname}" and all associated data.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel>Cancel</AlertDialogCancel>
-									<AlertDialogAction
-										onClick={() => handleDelete(row.original)}
-										className="bg-red-600 hover:bg-red-700"
-									>
-										Delete
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			),
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-5 w-5" />
+                            <span className="sr-only">Open menu</span>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                            onClick={() => handleEdit(row.original)}
+                            className="text-blue-600 hover:text-blue-900"
+                        >
+                            <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                            Edit
+                        </DropdownMenuItem>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <DropdownMenuItem
+                                    className="text-red-600 hover:text-red-900"
+                                    onSelect={(e) => e.preventDefault()}
+                                >
+                                    <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                    Delete
+                                </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete the Product "{row.original.pname}"
+                                        and all associated data.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={() => handleDelete(row.original)}
+                                        className="bg-red-600 hover:bg-red-700"
+                                    >
+                                        Delete
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ),
 		},
 	];
 

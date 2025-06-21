@@ -98,7 +98,17 @@ function AddOrEdit() {
 			city: '',
 			district: '',
 			tahsil: '',
-			vehicles: [],
+			vehicles: [
+				{
+					id: 0,
+					cid: 0,
+					vehicleNo: '',
+					license: '',
+					validity: new Date(),
+					wt: 0,
+					unit: '',
+				},
+			],
 			members: [],
 		},
 	});
@@ -321,30 +331,34 @@ function AddOrEdit() {
 											/>
 										</TableCell>
 										<TableCell>
-											<Popover>
-												<PopoverTrigger asChild>
-													<Button
-														variant={"outline"}
-														className={cn(
-															"w-full justify-start text-left font-normal",
-															!field.value && "text-muted-foreground"
-														)}
-													>
-														<CalendarIcon className="mr-2 h-4 w-4" />
-														{field.value ? format(new Date(field.value), "PPP") : format(new Date(), "PPP")}
-													</Button>
-												</PopoverTrigger>
-												<PopoverContent className="w-auto p-0">
-													<Calendar
-														mode="single"
-														selected={field.value ? new Date(field.value) : new Date()}
-														onSelect={(date) => {
-															register(`vehicles.${index}.validity`).onChange(date);
-														}}
-														initialFocus
-													/>
-												</PopoverContent>
-											</Popover>
+											<Controller
+												name={`vehicles.${index}.validity`}
+												control={control}
+												render={({ field }) => (
+													<Popover>
+														<PopoverTrigger asChild>
+															<Button
+																variant={"outline"}
+																className={cn(
+																	"w-full justify-start text-left font-normal",
+																	!field.value && "text-muted-foreground"
+																)}
+															>
+																<CalendarIcon className="mr-2 h-4 w-4" />
+																{field.value ? format(field.value, "PPP") : format(new Date(), "PPP")}
+															</Button>
+														</PopoverTrigger>
+														<PopoverContent className="w-auto p-0">
+															<Calendar
+																mode="single"
+																selected={field.value}
+																onSelect={field.onChange}
+																initialFocus
+															/>
+														</PopoverContent>
+													</Popover>
+												)}
+											/>
 											{errors.vehicles?.[index]?.validity && (
 												<span className="text-destructive text-sm">
 													{errors.vehicles?.[index]?.validity.message}

@@ -210,6 +210,7 @@ function AddOrEdit() {
 						<Input
 							id="mfgloccode"
 							{...register('mfgloccode')}
+							style={{ textTransform: 'uppercase' }}
 							className={errors.mfgloccode ? 'border-red-500' : ''}
 						/>
 						{errors.mfgloccode && <span className="text-sm text-red-500">{errors.mfgloccode.message}</span>}
@@ -222,6 +223,7 @@ function AddOrEdit() {
 							id="maincode"
 							{...register('maincode')}
 							readOnly
+							style={{ textTransform: 'uppercase' }}
 							className={errors.maincode ? 'border-red-500' : ''}
 						/>
 						{errors.maincode && <span className="text-sm text-red-500">{errors.maincode.message}</span>}

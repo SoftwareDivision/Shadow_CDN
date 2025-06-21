@@ -14,10 +14,7 @@ import { Loader2 } from 'lucide-react';
 
 const validationSchema = yup.object().shape({
 	state: yup.string().required('State name is required'),
-	st_code: yup
-		.string()
-		.required('State code is required')
-		.matches(/^[A-Z]{2}$/, 'State code must be exactly 2 uppercase characters'),
+	st_code: yup.string().required('State code is required'),
 	district: yup.string().required('District is required'),
 	city: yup.string().required('City is required'),
 	tahsil: yup.string().required('Tahsil is required'),
@@ -111,6 +108,7 @@ function AddOrEdit() {
 						</label>
 						<Input
 							id="st_code"
+							style={{ textTransform: 'uppercase' }}
 							{...register('st_code')}
 							className={errors.st_code ? 'border-red-500' : ''}
 							maxLength={2}

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAuthToken } from '@/hooks/authStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { PlusIcon, MoreVertical, Loader2 } from 'lucide-react';
+import { MoreVertical, Pencil as PencilIcon, Plus as PlusIcon, Trash as TrashIcon, Loader2 } from 'lucide-react';
 import { CheckCircle2, CheckCircle2Icon, GripVerticalIcon, XCircle, XCircleIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
@@ -112,18 +112,25 @@ function MagzineMaster() {
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
+                            <MoreVertical className="h-5 w-5" />
                             <span className="sr-only">Open menu</span>
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(row.original)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => handleEdit(row.original)}
+                            className="text-blue-600 hover:text-blue-900"
+                        >
+                            <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                            Edit
+                        </DropdownMenuItem>
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <DropdownMenuItem
                                     className="text-red-600 hover:text-red-900"
                                     onSelect={(e) => e.preventDefault()}
                                 >
+                                    <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
                                     Delete
                                 </DropdownMenuItem>
                             </AlertDialogTrigger>
@@ -131,8 +138,8 @@ function MagzineMaster() {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete the magzine "
-                                        {row.original.magname}" and all associated data.
+                                        This action cannot be undone. This will permanently delete the Magzine "{row.original.magname}"
+                                        and all associated data.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>

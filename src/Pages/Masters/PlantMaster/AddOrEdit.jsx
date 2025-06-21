@@ -1,5 +1,5 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,14 +8,16 @@ import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { createPlant, updatePlant } from '@/lib/api';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createPlant, updatePlant, getPlantTypeDetails } from '@/lib/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 const validationSchema = yup.object().shape({
 	plant_type: yup.string().required('Plant type is required'),
@@ -27,6 +29,8 @@ const validationSchema = yup.object().shape({
 	validity_dt: yup.date().required('Validity date is required'),
 });
 
+
+
 function AddOrEdit() {
 	const { id } = useParams();
 	const navigate = useNavigate();
@@ -35,11 +39,23 @@ function AddOrEdit() {
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
+	const [plantType, setPlantType] = useState([]);
+
+	const {
+		data: planttypeData,
+		isLoading: isPlantTypeFetching,
+		error: fetchPlantTypeError,
+	} = useQuery({
+		queryKey: ['plantTypeData'],
+		queryFn: () => getPlantTypeDetails(tokendata),
+		enabled: !!tokendata,
+	});
 
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
+		control,
 		setValue,
 		watch, // Add this
 	} = useForm({
@@ -56,6 +72,15 @@ function AddOrEdit() {
 	});
 
 	React.useEffect(() => {
+		if (planttypeData) {
+			const plantOptions = [...new Set(planttypeData?.map((plant) => plant.plant_type))].sort().map((plant) => ({
+				value: plant,
+				text: plant,
+				disabled: false,
+			}));
+			setPlantType(plantOptions);
+		}
+
 		if (id && location.state) {
 			const plantData = location.state;
 			setValue('plant_type', plantData.plant_type);
@@ -66,7 +91,10 @@ function AddOrEdit() {
 			setValue('issue_dt', plantData.issue_dt.split('T')[0]);
 			setValue('validity_dt', plantData.validity_dt.split('T')[0]);
 		}
-	}, [id, location.state, setValue]);
+
+
+
+	}, [id, location.state, planttypeData, setValue]);
 
 	const mutation = useMutation({
 		mutationFn: (data) => {
@@ -86,7 +114,18 @@ function AddOrEdit() {
 		},
 	});
 
+	const loading = isPlantTypeFetching;
+	const allerrors = fetchPlantTypeError;
+
+	if (allerrors) {
+		enqueueSnackbar(allerrors.message || 'Failed to fetch data', { variant: 'error' });
+	}
+	if (loading) {
+		return <div>Loading...</div>;
+	}
+
 	const onSubmit = (data) => {
+		data.pCode = data.pCode.toUpperCase();
 		mutation.mutate(data);
 	};
 
@@ -98,15 +137,41 @@ function AddOrEdit() {
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="space-y-2">
-						<label htmlFor="plant_type" className="text-sm font-medium">
-							Plant Type
-						</label>
-						<Input
-							id="plant_type"
-							{...register('plant_type')}
-							className={errors.plant_type ? 'border-red-500' : ''}
+						<Controller
+							name="plant_type"
+							control={control}
+							render={({ field }) => (
+								<div className="flex flex-col gap-y-2 mt-1">
+									<Label>Plant Type</Label>
+									<Select
+										value={field.value}
+										onValueChange={(value) => {
+											field.onChange(value);
+										}}
+									>
+										<SelectTrigger className="w-full">
+											<SelectValue placeholder="Select Plant Type..." />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectGroup>
+												{plantType.map((mag) => (
+													<SelectItem
+														key={mag.value}
+														value={mag.value}
+														disabled={mag.disabled}
+													>
+														{mag.text}
+													</SelectItem>
+												))}
+											</SelectGroup>
+										</SelectContent>
+									</Select>
+									{errors.plant_type && ( // Corrected from errors.mag
+										<span className="text-destructive text-sm">{errors.plant_type.message}</span>
+									)}
+								</div>
+							)}
 						/>
-						{errors.plant_type && <span className="text-sm text-red-500">{errors.plant_type.message}</span>}
 					</div>
 
 					<div className="space-y-2">
@@ -121,7 +186,9 @@ function AddOrEdit() {
 						<label htmlFor="pCode" className="text-sm font-medium">
 							Plant Code
 						</label>
-						<Input id="pCode" {...register('pCode')} className={errors.pCode ? 'border-red-500' : ''} />
+						<Input id="pCode" {...register('pCode')} className={errors.pCode ? 'border-red-500' : ''}
+						style={{ textTransform: 'uppercase' }}
+						/>
 						{errors.pCode && <span className="text-sm text-red-500">{errors.pCode.message}</span>}
 					</div>
 

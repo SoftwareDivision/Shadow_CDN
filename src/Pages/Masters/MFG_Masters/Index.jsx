@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, MoreVertical, Loader2 } from 'lucide-react';
+import { PlusIcon, MoreVertical, Loader2, Pencil as PencilIcon, Trash as TrashIcon } from 'lucide-react';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import DataTable from '@/components/DataTable';
@@ -85,54 +85,54 @@ function MFGMasters() {
 			accessorKey: 'actions',
 			header: 'Actions',
 			id: 'actions',
-			cell: ({ row }) => {
-				return (
-					<DropdownMenu>
-						<DropdownMenuTrigger disabled={deleteMutation.isPending}>
-							<MoreVertical className="h-5 w-5" />
-						</DropdownMenuTrigger>
-						<DropdownMenuContent>
-							<DropdownMenuItem onClick={() => handleEdit(row.original)}>Edit</DropdownMenuItem>
-							<AlertDialog>
-								<AlertDialogTrigger asChild>
-									<DropdownMenuItem
-										className="text-red-600 hover:text-red-900"
-										onSelect={(e) => e.preventDefault()}
+			cell: ({ row }) => (
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button variant="ghost" className="h-8 w-8 p-0">
+							<MoreVertical className="h-4 w-4" />
+							<span className="sr-only">Open menu</span>
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuItem
+							onClick={() => handleEdit(row.original)}
+							className="text-blue-600 hover:text-blue-900"
+						>
+							<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+							Edit
+						</DropdownMenuItem>
+						<AlertDialog>
+							<AlertDialogTrigger asChild>
+								<DropdownMenuItem
+									className="text-red-600 hover:text-red-900"
+									onSelect={(e) => e.preventDefault()}
+								>
+									<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+									Delete
+								</DropdownMenuItem>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+									<AlertDialogDescription>
+										This action cannot be undone. This will permanently delete the country "
+										{row.original.cname}" and all associated data.
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Cancel</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={() => handleDelete(row.original)}
+										className="bg-red-600 hover:bg-red-700"
 									>
 										Delete
-									</DropdownMenuItem>
-								</AlertDialogTrigger>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-										<AlertDialogDescription>
-											This action cannot be undone. This will permanently delete the MFG "
-											{row.original.mfgname}" and all associated data.
-										</AlertDialogDescription>
-									</AlertDialogHeader>
-									<AlertDialogFooter>
-										<AlertDialogCancel>Cancel</AlertDialogCancel>
-										<AlertDialogAction
-											onClick={() => handleDelete(row.original)}
-											className="bg-red-600 hover:bg-red-700"
-											disabled={deleteMutation.isPending}
-										>
-											{deleteMutation.isPending ? (
-												<>
-													<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-													Deleting...
-												</>
-											) : (
-												'Delete'
-											)}
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				);
-			},
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			),
 		},
 	];
 	if (error) {

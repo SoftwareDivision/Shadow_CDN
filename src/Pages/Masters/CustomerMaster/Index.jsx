@@ -5,15 +5,15 @@ import DataTable from '@/components/DataTable';
 import { Card } from '@/components/ui/card';
 import { getCustomerDetails, deleteCustomer } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Pencil, Plus, Trash, Loader2 } from 'lucide-react';
+import { MoreVertical, Pencil as PencilIcon, Plus, Trash as TrashIcon, Loader2 } from 'lucide-react';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
 function CustomerMaster() {
@@ -50,17 +50,66 @@ function CustomerMaster() {
             accessorKey: 'actions',
             header: 'Actions',
             id: 'actions',
+            //     <DropdownMenu>
+            //         <DropdownMenuTrigger>
+            //             <MoreVertical className="h-5 w-5" />
+            //         </DropdownMenuTrigger>
+            //         <DropdownMenuContent>
+            //             <DropdownMenuItem
+            //                 onClick={() => navigate(`/customer-master/edit/${row.original.id}`, {
+            //                     state: { customerData: row.original }
+            //                 })}
+            //             >
+            //                 Edit
+            //             </DropdownMenuItem>
+            //             <AlertDialog>
+            //                 <AlertDialogTrigger asChild>
+            //                     <DropdownMenuItem
+            //                         className="text-red-600 hover:text-red-900"
+            //                         onSelect={(e) => e.preventDefault()}
+            //                     >
+            //                         Delete
+            //                     </DropdownMenuItem>
+            //                 </AlertDialogTrigger>
+            //                 <AlertDialogContent>
+            //                     <AlertDialogHeader>
+            //                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            //                         <AlertDialogDescription>
+            //                             This action cannot be undone. This will permanently delete the customer "{row.original.cName}" and all associated data.
+            //                         </AlertDialogDescription>
+            //                     </AlertDialogHeader>
+            //                     <AlertDialogFooter>
+            //                         <AlertDialogCancel>Cancel</AlertDialogCancel>
+            //                         <AlertDialogAction
+            //                             onClick={() => deleteMutation.mutate(row.original.id)}
+            //                             className="bg-red-600 hover:bg-red-700"
+            //                         >
+            //                             {deleteMutation.isLoading ? (
+            //                                 <Loader2 className="h-4 w-4 animate-spin" />
+            //                             ) : (
+            //                                 'Delete'
+            //                             )}
+            //                         </AlertDialogAction>
+            //                     </AlertDialogFooter>
+            //                 </AlertDialogContent>
+            //             </AlertDialog>
+            //         </DropdownMenuContent>
+            //     </DropdownMenu>
+            // ),
             cell: ({ row }) => (
                 <DropdownMenu>
-                    <DropdownMenuTrigger>
-                        <MoreVertical className="h-5 w-5" />
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-5 w-5" />
+                            <span className="sr-only">Open menu</span>
+                        </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuItem 
-                            onClick={() => navigate(`/customer-master/edit/${row.original.id}`, { 
-                                state: { customerData: row.original } 
-                            })}
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                            onClick={() => handleEdit(row.original)}
+                            className="text-blue-600 hover:text-blue-900"
                         >
+                            <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
                             Edit
                         </DropdownMenuItem>
                         <AlertDialog>
@@ -69,6 +118,7 @@ function CustomerMaster() {
                                     className="text-red-600 hover:text-red-900"
                                     onSelect={(e) => e.preventDefault()}
                                 >
+                                    <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
                                     Delete
                                 </DropdownMenuItem>
                             </AlertDialogTrigger>
@@ -76,7 +126,8 @@ function CustomerMaster() {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete the customer "{row.original.cName}" and all associated data.
+                                        This action cannot be undone. This will permanently delete the customer "{row.original.cName}"
+                                        and all associated data.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -85,11 +136,7 @@ function CustomerMaster() {
                                         onClick={() => deleteMutation.mutate(row.original.id)}
                                         className="bg-red-600 hover:bg-red-700"
                                     >
-                                        {deleteMutation.isLoading ? (
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                        ) : (
-                                            'Delete'
-                                        )}
+                                        Delete
                                     </AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>
