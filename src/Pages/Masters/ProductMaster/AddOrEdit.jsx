@@ -12,6 +12,7 @@ import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import { createProduct, getAllBrands, updateProduct, getUOMDetails } from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 
 
 const schema = yup.object().shape({
@@ -120,11 +121,7 @@ function AddOrEdit() {
 		mutation.mutate(data);
 	};
 
-	useEffect(() => {
-		if (state) {
-			reset(state);
-		}
-	}, [reset, state]);
+
 
 
 	//plant details
@@ -173,6 +170,11 @@ function AddOrEdit() {
 
 	}, [reset, brandData, uomData]);
 
+	useEffect(() => {
+		if (state) {
+			reset(state);
+		}
+	}, [reset, state]);
 
 	const loading = isBrandFetching || isUomFetching;
 	const allerrors = fetchBrandError || fetchUomError;
