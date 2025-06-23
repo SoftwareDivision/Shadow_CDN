@@ -238,14 +238,15 @@ function AddOrEdit() {
 					>
 						Cancel
 					</Button>
+									
 					<Button type="submit" className="bg-primary hover:bg-primary/90" disabled={mutation.isPending}>
 						{mutation.isPending ? (
 							<>
-								<Loader2 className="animate-spin h-4 w-4 text-white" />
-								<span className="ml-2">Saving...</span>
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								{id ? 'Updating...' : 'Creating...'}
 							</>
 						) : (
-							'Save'
+							<>{id ? 'Update' : 'Create'} MFG Location</>
 						)}
 					</Button>
 				</div>

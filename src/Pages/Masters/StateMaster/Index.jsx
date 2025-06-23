@@ -105,8 +105,8 @@ function StateMaster() {
 								<AlertDialogHeader>
 									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 									<AlertDialogDescription>
-										This action cannot be undone. This will permanently delete the country "
-										{row.original.cname}" and all associated data.
+										This action cannot be undone. This will permanently delete the State "
+										{row.original.state}" and all associated data.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
