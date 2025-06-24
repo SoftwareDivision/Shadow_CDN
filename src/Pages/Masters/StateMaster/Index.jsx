@@ -10,7 +10,8 @@ import { getStateDetails, deleteState } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from '@/components/ui/dropdown-menu';
 import {
-	AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+	AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
 
 function StateMaster() {
 	const navigate = useNavigate();
@@ -18,7 +19,11 @@ function StateMaster() {
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
+	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === "State Master");
 
+	console.log("token :-", token.data.user.role.pageAccesses.find((item) => item.pageName === "State Master"));
+
+	console.log("userpermission :-", userpermission.isAdd);
 	// Query for fetching states
 	const { data: stateData, isLoading } = useQuery({
 		queryKey: ['states'],
@@ -129,11 +134,14 @@ function StateMaster() {
 	return (
 		<Card className="p-4 shadow-md">
 			<div className="flex items-center justify-between">
-				<h2 className="text-2xl font-bold">State Master</h2>
-				<Button onClick={() => navigate('/state-master/add')} className="bg-primary hover:bg-primary/90">
-					<PlusIcon className="h-4 w-4" />
-					Add State
-				</Button>
+				<h2 className="text-2xl font-bold">State Master</h2>			
+				TODO: Add model permission
+				{userpermission.isAdd && (
+					<Button onClick={() => navigate('/state-master/add')} className="bg-primary hover:bg-primary/90">
+						<PlusIcon className="h-4 w-4" />
+						Add State
+					</Button>
+				)}
 			</div>
 			{isLoading ? (
 				<div className="flex items-center justify-center py-8">
