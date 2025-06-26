@@ -20,6 +20,7 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from '@/components/ui/dropdown-menu';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function TransportMaster() {
     const { token } = useAuthToken.getState();
@@ -27,6 +28,9 @@ function TransportMaster() {
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === "Transport Master");
+
+    console.log("userpermission :-", userpermission);
 
     const handleEdit = (transport) => {
         navigate(`/transport-master/edit/${transport.id}`, {
@@ -66,22 +70,52 @@ function TransportMaster() {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                            onClick={() => handleEdit(row.original)}
-                            className="text-blue-600 hover:text-blue-900"
-                        >
-                            <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-                            Edit
-                        </DropdownMenuItem>
-                        <AlertDialog>
+                        {userpermission.isEdit ? (
+                            <DropdownMenuItem
+                                onClick={() => handleEdit(row.original)}
+                                className="text-blue-600 hover:text-blue-900"
+                            >
+                                <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                                Edit
+                            </DropdownMenuItem>
+                        ) : (
+                            <PermissionDeniedDialog
+                                action="Edit a Transport"
+                                trigger={
+                                    <DropdownMenuItem
+                                        className="text-blue-600 hover:text-blue-900"
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                                        Edit
+                                    </DropdownMenuItem>
+                                }
+                            />
+                        )}
+                        < AlertDialog >
                             <AlertDialogTrigger asChild>
-                                <DropdownMenuItem
-                                    className="text-red-600 hover:text-red-900"
-                                    onSelect={(e) => e.preventDefault()}
-                                >
-                                    <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-                                    Delete
-                                </DropdownMenuItem>
+                                {userpermission.isDelete ? (
+                                    <DropdownMenuItem
+                                        className="text-red-600 hover:text-red-900"
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                ) : (
+                                    <PermissionDeniedDialog
+                                        action="Delete a Transport"
+                                        trigger={
+                                            <DropdownMenuItem
+                                                className="text-red-600 hover:text-red-900"
+                                                onSelect={(e) => e.preventDefault()}
+                                            >
+                                                <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                                Delete
+                                            </DropdownMenuItem>
+                                        }
+                                    />
+                                )}
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -103,7 +137,7 @@ function TransportMaster() {
                             </AlertDialogContent>
                         </AlertDialog>
                     </DropdownMenuContent>
-                </DropdownMenu>
+                </DropdownMenu >
             ),
         },
     ];
@@ -139,10 +173,22 @@ function TransportMaster() {
         <Card className="p-4 shadow-md">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-semibold">Transport Master</h1>
-                <Button onClick={handleAdd}>
-                    <PlusIcon className="mr-2 h-4 w-4" />
-                    Add Transport
-                </Button>
+                {userpermission.isAdd ? (
+                    <Button onClick={handleAdd}>
+                        <PlusIcon className="mr-2 h-4 w-4" />
+                        Add Transport
+                    </Button>
+                ) : (
+                    <PermissionDeniedDialog
+                        action="Add a Transport"
+                        trigger={
+                            <Button>
+                                <PlusIcon className="mr-2 h-4 w-4" />
+                                Add Transport
+                            </Button>
+                        }
+                    />
+                )}
             </div>
             <DataTable
                 columns={columns}

@@ -25,12 +25,16 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function BrandMaster() {
 	const { token } = useAuthToken.getState();
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
+	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'Brand Master');
+
+	console.log('userpermission :-', userpermission);
 
 	const {
 		data: brandData,
@@ -86,20 +90,24 @@ function BrandMaster() {
 			header: 'Plant Type',
 		},
 		{
-			accessorKey: 'pname',
-			header: 'Plant Name',
-		},		
-		{
-			accessorKey: 'pcode',
-			header: 'Plant Code',
-		},
-		{
 			accessorKey: 'bname',
 			header: 'Brand Name',
 		},
 		{
 			accessorKey: 'bid',
 			header: 'Brand ID',
+		},
+		{
+			accessorKey: 'class',
+			header: 'Class',
+		},
+		{
+			accessorKey: 'division',
+			header: 'Division',
+		},
+		{
+			accessorKey: 'unit',
+			header: 'Unit',
 		},
 		{
 			accessorKey: 'actions',
@@ -114,22 +122,55 @@ function BrandMaster() {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuItem
-							onClick={() => handleEdit(row.original)}
-							className="text-blue-600 hover:text-blue-900"
-						>
-							<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-							Edit
-						</DropdownMenuItem>
+						{userpermission.isEdit ? (
+							<DropdownMenuItem
+								onClick={() => handleEdit(row.original)}
+								className="text-blue-600 hover:text-blue-900"
+							>
+								<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+								Edit
+							</DropdownMenuItem>
+						) : (
+							<PermissionDeniedDialog
+								action="Edit a Brand"
+								trigger={
+									<DropdownMenuItem
+										className="text-blue-600 hover:text-blue-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+										Edit
+
+									</DropdownMenuItem>
+								}
+							/>
+						)}
+
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<DropdownMenuItem
-									className="text-red-600 hover:text-red-900"
-									onSelect={(e) => e.preventDefault()}
-								>
-									<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-									Delete
-								</DropdownMenuItem>
+								{userpermission.isDelete ? (
+
+									<DropdownMenuItem
+										className="text-red-600 hover:text-red-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+										Delete
+									</DropdownMenuItem>
+								) : (
+									<PermissionDeniedDialog
+										action="Delete a Brand"
+										trigger={
+											<DropdownMenuItem
+												className="text-red-600 hover:text-red-900"
+												onSelect={(e) => e.preventDefault()}
+											>
+												<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+												Delete
+											</DropdownMenuItem>
+										}
+									/>
+								)}
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
@@ -151,7 +192,7 @@ function BrandMaster() {
 							</AlertDialogContent>
 						</AlertDialog>
 					</DropdownMenuContent>
-				</DropdownMenu>
+				</DropdownMenu >
 			),
 		},
 	];
@@ -160,9 +201,20 @@ function BrandMaster() {
 		<Card className="p-4 shadow-md">
 			<div className="flex justify-between items-center">
 				<h2 className="text-2xl font-bold">Brand Master</h2>
-				<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/brand-master/add')}>
-					<PlusIcon className="h-4 w-4" /> Add Brand
-				</Button>
+				{userpermission.isAdd ? (
+					<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/brand-master/add')}>
+						<PlusIcon className="h-4 w-4" /> Add Brand
+					</Button>
+				) : (
+					<PermissionDeniedDialog
+						action="Add a Brand"
+						trigger={
+							<Button className="bg-primary hover:bg-primary/90">
+								<PlusIcon className="h-4 w-4" /> Add Brand
+							</Button>
+						}
+					/>
+				)}
 			</div>
 			<DataTable columns={columns} data={brandData} />
 		</Card>

@@ -25,6 +25,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function UOMMaster() {
     const navigate = useNavigate();
@@ -32,6 +33,9 @@ function UOMMaster() {
     const tokendata = token.data.token;
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
+    const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === "UOM Master");
+
+    console.log("userpermission :-", userpermission);
 
     const { data: uomData, isLoading } = useQuery({
         queryKey: ['uom'],
@@ -65,7 +69,7 @@ function UOMMaster() {
         { accessorKey: 'uomcode', header: 'UOM Code' },
         {
             accessorKey: 'actions',
-			header: 'Actions',
+            header: 'Actions',
             id: 'actions',
             cell: ({ row }) => (
                 <DropdownMenu>
@@ -76,22 +80,55 @@ function UOMMaster() {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                            onClick={() => handleEdit(row.original)}
-                            className="text-blue-600 hover:text-blue-900"
-                        >
-                            <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-                            Edit
-                        </DropdownMenuItem>
-                        <AlertDialog>
+                        {userpermission.isEdit ? (
+
+
+                            <DropdownMenuItem
+                                onClick={() => handleEdit(row.original)}
+                                className="text-blue-600 hover:text-blue-900"
+                            >
+                                <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                                Edit
+                            </DropdownMenuItem>
+
+                        ) : (
+                            <PermissionDeniedDialog
+                                action="Edit a UOM"
+                                trigger={
+                                    <DropdownMenuItem
+                                        className="text-blue-600 hover:text-blue-900"
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                                        Edit
+                                    </DropdownMenuItem>
+                                }
+                            />
+                        )}
+                        < AlertDialog >
                             <AlertDialogTrigger asChild>
-                                <DropdownMenuItem
-                                    className="text-red-600 hover:text-red-900"
-                                    onSelect={(e) => e.preventDefault()}
-                                >
-                                    <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-                                    Delete
-                                </DropdownMenuItem>
+                                {userpermission.isDelete ? (
+                                    <DropdownMenuItem
+                                        className="text-red-600 hover:text-red-900"
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                ) : (
+                                    <PermissionDeniedDialog
+                                        action="Delete a UOM"
+                                        trigger={
+                                            <DropdownMenuItem
+                                                className="text-red-600 hover:text-red-900"
+                                                onSelect={(e) => e.preventDefault()}
+                                            >
+                                                <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                                Delete
+                                            </DropdownMenuItem>
+                                        }
+                                    />
+                                )}
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -113,7 +150,7 @@ function UOMMaster() {
                             </AlertDialogContent>
                         </AlertDialog>
                     </DropdownMenuContent>
-                </DropdownMenu>
+                </DropdownMenu >
             ),
         },
     ];
@@ -122,9 +159,20 @@ function UOMMaster() {
         <Card className="p-4 shadow-md">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">UOM Master</h2>
-                <Button onClick={() => navigate('/uom-master/add')}>
-                    <PlusIcon className="mr-2 h-4 w-4" /> Add UOM
-                </Button>
+                {userpermission.isAdd ? (
+                    <Button onClick={() => navigate('/uom-master/add')}>
+                        <PlusIcon className="mr-2 h-4 w-4" /> Add UOM
+                    </Button>
+                ) : (
+                    <PermissionDeniedDialog
+                        action="Add a UOM"
+                        trigger={
+                            <Button >
+                                <PlusIcon className="mr-2 h-4 w-4" /> Add UOM
+                            </Button>
+                        }
+                    />
+                )}
             </div>
 
             <DataTable columns={columns} data={uomData || []} isLoading={isLoading} />

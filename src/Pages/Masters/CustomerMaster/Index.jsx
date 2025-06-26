@@ -15,6 +15,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function CustomerMaster() {
     const { token } = useAuthToken.getState();
@@ -22,6 +23,9 @@ function CustomerMaster() {
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'Customer Master');
+
+    console.log("userpermission :-", userpermission);
 
     const { data: customerData, isLoading } = useQuery({
         queryKey: ['customers'],
@@ -105,22 +109,54 @@ function CustomerMaster() {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                            onClick={() => handleEdit(row.original)}
-                            className="text-blue-600 hover:text-blue-900"
-                        >
-                            <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-                            Edit
-                        </DropdownMenuItem>
+                        {userpermission.isEdit ? (
+
+                            <DropdownMenuItem
+                                onClick={() => handleEdit(row.original)}
+                                className="text-blue-600 hover:text-blue-900"
+                            >
+                                <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                                Edit
+                            </DropdownMenuItem>
+                        ) : (
+                            <PermissionDeniedDialog
+                                action="Edit a Customer"
+                                trigger={
+                                    <DropdownMenuItem
+                                        className="text-blue-600 hover:text-blue-900"
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                                        Edit
+                                    </DropdownMenuItem>
+                                }
+                            />
+                        )}
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <DropdownMenuItem
-                                    className="text-red-600 hover:text-red-900"
-                                    onSelect={(e) => e.preventDefault()}
-                                >
-                                    <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-                                    Delete
-                                </DropdownMenuItem>
+                                {userpermission.isDelete ? (
+
+                                    <DropdownMenuItem
+                                        className="text-red-600 hover:text-red-900"
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                ) : (
+                                    <PermissionDeniedDialog
+                                        action="Delete a Customer"
+                                        trigger={
+                                            <DropdownMenuItem
+                                                className="text-red-600 hover:text-red-900"
+                                                onSelect={(e) => e.preventDefault()}
+                                            >
+                                                <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                                Delete
+                                            </DropdownMenuItem>
+                                        }
+                                    />
+                                )}
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -151,10 +187,22 @@ function CustomerMaster() {
         <Card className="p-4">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Customer Master</h2>
-                <Button onClick={() => navigate('/customer-master/add')}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Customer
-                </Button>
+                {userpermission.isAdd ? (
+                    <Button onClick={() => navigate('/customer-master/add')}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Customer
+                    </Button>
+                ) : (
+                    <PermissionDeniedDialog
+                        action="Add a Customer"
+                        trigger={
+                            <Button className="bg-primary hover:bg-primary/90">
+                                <Plus className="h-4 w-4" />
+                                Add Customer
+                            </Button>
+                        }
+                    />
+                )}
             </div>
             <DataTable
                 columns={columns}

@@ -25,6 +25,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function MFGMasters() {
 	const navigate = useNavigate();
@@ -32,6 +33,9 @@ function MFGMasters() {
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
+	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'MFG Masters');
+
+	console.log('userpermission :-', userpermission);
 
 	// Query for fetching MFG data
 	const {
@@ -94,22 +98,54 @@ function MFGMasters() {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuItem
-							onClick={() => handleEdit(row.original)}
-							className="text-blue-600 hover:text-blue-900"
-						>
-							<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-							Edit
-						</DropdownMenuItem>
+						{userpermission.isEdit ? (
+							<DropdownMenuItem
+								onClick={() => handleEdit(row.original)}
+								className="text-blue-600 hover:text-blue-900"
+							>
+								<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+								Edit
+							</DropdownMenuItem>
+
+						) : (
+							<PermissionDeniedDialog
+								action="Edit a MFG"
+								trigger={
+									<DropdownMenuItem
+										className="text-blue-600 hover:text-blue-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+										Edit
+									</DropdownMenuItem>
+								}
+							/>
+						)}
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<DropdownMenuItem
-									className="text-red-600 hover:text-red-900"
-									onSelect={(e) => e.preventDefault()}
-								>
-									<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-									Delete
-								</DropdownMenuItem>
+								{userpermission.isDelete ? (
+									<DropdownMenuItem
+										className="text-red-600 hover:text-red-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+										Delete
+									</DropdownMenuItem>
+
+								) : (
+									<PermissionDeniedDialog
+										action="Delete a MFG"
+										trigger={
+											<DropdownMenuItem
+												className="text-red-600 hover:text-red-900"
+												onSelect={(e) => e.preventDefault()}
+											>
+												<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+												Delete
+											</DropdownMenuItem>
+										}
+									/>
+								)}
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
@@ -144,10 +180,23 @@ function MFGMasters() {
 		<Card className="p-4 shadow-md">
 			<div className="flex items-center justify-between">
 				<h2 className="text-2xl font-bold">MFG Masters</h2>
-				<Button onClick={() => navigate('/mfg-masters/add')} className="bg-primary hover:bg-primary/90">
-					<PlusIcon className="h-4 w-4" />
-					Add MFG
-				</Button>
+				{userpermission.isAdd ? (
+					<Button onClick={() => navigate('/mfg-masters/add')} className="bg-primary hover:bg-primary/90">
+						<PlusIcon className="h-4 w-4" />
+						Add MFG
+					</Button>
+				) : (
+					<PermissionDeniedDialog
+						action="Add a MFG"
+						trigger={
+							<Button className="bg-primary hover:bg-primary/90">
+								<PlusIcon className="h-4 w-4" />
+								Add MFG
+							</Button>
+						}
+					/>
+				)}
+
 			</div>
 			{isLoading ? (
 				<div className="flex items-center justify-center py-8">

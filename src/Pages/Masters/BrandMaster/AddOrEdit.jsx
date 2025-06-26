@@ -10,19 +10,20 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
-import { createBrand, updateBrand, getPlantDetails } from '@/lib/api';
+import { createBrand, updateBrand, getPlantDetails, getUOMDetails } from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 
 const schema = yup.object().shape({
     id: yup.number(),
     plant_type: yup.string().required('Plant Type is required'),
-    pname: yup.string().required('Plant Name is required'),
-    pcode: yup.string().required('Plant Code is required'),
     bname: yup.string().required('Brand Name is required'),
     bid: yup.string()
         .required('Brand ID is required')
         .matches(/^\d{4}$/, 'Brand ID must be exactly 4 digits'),
+    class: yup.number().required('Class is required'),
+    division: yup.number().required('Division is required'),
+    unit: yup.string().required('Unit is required'),
 });
 
 function AddOrEdit() {
@@ -35,6 +36,7 @@ function AddOrEdit() {
     const queryClient = useQueryClient();
     const [plantTypes, setPlantTypes] = useState([]);
     const [plantNames, setPlantNames] = useState([]);
+
     const {
         data: plantData,
         isLoading: isPlantFetching,
@@ -42,6 +44,16 @@ function AddOrEdit() {
     } = useQuery({
         queryKey: ['plantDataa'],
         queryFn: () => getPlantDetails(tokendata),
+        enabled: !!tokendata,
+    });
+
+    const {
+        data: uomData,
+        isLoading: isUomFetching,
+        error: fetchUomError,
+    } = useQuery({
+        queryKey: ['uomData'],
+        queryFn: () => getUOMDetails(tokendata),
         enabled: !!tokendata,
     });
 
@@ -58,16 +70,17 @@ function AddOrEdit() {
         defaultValues: {
             id: 0,
             plant_type: '',
-            pname: '',
-            pcode: '',
             bname: '',
             bid: '',
+            class: '',
+            division: '',
+            unit: '',
         },
     });
 
+
     useEffect(() => {
         if (plantData) {
-            // Create array of unique plant types
             const uniquePlantTypes = [...new Set(plantData.map(plant => plant.plant_type))];
             const plantOptions = uniquePlantTypes.map(plantType => ({
                 value: plantType,
@@ -78,43 +91,22 @@ function AddOrEdit() {
         }
 
         if (state?.brandData) {
-            const { id, plant_type, pname, pcode, bname, bid } = state.brandData;
-
+            const { id, plant_type, bname, bid, class: classValue, division, unit } = state.brandData;
             reset({
                 id,
                 plant_type,
-                pname,
-                pcode,
                 bname,
                 bid,
+                class: classValue || '',
+                division,
+                unit,
             });
 
-            // Only proceed if plant_type and plantData exist
-            if (plant_type && plantData) {
-                // Filter plant names for selected plant_type
-                const plantNamesFiltered = plantData
-                    .filter(plant => plant.plant_type === plant_type)
-                    .map(plant => plant.pName);
-
-                const plantNameOptions = [...new Set(plantNamesFiltered)].map(name => ({
-                    value: name,
-                    text: name
-                }));
-
-                setPlantNames(plantNameOptions);
-
-                // If pname exists, find and set pcode
-                if (pname) {
-                    const selectedPlant = plantData.find(
-                        plant => plant.pName === pname && plant.plant_type === plant_type
-                    );
-                    if (selectedPlant) {
-                        setValue('pcode', selectedPlant.pCode);
-                    }
-                }
-            }
         }
     }, [state, id, reset, plantData]);
+
+
+
 
     const mutation = useMutation({
         mutationFn: (formData) => {
@@ -144,12 +136,9 @@ function AddOrEdit() {
     });
 
     const onSubmit = (data) => {
-        // Clone the data to avoid mutating the original form state directly
-        const submitData = { ...data };
-        if (!id && submitData.hasOwnProperty('id')) {
-            delete submitData.id;
-        }
-        mutation.mutate(submitData);
+        console.log('data', data);
+
+        mutation.mutate(data);
     };
 
     return (
@@ -158,108 +147,43 @@ function AddOrEdit() {
                 <h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} Brand</h2>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Controller
-                            name="plant_type"
-                            control={control}
-                            render={({ field }) => (
-                                <div className="flex flex-col gap-y-2">
-                                    <Label>Plant Type</Label>
-                                    <Select
-                                        value={field.value}
-                                        onValueChange={(value) => {
-                                            field.onChange(value);
-                                            if (plantData) {
-                                                const plantNamesFiltered = plantData
-                                                    .filter(plant => plant.plant_type === value)
-                                                    .map(plant => plant.pName);
-                                                const plantNameOptions = [...new Set(plantNamesFiltered)].map(name => ({
-                                                    value: name,
-                                                    text: name
-                                                }));
-                                                setPlantNames(plantNameOptions);
-                                                setValue('pname', '');
-                                                setValue('pcode', '');
-                                            }
-                                        }}
-                                    >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select plant..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                {plantTypes.map((plant) => (
-                                                    <SelectItem
-                                                        key={plant.value}
-                                                        value={plant.value}
-                                                        disabled={plant.disabled}
-                                                    >
-                                                        {plant.text}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.plant_type && (
-                                        <span className="text-destructive text-sm">{errors.plant_type.message}</span>
-                                    )}
-                                </div>
-                            )}
-                        />
-                    </div>
-                    <div className="flex flex-col gap-y-2">
-                        <Controller
-                            name="pname"
-                            control={control}
-                            render={({ field }) => (
-                                <div className="flex flex-col gap-y-2">
-                                    <Label>Plant Name</Label>
-                                    <Select
-                                        value={field.value}
-                                        onValueChange={(value) => {
-                                            field.onChange(value);
-                                            const selectedPlant = plantData?.find((plant) => plant.pName === value);
-                                            if (selectedPlant) {
-                                                setValue('pcode', selectedPlant.pCode);
-                                            }
-                                        }}
-                                    >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select plant..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                {plantNames.map((plant) => (
-                                                    <SelectItem
-                                                        key={plant.value}
-                                                        value={plant.value}
-                                                        disabled={plant.disabled}
-                                                    >
-                                                        {plant.text}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.pname && (
-                                        <span className="text-destructive text-sm">{errors.pname.message}</span>
-                                    )}
-                                </div>
-                            )}
-                        />
-                    </div>
-                    <div className="flex flex-col gap-y-2">
-                        <Label>Plant Code</Label>
-                        <Input
-                            {...register('pcode')}
-                            readOnly
-                            className={errors.pcode ? 'border-red-500' : ''}
-                        />
-                        {errors.pcode && (
-                            <span className="text-destructive text-sm">{errors.pcode.message}</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Controller
+                        name="plant_type"
+                        control={control}
+                        defaultValue=""
+                        render={({ field }) => (
+                            <div className="flex flex-col gap-y-2">
+                                <Label>Plant Type</Label>
+                                <Select
+                                    key={field.value} // This forces re-render on reset
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Select plant..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            {plantTypes.map((plant) => (
+                                                <SelectItem
+                                                    key={plant.value}
+                                                    value={plant.value}
+                                                    disabled={plant.disabled}
+                                                >
+                                                    {plant.text}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                {errors.plant_type && (
+                                    <span className="text-destructive text-sm">{errors.plant_type.message}</span>
+                                )}
+                            </div>
                         )}
-                    </div>
+                    />
+
                     <div className="space-y-2">
                         <label htmlFor="bname" className="text-sm font-medium">
                             Brand Name
@@ -286,6 +210,68 @@ function AddOrEdit() {
                         {errors.bid && (
                             <span className="text-sm text-red-500">{errors.bid.message}</span>
                         )}
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                        <label htmlFor="class" className="text-sm font-medium">
+                            Class
+                        </label>
+                        <Input
+                            id="class"
+                            {...register('class')}
+                            className={errors.class ? 'border-red-500' : ''}
+                        />
+                        {errors.class && (
+                            <span className="text-sm text-red-500">{errors.class.message}</span>
+                        )}
+                    </div>
+                    <div className="space-y-2">
+                        <label htmlFor="division" className="text-sm font-medium">
+                            Div
+                        </label>
+                        <Input
+                            id="division"
+                            {...register('division')}
+                            className={errors.division ? 'border-red-500' : ''}
+                        />
+                        {errors.division && (
+                            <span className="text-sm text-red-500">{errors.division.message}</span>
+                        )}
+                    </div>
+                    <div className="space-y-2">
+                        <Controller
+                            name="unit"
+                            control={control}
+                            defaultValue=""
+                            render={({ field }) => (
+                                <div className="flex flex-col gap-y-2">
+                                    <Label>Unit</Label>
+                                    <Select
+                                        key={field.value} // Force re-render on reset
+                                        value={field.value}
+                                        onValueChange={field.onChange}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Select Unit..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                {uomData?.map((unit) => (
+                                                    <SelectItem key={unit.uomcode} value={unit.uomcode}>
+                                                        {unit.uomcode}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.unit && (
+                                        <span className="text-destructive text-sm">{errors.unit.message}</span>
+                                    )}
+                                </div>
+                            )}
+                        />
+
                     </div>
                 </div>
                 <div className="flex justify-end space-x-2">

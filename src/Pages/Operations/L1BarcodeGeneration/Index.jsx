@@ -34,6 +34,7 @@ import {
 	getPlantDetails,
 	getProductDetails,
 	getShiftDetails,
+	getl1l2l3,
 } from '@/lib/api';
 import Loader from '@/components/Loader';
 import {
@@ -207,6 +208,43 @@ export default function L1BarcodeGeneration() {
 			setShifts(shiftOptions);
 		}
 	}, [initialData, reset, plantData, machineData, shiftData]);
+
+
+	const handlePSizeChange = async (selectedPSize) => {
+
+		setValue('productSize', selectedPSize);
+		const currentBid = watch('brandId');
+		const currentShift = watch('shift');
+		const currentPcode = watch('pCode');
+
+		console.log('currentBid:', currentBid);
+		console.log('currentShift:', currentShift);
+		console.log('currentPcode:', currentPcode);
+		console.log('selectedPSize:', selectedPSize);
+
+		const reportParams = {
+			pcode: currentPcode,
+			brandid: currentBid,
+			productsize: selectedPSize,
+			shift: currentShift,
+		};
+		console.log('Report Params:', reportParams);
+
+		try {
+			// Make the API call using the new function
+			const result = await getl1l2l3(tokendata, reportParams);
+			console.log('L1, L2, L3 Data:', result);
+
+			setValue('l1', result?.l1barcode);
+			setValue('l2', result?.l2barcode);
+			setValue('l3', result?.l3barcode);
+
+		} catch (error) {
+			console.log(error.message || 'Failed to fetch Data', { variant: 'error' });
+		}
+
+
+	};
 
 	const onSubmit = (data) => {
 		setFormData(data);
@@ -604,6 +642,7 @@ export default function L1BarcodeGeneration() {
 											<Select
 												value={field.value}
 												onValueChange={(value) => {
+													handlePSizeChange(value);
 													field.onChange(value);
 													const selected = productData.find((p) => p.psize === value);
 													if (selected) {
@@ -734,6 +773,50 @@ export default function L1BarcodeGeneration() {
 								)}
 							</div>
 						</div>
+
+						<div className="relative my-2">
+							<div className="absolute inset-0 flex items-center">
+								<span className="w-full border-t" />
+							</div>
+							<div className="relative flex justify-center">
+								<span className="bg-transparent  px-2 text-sm font-medium">Last L1, L2 and L3</span>
+							</div>
+						</div>
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+							{/* Number of Boxes */}
+							<div className="flex flex-col gap-y-2">
+								<Label>L1</Label>
+								<Input type="text" {...register('l1')}
+									readOnly
+								/>
+								{errors.l1 && (
+									<span className="text-destructive text-sm">{errors.l1.message}</span>
+								)}
+							</div>
+
+							<div className="flex flex-col gap-y-2">
+								<Label>L2</Label>
+								<Input type="text" {...register('l2')}
+									readOnly
+								/>
+								{errors.l2 && (
+									<span className="text-destructive text-sm">{errors.l2.message}</span>
+								)}
+							</div>
+
+							<div className="flex flex-col gap-y-2">
+								<Label>L3</Label>
+								<Input type="text" {...register('l3')}
+									readOnly
+								/>
+								{errors.l3 && (
+									<span className="text-destructive text-sm">{errors.l3.message}</span>
+								)}
+							</div>
+
+
+						</div>
+
 
 						<div className="relative my-2">
 							<div className="absolute inset-0 flex items-center">

@@ -25,12 +25,20 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function ResetTypeMaster() {
 	const { token } = useAuthToken.getState();
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
+	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'Reset masters');
+
+	console.log('userpermission :-', userpermission);
+
+	userpermission.isAdd = false;
+	userpermission.isEdit = false;
+	userpermission.isDelete = false;
 
 	const {
 		data: resetData,
@@ -101,28 +109,63 @@ function ResetTypeMaster() {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuItem
-							onClick={() => handleEdit(row.original)}
-							className="text-blue-600 hover:text-blue-900"
-						>
-							<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-							Edit
-						</DropdownMenuItem>
+						{userpermission.isEdit ? (
+
+
+							<DropdownMenuItem
+								onClick={() => handleEdit(row.original)}
+								className="text-blue-600 hover:text-blue-900"
+							>
+								<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+								Edit
+							</DropdownMenuItem>
+
+						) : (
+							<PermissionDeniedDialog
+								action="Edit a Reset Type"
+								trigger={
+									<DropdownMenuItem
+										className="text-blue-600 hover:text-blue-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+										Edit
+									</DropdownMenuItem>
+								}
+							/>
+						)}
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<DropdownMenuItem
-									className="text-red-600 hover:text-red-900"
-									onSelect={(e) => e.preventDefault()}
-								>
-									<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-									Delete
-								</DropdownMenuItem>
+								{userpermission.isDelete ? (
+									<DropdownMenuItem
+										className="text-red-600 hover:text-red-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+										Delete
+									</DropdownMenuItem>
+
+								) : (
+
+									<PermissionDeniedDialog
+										action="Delete a Reset Type"
+										trigger={
+											<DropdownMenuItem
+												className="text-red-600 hover:text-red-900"
+												onSelect={(e) => e.preventDefault()}
+											>
+												<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+												Delete
+											</DropdownMenuItem>
+										}
+									/>
+								)}
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
 									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 									<AlertDialogDescription>
-										This action cannot be undone. This will permanently delete the reset type "
+										This action cannot be undone. This will permanently delete the Reset Type "
 										{row.original.resettype}" and all associated data.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
@@ -147,9 +190,20 @@ function ResetTypeMaster() {
 		<Card className="p-4 shadow-md">
 			<div className="flex justify-between items-center">
 				<h2 className="text-2xl font-bold">Reset Type Master</h2>
-				<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/reset-type-master/add')}>
-					<PlusIcon className="h-4 w-4" /> Add Reset Type
-				</Button>
+				{userpermission.isAdd ? (
+					<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/reset-type-master/add')}>
+						<PlusIcon className="h-4 w-4" /> Add Reset Type
+					</Button>
+				) : (
+					<PermissionDeniedDialog
+						action="Add a Reset Type"
+						trigger={
+							<Button className="bg-primary hover:bg-primary/90">
+								<PlusIcon className="h-4 w-4" /> Add Reset Type
+							</Button>
+						}
+					/>
+				)}
 			</div>
 			<DataTable columns={columns} data={resetData} />
 		</Card>

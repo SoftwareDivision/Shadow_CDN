@@ -25,6 +25,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function ProductMaster() {
 	const navigate = useNavigate();
@@ -32,6 +33,9 @@ function ProductMaster() {
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
+	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'Product Master');
+
+	console.log('userpermission :-', userpermission);
 
 	const { data: productData, isLoading } = useQuery({
 		queryKey: ['products'],
@@ -82,53 +86,84 @@ function ProductMaster() {
 			id: 'actions',
 			size: 80,
 			cell: ({ row }) => (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-5 w-5" />
-                            <span className="sr-only">Open menu</span>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                            onClick={() => handleEdit(row.original)}
-                            className="text-blue-600 hover:text-blue-900"
-                        >
-                            <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-                            Edit
-                        </DropdownMenuItem>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <DropdownMenuItem
-                                    className="text-red-600 hover:text-red-900"
-                                    onSelect={(e) => e.preventDefault()}
-                                >
-                                    <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-                                    Delete
-                                </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete the Product "{row.original.pname}"
-                                        and all associated data.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                        onClick={() => handleDelete(row.original)}
-                                        className="bg-red-600 hover:bg-red-700"
-                                    >
-                                        Delete
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            ),
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button variant="ghost" className="h-8 w-8 p-0">
+							<MoreVertical className="h-5 w-5" />
+							<span className="sr-only">Open menu</span>
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						{userpermission.isEdit ? (
+							<DropdownMenuItem
+								onClick={() => handleEdit(row.original)}
+								className="text-blue-600 hover:text-blue-900"
+							>
+								<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+								Edit
+							</DropdownMenuItem>
+
+						) : (
+							<PermissionDeniedDialog
+								action="Edit a Product"
+								trigger={
+									<DropdownMenuItem
+										className="text-blue-600 hover:text-blue-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+										Edit
+									</DropdownMenuItem>
+								}
+							/>
+						)}
+						<AlertDialog>
+							<AlertDialogTrigger asChild>
+								{userpermission.isDelete ? (
+									<DropdownMenuItem
+										className="text-red-600 hover:text-red-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+										Delete
+									</DropdownMenuItem>
+								) : (
+									<PermissionDeniedDialog
+										action="Delete a Product"
+										trigger={
+											<DropdownMenuItem
+												className="text-red-600 hover:text-red-900"
+												onSelect={(e) => e.preventDefault()}
+											>
+												<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+												Delete
+											</DropdownMenuItem>
+										}
+									/>
+								)}
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+									<AlertDialogDescription>
+										This action cannot be undone. This will permanently delete the Product "{row.original.pname}"
+										and all associated data.
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Cancel</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={() => handleDelete(row.original)}
+										className="bg-red-600 hover:bg-red-700"
+									>
+										Delete
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			),
 		},
 	];
 
@@ -136,10 +171,22 @@ function ProductMaster() {
 		<Card className="p-4 shadow-md">
 			<div className="flex items-center justify-between">
 				<h2 className="text-2xl font-bold">Product Master</h2>
-				<Button onClick={() => navigate('/product-master/add')} className="bg-primary hover:bg-primary/90">
-					<PlusIcon className="h-4 w-4" />
-					Add Product
-				</Button>
+				{userpermission.isAdd ? (
+					<Button onClick={() => navigate('/product-master/add')} className="bg-primary hover:bg-primary/90">
+						<PlusIcon className="h-4 w-4" />
+						Add Product
+					</Button>
+				) : (
+					<PermissionDeniedDialog
+						action="Add a Product"
+						trigger={
+							<Button className="bg-primary hover:bg-primary/90">
+								<PlusIcon className="h-4 w-4" />
+								Add Product
+							</Button>
+						}
+					/>
+				)}
 			</div>
 			{isLoading ? (
 				<div className="flex items-center justify-center py-8">

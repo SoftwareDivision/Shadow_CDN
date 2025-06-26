@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import {
 	AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function StateMaster() {
 	const navigate = useNavigate();
@@ -22,6 +23,7 @@ function StateMaster() {
 	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === "State Master");
 
 	console.log("token :-", token.data.user.role.pageAccesses.find((item) => item.pageName === "State Master"));
+
 
 	console.log("userpermission :-", userpermission.isAdd);
 	// Query for fetching states
@@ -89,22 +91,52 @@ function StateMaster() {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuItem
-							onClick={() => handleEdit(row.original)}
-							className="text-blue-600 hover:text-blue-900"
-						>
-							<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-							Edit
-						</DropdownMenuItem>
+						{userpermission.isEdit ? (
+							<DropdownMenuItem
+								onClick={() => handleEdit(row.original)}
+								className="text-blue-600 hover:text-blue-900"
+							>
+								<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+								Edit
+							</DropdownMenuItem>
+						) : (
+							<PermissionDeniedDialog
+								action="Edit a State"
+								trigger={
+									<DropdownMenuItem
+										className="text-blue-600 hover:text-blue-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+										Edit
+									</DropdownMenuItem>
+								}
+							/>
+						)}
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<DropdownMenuItem
-									className="text-red-600 hover:text-red-900"
-									onSelect={(e) => e.preventDefault()}
-								>
-									<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-									Delete
-								</DropdownMenuItem>
+								{userpermission.isDelete ? (
+									<DropdownMenuItem
+										className="text-red-600 hover:text-red-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+										Delete
+									</DropdownMenuItem>
+								) : (
+									<PermissionDeniedDialog
+										action="Delete a State"
+										trigger={
+											<DropdownMenuItem
+												className="text-red-600 hover:text-red-900"
+												onSelect={(e) => e.preventDefault()}
+											>
+												<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+												Delete
+											</DropdownMenuItem>
+										}
+									/>
+								)}
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
@@ -134,14 +166,24 @@ function StateMaster() {
 	return (
 		<Card className="p-4 shadow-md">
 			<div className="flex items-center justify-between">
-				<h2 className="text-2xl font-bold">State Master</h2>			
-				TODO: Add model permission
-				{userpermission.isAdd && (
+				<h2 className="text-2xl font-bold">State Master</h2>
+				{userpermission.isAdd ? (
 					<Button onClick={() => navigate('/state-master/add')} className="bg-primary hover:bg-primary/90">
 						<PlusIcon className="h-4 w-4" />
 						Add State
 					</Button>
+				) : (
+					<PermissionDeniedDialog
+						action="Add a State"
+						trigger={
+							<Button className="bg-primary hover:bg-primary/90">
+								<PlusIcon className="h-4 w-4" />
+								Add State
+							</Button>
+						}
+					/>
 				)}
+
 			</div>
 			{isLoading ? (
 				<div className="flex items-center justify-center py-8">

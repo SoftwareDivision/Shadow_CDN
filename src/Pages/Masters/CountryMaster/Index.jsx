@@ -1,6 +1,6 @@
 import { useAuthToken } from '@/hooks/authStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import React, { useEffect } from 'react';
+import React, { use, useEffect } from 'react';
 import DataTable from '@/components/DataTable';
 import { Card } from '@/components/ui/card';
 import { deleteCountry, getCountryDetails } from '@/lib/api';
@@ -25,12 +25,16 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function CountryMaster() {
 	const { token } = useAuthToken.getState();
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
+	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'Country Master');
+
+	console.log("userpermission :-", userpermission);
 
 	const {
 		data: countryData,
@@ -105,22 +109,55 @@ function CountryMaster() {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuItem
-							onClick={() => handleEdit(row.original)}
-							className="text-blue-600 hover:text-blue-900"
-						>
-							<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-							Edit
-						</DropdownMenuItem>
+						{userpermission.isEdit ? (
+
+
+							<DropdownMenuItem
+								onClick={() => handleEdit(row.original)}
+								className="text-blue-600 hover:text-blue-900"
+							>
+								<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+								Edit
+							</DropdownMenuItem>
+						) : (
+							<PermissionDeniedDialog
+								action="Edit a Country"
+								trigger={
+									<DropdownMenuItem
+										className="text-blue-600 hover:text-blue-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+										Edit
+									</DropdownMenuItem>
+								}
+							/>
+						)}
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<DropdownMenuItem
-									className="text-red-600 hover:text-red-900"
-									onSelect={(e) => e.preventDefault()}
-								>
-									<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-									Delete
-								</DropdownMenuItem>
+								{userpermission.isDelete ? (
+
+									<DropdownMenuItem
+										className="text-red-600 hover:text-red-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+										Delete
+									</DropdownMenuItem>
+								) : (
+									<PermissionDeniedDialog
+										action="Delete a Country"
+										trigger={
+											<DropdownMenuItem
+												className="text-red-600 hover:text-red-900"
+												onSelect={(e) => e.preventDefault()}
+											>
+												<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+												Delete
+											</DropdownMenuItem>
+										}
+									/>
+								)}
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
@@ -151,9 +188,20 @@ function CountryMaster() {
 		<Card className="p-4 shadow-md">
 			<div className="flex justify-between items-center">
 				<h2 className="text-2xl font-bold">Country Master</h2>
-				<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/country-master/add')}>
-					<PlusIcon className="h-4 w-4" /> Add Country
-				</Button>
+				{userpermission.isAdd ? (
+					<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/country-master/add')}>
+						<PlusIcon className="h-4 w-4" /> Add Country
+					</Button>
+				) : (
+					<PermissionDeniedDialog
+						action="Add a Country"
+						trigger={
+							<Button className="bg-primary hover:bg-primary/90" >
+								<PlusIcon className="h-4 w-4" /> Add Country
+							</Button>
+						}
+					/>
+				)}
 			</div>
 			<DataTable columns={columns} data={countryData} />
 		</Card>

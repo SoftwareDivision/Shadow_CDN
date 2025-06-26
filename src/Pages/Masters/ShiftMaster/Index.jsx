@@ -25,12 +25,16 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function ShiftMaster() {
     const { token } = useAuthToken.getState();
     const tokendata = token.data.token;
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
+    const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'Shift Master');
+
+    console.log('userpermission :-', userpermission);
 
     const {
         data: shiftData,
@@ -88,7 +92,7 @@ function ShiftMaster() {
         },
         {
             accessorKey: 'actions',
-			header: 'Actions',
+            header: 'Actions',
             id: 'actions',
             cell: ({ row }) => (
                 <DropdownMenu>
@@ -99,22 +103,58 @@ function ShiftMaster() {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                            onClick={() => handleEdit(row.original)}
-                            className="text-blue-600 hover:text-blue-900"
-                        >
-                            <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-                            Edit
-                        </DropdownMenuItem>
-                        <AlertDialog>
+                        {userpermission.isEdit ? (
+
+
+                            <DropdownMenuItem
+                                onClick={() => handleEdit(row.original)}
+                                className="text-blue-600 hover:text-blue-900"
+                            >
+                                <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                                Edit
+                            </DropdownMenuItem>
+
+                        ) : (
+                            <PermissionDeniedDialog
+                                action="Edit a Shift"
+                                trigger={
+                                    <DropdownMenuItem
+                                        className="text-blue-600 hover:text-blue-900"
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                                        Edit
+                                    </DropdownMenuItem>
+                                }
+                            />
+                        )}
+                        < AlertDialog >
                             <AlertDialogTrigger asChild>
-                                <DropdownMenuItem
-                                    className="text-red-600 hover:text-red-900"
-                                    onSelect={(e) => e.preventDefault()}
-                                >
-                                    <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-                                    Delete
-                                </DropdownMenuItem>
+                                {userpermission.isDelete ? (
+
+
+                                    <DropdownMenuItem
+                                        className="text-red-600 hover:text-red-900"
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                        Delete
+                                    </DropdownMenuItem>
+
+                                ) : (
+                                    <PermissionDeniedDialog
+                                        action="Delete a Shift"
+                                        trigger={
+                                            <DropdownMenuItem
+                                                className="text-red-600 hover:text-red-900"
+                                                onSelect={(e) => e.preventDefault()}
+                                            >
+                                                <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                                Delete
+                                            </DropdownMenuItem>
+                                        }
+                                    />
+                                )}
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -136,7 +176,7 @@ function ShiftMaster() {
                             </AlertDialogContent>
                         </AlertDialog>
                     </DropdownMenuContent>
-                </DropdownMenu>
+                </DropdownMenu >
             ),
         },
     ];
@@ -145,9 +185,22 @@ function ShiftMaster() {
         <Card className="p-4 shadow-md">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Shift Master</h2>
-                <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/shift-master/add')}>
-                    <PlusIcon className="mr-2 h-4 w-4" /> Add Shift
-                </Button>
+                {userpermission.isAdd ? (
+                    <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/shift-master/add')}>
+                        <PlusIcon className="mr-2 h-4 w-4" />
+                        Add Shift
+                    </Button>
+                ) : (
+                    <PermissionDeniedDialog
+                        action="Add a Shift"
+                        trigger={
+                            <Button className="bg-primary hover:bg-primary/90" >
+                                <PlusIcon className="mr-2 h-4 w-4" />
+                                Add Shift
+                            </Button>
+                        }
+                    />
+                )}
             </div>
             <DataTable columns={columns} data={shiftData || []} />
         </Card>

@@ -25,6 +25,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function MachineCodeMaster() {
 	const navigate = useNavigate();
@@ -32,6 +33,9 @@ function MachineCodeMaster() {
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
+	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'Machine Code Master');
+
+	console.log('userpermission :-', userpermission);
 
 	const { data: machineData, isLoading } = useQuery({
 		queryKey: ['machines'],
@@ -78,22 +82,54 @@ function MachineCodeMaster() {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuItem
-							onClick={() => handleEdit(row.original)}
-							className="text-blue-600 hover:text-blue-900"
-						>
-							<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-							Edit
-						</DropdownMenuItem>
+						{userpermission.isEdit ? (
+							<DropdownMenuItem
+								onClick={() => handleEdit(row.original)}
+								className="text-blue-600 hover:text-blue-900"
+							>
+								<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+								Edit
+							</DropdownMenuItem>
+						) : (
+							<PermissionDeniedDialog
+								action="Edit a Machine Code"
+								trigger={
+									<DropdownMenuItem
+										className="text-blue-600 hover:text-blue-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+										Edit
+									</DropdownMenuItem>
+								}
+							/>
+						)}
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<DropdownMenuItem
-									className="text-red-600 hover:text-red-900"
-									onSelect={(e) => e.preventDefault()}
-								>
-									<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-									Delete
-								</DropdownMenuItem>
+								{userpermission.isDelete ? (
+
+
+									<DropdownMenuItem
+										className="text-red-600 hover:text-red-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+										Delete
+									</DropdownMenuItem>
+								) : (
+									<PermissionDeniedDialog
+										action="Delete a Machine Code"
+										trigger={
+											<DropdownMenuItem
+												className="text-red-600 hover:text-red-900"
+												onSelect={(e) => e.preventDefault()}
+											>
+												<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+												Delete
+											</DropdownMenuItem>
+										}
+									/>
+								)}
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
@@ -124,13 +160,27 @@ function MachineCodeMaster() {
 		<Card className="p-4 shadow-md">
 			<div className="flex items-center justify-between">
 				<h2 className="text-2xl font-bold">Machine Code Master</h2>
-				<Button
-					onClick={() => navigate('/machine-code-master/add')}
-					className="bg-primary hover:bg-primary/90"
-				>
-					<PlusIcon className="h-4 w-4" />
-					Add Machine Code
-				</Button>
+				{userpermission.isAdd ? (
+					<Button
+						onClick={() => navigate('/machine-code-master/add')}
+						className="bg-primary hover:bg-primary/90"
+					>
+						<PlusIcon className="h-4 w-4" />
+						Add Machine Code
+					</Button>
+				) : (
+					<PermissionDeniedDialog
+						action="Add a Machine Code"
+						trigger={
+							<Button
+								className="bg-primary hover:bg-primary/90"
+							>
+								<PlusIcon className="h-4 w-4" />
+								Add Machine Code
+							</Button>
+						}
+					/>
+				)}
 			</div>
 			{isLoading ? (
 				<div className="flex items-center justify-center py-8">

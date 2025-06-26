@@ -25,12 +25,16 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function MfgLocationMaster() {
 	const { token } = useAuthToken.getState();
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
+	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'MFG Location Master');
+
+	console.log('userpermission :-', userpermission);
 
 	const {
 		data: mfgLocationData,
@@ -117,29 +121,59 @@ function MfgLocationMaster() {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuItem
-							onClick={() => handleEdit(row.original)}
-							className="text-blue-600 hover:text-blue-900"
-						>
-							<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-							Edit
-						</DropdownMenuItem>
+						{userpermission.isEdit ? (
+							<DropdownMenuItem
+								onClick={() => handleEdit(row.original)}
+								className="text-blue-600 hover:text-blue-900"
+							>
+								<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+								Edit
+							</DropdownMenuItem>
+						) : (
+							<PermissionDeniedDialog
+								action="Edit a Mfg Location"
+								trigger={
+									<DropdownMenuItem
+										className="text-blue-600 hover:text-blue-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+										Edit
+									</DropdownMenuItem>
+								}
+							/>
+						)}
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<DropdownMenuItem
-									className="text-red-600 hover:text-red-900"
-									onSelect={(e) => e.preventDefault()}
-								>
-									<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-									Delete
-								</DropdownMenuItem>
+								{userpermission.isDelete ? (
+									<DropdownMenuItem
+										className="text-red-600 hover:text-red-900"
+										onSelect={(e) => e.preventDefault()}
+									>
+										<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+										Delete
+									</DropdownMenuItem>
+								) : (
+									<PermissionDeniedDialog
+										action="Delete a Mfg Location"
+										trigger={
+											<DropdownMenuItem
+												className="text-red-600 hover:text-red-900"
+												onSelect={(e) => e.preventDefault()}
+											>
+												<TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+												Delete
+											</DropdownMenuItem>
+										}
+									/>
+								)}
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
 									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 									<AlertDialogDescription>
-										This action cannot be undone. This will permanently delete the country "
-										{row.original.cname}" and all associated data.
+										This action cannot be undone. This will permanently delete the Mfg Location "
+										{row.original.mfgloc}" and all associated data.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
@@ -163,9 +197,20 @@ function MfgLocationMaster() {
 		<Card className="p-4 shadow-md">
 			<div className="flex justify-between items-center">
 				<h2 className="text-2xl font-bold">Mfg Location Master</h2>
-				<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/mfg-location-master/add')}>
-					<PlusIcon className="h-4 w-4" /> Add Mfg Location
-				</Button>
+				{userpermission.isAdd ? (
+					<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/mfg-location-master/add')}>
+						<PlusIcon className="h-4 w-4" /> Add Mfg Location
+					</Button>
+				) : (
+					<PermissionDeniedDialog
+						action="Add a Mfg Location"
+						trigger={
+							<Button className="bg-primary hover:bg-primary/90" >
+								<PlusIcon className="h-4 w-4" /> Add Mfg Location
+							</Button>
+						}
+					/>
+				)}
 			</div>
 			<DataTable columns={columns} data={mfgLocationData} />
 		</Card>

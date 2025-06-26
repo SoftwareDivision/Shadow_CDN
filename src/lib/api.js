@@ -400,6 +400,12 @@ export const getTracedatabyl3barcode = (token, data) => {
 	return getAll(`/Search_Form/GetL3searchdata?l3barcode=${data}`, token);
 };
 
+//Gete Last l1 l2 l3
+export const getl1l2l3 = (token, data) => {
+	const { pcode, shift, productsize, brandid } = data;
+	return getAll(`/L1Generate/Getlastl1l2l3Details/${pcode}/${brandid}/${productsize}/${shift}`, token, );
+};
+
 //rolemanage
 export const getroleDetails = (t) => getAll('/RoleMaster/GetRoleMasterList', t);
 export const deleterole = (t, id) => deleteData(`/RoleMaster/DeleteRoleMaster/${id}`, t);

@@ -26,6 +26,7 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function MagzineMaster() {
     const navigate = useNavigate();
@@ -33,6 +34,10 @@ function MagzineMaster() {
     const tokendata = token.data.token;
     const { enqueueSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
+    const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'Magzine Master');
+
+    console.log('userpermission :-', userpermission);
+
 
     const { data: magzineData, isLoading } = useQuery({
         queryKey: ['magzines'],
@@ -55,8 +60,8 @@ function MagzineMaster() {
 
     const handleEdit = (row) => {
         navigate(`/magzine-master/edit/${row.id}`, {
-			state: { magzineData: row },
-		});
+            state: { magzineData: row },
+        });
     };
 
     const handleDelete = (row) => {
@@ -64,19 +69,19 @@ function MagzineMaster() {
     };
 
     const columns = [
-        { 
+        {
             accessorKey: 'mfgloc',
             header: 'MFG Location'
         },
-        { 
+        {
             accessorKey: 'magname',
             header: 'Magazine Name'
         },
-        { 
+        {
             accessorKey: 'mcode',
             header: 'Magazine Code'
         },
-        { 
+        {
             accessorKey: 'licno',
             header: 'License No.'
         },
@@ -100,11 +105,11 @@ function MagzineMaster() {
             )
         },
         {
-			accessorKey: 'autoallot_flag',
-			header: 'Auto Allot',
-			cell: ({ cell }) =>
-				cell.getValue() ? <CheckCircle2 className="text-green-600" /> : <XCircle className="text-red-600" />,
-		},
+            accessorKey: 'autoallot_flag',
+            header: 'Auto Allot',
+            cell: ({ cell }) =>
+                cell.getValue() ? <CheckCircle2 className="text-green-600" /> : <XCircle className="text-red-600" />,
+        },
         {
             id: 'actions',
             header: 'Actions',
@@ -117,22 +122,57 @@ function MagzineMaster() {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                            onClick={() => handleEdit(row.original)}
-                            className="text-blue-600 hover:text-blue-900"
-                        >
-                            <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-                            Edit
-                        </DropdownMenuItem>
+                        {userpermission.isEdit ? (
+
+
+                            <DropdownMenuItem
+                                onClick={() => handleEdit(row.original)}
+                                className="text-blue-600 hover:text-blue-900"
+                            >
+                                <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                                Edit
+                            </DropdownMenuItem>
+                        ) : (
+                            <PermissionDeniedDialog
+                                action="Edit a Magzine"
+                                trigger={
+                                    <DropdownMenuItem
+                                        className="text-blue-600 hover:text-blue-900"
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
+                                        Edit
+                                    </DropdownMenuItem>
+                                }
+                            />
+                        )}
+
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <DropdownMenuItem
-                                    className="text-red-600 hover:text-red-900"
-                                    onSelect={(e) => e.preventDefault()}
-                                >
-                                    <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
-                                    Delete
-                                </DropdownMenuItem>
+                                {userpermission.isDelete ? (
+
+
+                                    <DropdownMenuItem
+                                        className="text-red-600 hover:text-red-900"
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                ) : (
+                                    <PermissionDeniedDialog
+                                        action="Delete a Magzine"
+                                        trigger={
+                                            <DropdownMenuItem
+                                                className="text-red-600 hover:text-red-900"
+                                                onSelect={(e) => e.preventDefault()}
+                                            >
+                                                <TrashIcon className="mr-2 h-4 w-4 text-red-600 hover:text-red-900" />
+                                                Delete
+                                            </DropdownMenuItem>
+                                        }
+                                    />
+                                )}
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -163,10 +203,22 @@ function MagzineMaster() {
         <Card className="p-4 shadow-md">
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold">Magazine Master</h2>
-                <Button onClick={() => navigate('/magzine-master/add')} className="bg-primary hover:bg-primary/90">
-                    <PlusIcon className="h-4 w-4 mr-2" />
-                    Add Magazine
-                </Button>
+                {userpermission.isAdd ? (
+                    <Button onClick={() => navigate('/magzine-master/add')} className="bg-primary hover:bg-primary/90">
+                        <PlusIcon className="h-4 w-4 mr-2" />
+                        Add Magazine
+                    </Button>
+                ) : (
+                    <PermissionDeniedDialog
+                        action="Add a Magazine"
+                        trigger={
+                            <Button className="bg-primary hover:bg-primary/90">
+                                <PlusIcon className="h-4 w-4 mr-2" />
+                                Add Magazine
+                            </Button>
+                        }
+                    />
+                )}
             </div>
             {isLoading ? (
                 <div className="flex items-center justify-center py-8">

@@ -10,9 +10,10 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
-import { createProduct, getAllBrands, updateProduct, getUOMDetails } from '@/lib/api';
+import { createProduct, getAllBrands, updateProduct, getUOMDetails, getPlantDetails } from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const schema = yup.object().shape({
 	id: yup.number(),
@@ -35,10 +36,7 @@ const schema = yup.object().shape({
 	noofl3perl1: yup.number().required('No. of L3/L1 is required'),
 	sdcat: yup.string().required('SDCAT is required'),
 	unnoclass: yup.string().required('UN No. Class is required'),
-	act: yup.string().required('Active Flag is required'),
-	scannerdealy: yup.string().required('Scanner Delay is required'),
-	printerdealy: yup.string().required('Printer Delay is required'),
-	stopdealy: yup.string().required('Stop Delay is required'),
+	act: yup.string().required('Active Flag is required'),	
 });
 
 function AddOrEdit() {
@@ -81,14 +79,13 @@ function AddOrEdit() {
 			sdcat: '',
 			unnoclass: '',
 			act: 'true',
-			scannerdealy: '',
-			printerdealy: '',
-			stopdealy: '',
 		},
 	});
 
 	const [brands, setBrands] = React.useState([]);
 	const [uom, setUom] = React.useState([]);
+	const [plants, setPlants] = React.useState([]);
+
 	const isEditMode = !!id;
 
 	const mutation = useMutation({
@@ -117,6 +114,7 @@ function AddOrEdit() {
 
 	const onSubmit = (data) => {
 		mutation.mutate(data);
+		console.log('data', data);
 	};
 
 	//plant details
@@ -129,6 +127,20 @@ function AddOrEdit() {
 		queryFn: () => getAllBrands(tokendata),
 		enabled: !!tokendata,
 	});
+
+	console.log('brandData', brandData);
+
+	const {
+		data: plantData,
+		isLoading: isPlantFetching,
+		error: fetchPlantError,
+	} = useQuery({
+		queryKey: ['plantData'],
+		queryFn: () => getPlantDetails(tokendata),
+		enabled: !!tokendata,
+	});
+
+	console.log('plantData', plantData);
 
 	const {
 		data: uomData,
@@ -153,6 +165,15 @@ function AddOrEdit() {
 			setBrands(brandOptions);
 		}
 
+		if (plantData) {
+			const plantOptions = plantData?.map((plant) => ({
+				value: plant.pName,
+				text: plant.pName,
+				disabled: false,
+			}));
+			setPlants(plantOptions);
+		}
+
 		if (uomData) {
 			const uomOptions = uomData?.map((uom) => ({
 				value: uom.uomcode,
@@ -166,10 +187,10 @@ function AddOrEdit() {
 		if (state) {
 			reset(state);
 		}
-	}, [reset, brandData, uomData, state]);
+	}, [reset, brandData, uomData, state, plantData]);
 
-	const loading = isBrandFetching || isUomFetching;
-	const allerrors = fetchBrandError || fetchUomError;
+	const loading = isBrandFetching || isUomFetching || isPlantFetching;
+	const allerrors = fetchBrandError || fetchUomError || fetchPlantError;
 
 	if (allerrors) {
 		enqueueSnackbar(allerrors.message || 'Failed to fetch data', { variant: 'error' });
@@ -196,11 +217,36 @@ function AddOrEdit() {
 										value={field.value}
 										onValueChange={(value) => {
 											field.onChange(value);
-											const selectedpname = brandData?.find((brand) => brand.pname === value);
-											if (selectedpname) {
-												setValue('ptypecode', selectedpname.pcode);
+											const selectedPlantFromData = plantData?.find((plant) => plant.pName === value);
+											if (selectedPlantFromData) {
+												setValue('ptypecode', selectedPlantFromData.pCode);
+
+												// Filter brands based on selected plant_type
+												const filteredBrands = brandData?.filter(
+													(brand) => brand.plant_type === selectedPlantFromData.plant_type
+												).map(brand => ({
+													value: brand.bname,
+													text: brand.bname,
+													disabled: false
+												}));
+												setBrands(filteredBrands || []);
+												// Clear brand selection if current brand is not in filtered list
+												const currentBname = field.value;
+												if (currentBname && !filteredBrands?.some(b => b.value === currentBname)) {
+													setValue('bname', '');
+													setValue('bid', '');
+													setValue('class', '');
+													setValue('division', '');
+													setValue('unit', '');
+												}
 											} else {
 												setValue('ptypecode', '');
+												setBrands([]); // Clear brands if no plant type is selected or found
+												setValue('bname', '');
+												setValue('bid', '');
+												setValue('class', '');
+												setValue('division', '');
+												setValue('unit', '');
 											}
 										}}
 									>
@@ -209,13 +255,11 @@ function AddOrEdit() {
 										</SelectTrigger>
 										<SelectContent>
 											<SelectGroup>
-												{[...new Set(brandData?.map((brand) => brand.pname))]
-													.filter(Boolean)
-													.map((ptype) => (
-														<SelectItem key={ptype} value={ptype}>
-															{ptype}
-														</SelectItem>
-													))}
+												{plants.map((plant) => (
+													<SelectItem key={plant.value} value={plant.value}>
+														{plant.text}
+													</SelectItem>
+												))}
 											</SelectGroup>
 										</SelectContent>
 									</Select>
@@ -249,10 +293,15 @@ function AddOrEdit() {
 											const selectedBrand = brandData?.find((brand) => brand.bname === value);
 											if (selectedBrand) {
 												setValue('bid', selectedBrand.bid);
-												setValue('ptype', selectedBrand.ptype);
+												setValue('class', selectedBrand.class);
+												setValue('division', selectedBrand.division);
+												setValue('unit', selectedBrand.unit);
+												// No need to set ptype here, as it's already handled by the ptype dropdown
 											} else {
 												setValue('bid', '');
-												setValue('ptype', '');
+												setValue('class', '');
+												setValue('division', '');
+												setValue('unit', '');
 											}
 										}}
 									>
@@ -261,9 +310,9 @@ function AddOrEdit() {
 										</SelectTrigger>
 										<SelectContent>
 											<SelectGroup>
-												{brandData?.map((brand) => (
-													<SelectItem key={brand.bname} value={brand.bname}>
-														{brand.bname}
+												{brands.map((brand) => ( // Use 'brands' state here
+													<SelectItem key={brand.value} value={brand.value}>
+														{brand.text}
 													</SelectItem>
 												))}
 											</SelectGroup>
@@ -329,7 +378,9 @@ function AddOrEdit() {
 							)}
 						/>
 					</div>
+				</div>
 
+				<div className="grid grid-cols-4 gap-4 space-y-2">
 					<div className="space-y-2">
 						<Label>Product Size</Label>
 						<Input {...register('psize')} className={errors.psize ? 'border-red-500' : ''} />
@@ -380,7 +431,9 @@ function AddOrEdit() {
 							)}
 						/>
 					</div>
+				</div>
 
+				<div className="grid grid-cols-6 gap-4 space-y-2">
 					<div className="space-y-2">
 						<Label>Unit Weight</Label>
 						<Input
@@ -482,41 +535,30 @@ function AddOrEdit() {
 							name="act"
 							control={control}
 							render={({ field }) => (
-								<Select onValueChange={field.onChange} value={field.value}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Select status" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="true">Active</SelectItem>
-										<SelectItem value="false">Inactive</SelectItem>
-									</SelectContent>
-								</Select>
+								<div className="flex flex-col gap-2">
+									<RadioGroup
+										defaultValue=""
+										className="flex space-x-4"
+										onValueChange={field.onChange}
+										value={field.value}
+									>
+										<div className="flex items-center space-x-2">
+											<RadioGroupItem value="true" id="active" />
+											<label htmlFor="active">Active</label>
+										</div>
+										<div className="flex items-center space-x-2">
+											<RadioGroupItem value="false" id="inactive" />
+											<label htmlFor="inactive">Inactive</label>
+										</div>
+									</RadioGroup>
+									{errors.act && (
+										<span className="text-destructive text-center text-sm">{errors.act.message}</span>
+									)}
+								</div>
 							)}
 						/>
-						{errors.act && <span className="text-sm text-red-500">{errors.act.message}</span>}
 					</div>
 
-					<div className="space-y-2">
-						<Label>Scanner Delay</Label>
-						<Input {...register('scannerdealy')} className={errors.scannerdealy ? 'border-red-500' : ''} />
-						{errors.scannerdealy && (
-							<span className="text-sm text-red-500">{errors.scannerdealy.message}</span>
-						)}
-					</div>
-
-					<div className="space-y-2">
-						<Label>Printer Delay</Label>
-						<Input {...register('printerdealy')} className={errors.printerdealy ? 'border-red-500' : ''} />
-						{errors.printerdealy && (
-							<span className="text-sm text-red-500">{errors.printerdealy.message}</span>
-						)}
-					</div>
-
-					<div className="space-y-2">
-						<Label>Stop Delay</Label>
-						<Input {...register('stopdealy')} className={errors.stopdealy ? 'border-red-500' : ''} />
-						{errors.stopdealy && <span className="text-sm text-red-500">{errors.stopdealy.message}</span>}
-					</div>
 				</div>
 
 				{/* Submit button */}
