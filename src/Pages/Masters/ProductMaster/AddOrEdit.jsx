@@ -336,7 +336,7 @@ function AddOrEdit() {
 				<div className="grid grid-cols-3 gap-4 space-y-2">
 					<div className="space-y-2">
 						<Label>Class</Label>
-						<Input type="number" {...register('class')} className={errors.class ? 'border-red-500' : ''} />
+						<Input type="number" {...register('class')} className={errors.class ? 'border-red-500' : ''} readOnly />
 						{errors.class && <span className="text-sm text-red-500">{errors.class.message}</span>}
 					</div>
 
@@ -346,6 +346,7 @@ function AddOrEdit() {
 							type="number"
 							{...register('division')}
 							className={errors.division ? 'border-red-500' : ''}
+							readOnly
 						/>
 						{errors.division && <span className="text-sm text-red-500">{errors.division.message}</span>}
 					</div>
