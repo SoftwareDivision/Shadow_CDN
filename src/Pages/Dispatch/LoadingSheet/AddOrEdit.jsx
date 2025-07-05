@@ -236,8 +236,8 @@ function AddOrEditLoadingSheet() {
 			</div>
 			<Tabs defaultValue="singletruck" onValueChange={handleTabChange}>
 				<TabsList className="w-full grid grid-cols-2">
-					<TabsTrigger value="singletruck">Sheet With Single Truck</TabsTrigger>
-					<TabsTrigger value="multipletruck">Sheet With Multiple Trucks</TabsTrigger>
+					<TabsTrigger value="singletruck">Loading Sheet With Single Truck</TabsTrigger>
+					<TabsTrigger value="multipletruck">Loading Sheet With Multiple Trucks</TabsTrigger>
 				</TabsList>
 				<TabsContent value="singletruck">
 					<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -246,7 +246,7 @@ function AddOrEditLoadingSheet() {
 								<span className="w-full border-t" />
 							</div>
 							<div className="relative flex justify-center">
-								<span className="bg-background px-2 text-sm font-medium">
+								<span className=" px-2 text-sm font-medium">
 									Loading Sheet Information
 								</span>
 							</div>

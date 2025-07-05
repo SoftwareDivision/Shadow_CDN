@@ -552,7 +552,7 @@ function Dispatch_Report() {
             <div>
                 {reportData ? (
                     <DataTable
-                        columns={reportType === 'Storage' ? detailedReportColumns : summaryReportColumns} // Use 'columns' for Detailed, 'summaryReportColumns' for Summary
+                        columns={reportType === 'Detailed' ? detailedReportColumns : summaryReportColumns} // Use 'columns' for Detailed, 'summaryReportColumns' for Summary
                         data={reportData}
                     />
                 ) : (

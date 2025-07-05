@@ -75,14 +75,14 @@ function IndentDetailsSection({
 		setEditableIndentItems(
 			indent.indentItems
 				? indent.indentItems.map((item, index) => ({
-						...item,
-						loadWt: item.loadWt || 0,
-						loadCase: item.loadCase || 0,
-						typeOfDispatch: item.typeOfDispatch || '',
-						mag: item.mag || '',
-						isSplit: item.isSplit || false,
-						originalIndex: index,
-				  }))
+					...item,
+					loadWt: item.loadWt || 0,
+					loadCase: item.loadCase || 0,
+					typeOfDispatch: item.typeOfDispatch || '',
+					mag: item.mag || '',
+					isSplit: item.isSplit || false,
+					originalIndex: index,
+				}))
 				: [],
 		);
 		setCurrentIndentNo(indent.indentNo);
@@ -194,16 +194,15 @@ function IndentDetailsSection({
 								prevItems.map((item, idx) =>
 									idx === itemIndex
 										? {
-												...item,
-												loadWt: (parseFloat(item.loadWt) || 0) + currentLoadWt,
-												loadCase: (parseFloat(item.loadCase) || 0) + currentLoadCase,
-										  }
+											...item,
+											loadWt: (parseFloat(item.loadWt) || 0) + currentLoadWt,
+											loadCase: (parseFloat(item.loadCase) || 0) + currentLoadCase,
+										}
 										: item,
 								),
 							);
 							enqueueSnackbar(
-								`Split #${
-									splitIndex + 1
+								`Split #${splitIndex + 1
 								} merged with main item due to duplicate Type of Dispatch and Magazine.`,
 								{ variant: 'info' },
 							);
@@ -212,15 +211,14 @@ function IndentDetailsSection({
 							updatedSplits = updatedSplits.map((split, i) =>
 								i === duplicate.index
 									? {
-											...split,
-											loadWt: (parseFloat(split.loadWt) || 0) + currentLoadWt,
-											loadCase: (parseFloat(split.loadCase) || 0) + currentLoadCase,
-									  }
+										...split,
+										loadWt: (parseFloat(split.loadWt) || 0) + currentLoadWt,
+										loadCase: (parseFloat(split.loadCase) || 0) + currentLoadCase,
+									}
 									: split,
 							);
 							enqueueSnackbar(
-								`Split #${splitIndex + 1} merged with Split #${
-									duplicate.index + 1
+								`Split #${splitIndex + 1} merged with Split #${duplicate.index + 1
 								} due to duplicate Type of Dispatch and Magazine.`,
 								{ variant: 'info' },
 							);
@@ -448,16 +446,15 @@ function IndentDetailsSection({
 								prevItems.map((item, idx) =>
 									idx === itemIndex
 										? {
-												...item,
-												loadWt: (parseFloat(item.loadWt) || 0) + currentLoadWt,
-												loadCase: (parseFloat(item.loadCase) || 0) + currentLoadCase,
-										  }
+											...item,
+											loadWt: (parseFloat(item.loadWt) || 0) + currentLoadWt,
+											loadCase: (parseFloat(item.loadCase) || 0) + currentLoadCase,
+										}
 										: item,
 								),
 							);
 							enqueueSnackbar(
-								`Split #${
-									splitIndex + 1
+								`Split #${splitIndex + 1
 								} merged with main item due to duplicate Type of Dispatch and Magazine.`,
 								{ variant: 'info' },
 							);
@@ -466,15 +463,14 @@ function IndentDetailsSection({
 							updatedSplits = updatedSplits.map((split, i) =>
 								i === duplicate.index
 									? {
-											...split,
-											loadWt: (parseFloat(split.loadWt) || 0) + currentLoadWt,
-											loadCase: (parseFloat(split.loadCase) || 0) + currentLoadCase,
-									  }
+										...split,
+										loadWt: (parseFloat(split.loadWt) || 0) + currentLoadWt,
+										loadCase: (parseFloat(split.loadCase) || 0) + currentLoadCase,
+									}
 									: split,
 							);
 							enqueueSnackbar(
-								`Split #${splitIndex + 1} merged with Split #${
-									duplicate.index + 1
+								`Split #${splitIndex + 1} merged with Split #${duplicate.index + 1
 								} due to duplicate Type of Dispatch and Magazine.`,
 								{ variant: 'info' },
 							);
@@ -620,7 +616,7 @@ function IndentDetailsSection({
 							<span className="w-full border-t" />
 						</div>
 						<div className="relative flex justify-center">
-							<span className="bg-background px-2 text-sm font-medium">Select Indents</span>
+							<span className=" px-2 text-sm font-medium">Select Indents</span>
 						</div>
 					</div>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -641,8 +637,8 @@ function IndentDetailsSection({
 											>
 												{field.value
 													? availableIndentsForSelection.find(
-															(indent) => indent.indentNo === field.value,
-													  )?.indentNo
+														(indent) => indent.indentNo === field.value,
+													)?.indentNo
 													: 'Select Indent to Add'}
 												<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 											</Button>
