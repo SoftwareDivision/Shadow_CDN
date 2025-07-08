@@ -71,89 +71,111 @@ function TraceBarcodeIndex() {
 	};
 
 	const BarcodeDetailsDisplay = ({ data }) => {
-		if (!data || (!data.manufacturingDetails && !data.l1L2L3Details)) {
+		if (!data || (!data.manufacturingDetails && !data.l1L2L3Details && !data.dispatchIndentDetails)) {
 			return null;
 		}
 
 		const manufacturingDetails = data.manufacturingDetails || [];
 		const l1L2L3Details = data.l1L2L3Details || [];
+		const dispatchdetails = data.dispatchIndentDetails || [];
 
 		return (
 			<div className="text-sm space-y-4">
-				{/* Manufacturing Details Card */}
+				{/* Manufacturing Details */}
 				{manufacturingDetails.length > 0 && (
 					<Card className="p-4 shadow-md border">
 						<div className="grid gap-4 sm:grid-cols-2">
 							{manufacturingDetails.map((detail, idx) => (
 								<div key={idx}>
-									<div className="mb-1">
-										<span className="font-medium">L1 Barcode:</span> {detail.l1Barcode}
-									</div>
-									<div className="mb-1">
-										<span className="font-medium">Brand Name:</span> {detail.brandName}
-									</div>
-									<div className="mb-1">
-										<span className="font-medium">Plant Name:</span> {detail.plantName}
-									</div>
-									<div className="mb-1">
-										<span className="font-medium">Product Size:</span> {detail.productSize}
-									</div>
-									<div>
-										<span className="font-medium">Mfg Date:</span>{' '}
+									<p>
+										<strong>L1 Barcode:</strong> {detail.l1Barcode}
+									</p>
+									<p>
+										<strong>Brand Name:</strong> {detail.brandName}
+									</p>
+									<p>
+										<strong>Plant Name:</strong> {detail.plantName}
+									</p>
+									<p>
+										<strong>Product Size:</strong> {detail.productSize}
+									</p>
+									<p>
+										<strong>Manufacture Date:</strong>{' '}
 										{detail.mfgDt ? new Date(detail.mfgDt).toLocaleDateString() : '-'}
-									</div>
+									</p>
 								</div>
 							))}
 						</div>
 					</Card>
 				)}
+
+				{/* L1-L2-L3 Mapping */}
 				{l1L2L3Details.length > 0 && (
 					<>
+						<Separator className="my-4" />
+						<h2 className="text-xl font-bold">L1-L2-L3 Details</h2>
 						<DataTable
 							data={l1L2L3Details.map((item, index) => ({ ...item, id: index }))}
 							columns={[
 								{ accessorKey: 'l1', header: 'L1 Barcode' },
 								{ accessorKey: 'l2', header: 'L2 Barcode' },
 								{ accessorKey: 'l3', header: 'L3 Barcode' },
-								// { accessorKey: 'brandName', header: 'Brand Name' },
-								// { accessorKey: 'plantName', header: 'Plant Name' },
-								// { accessorKey: 'productSize', header: 'Product Size' },
-								// {
-								// 	accessorKey: 'mfgDt',
-								// 	header: 'Mfg Date',
-								// 	cell: ({ row }) => new Date(row.original.mfgDt).toLocaleDateString(),
-								// },
-								// { accessorKey: 'shift', header: 'Shift' },
-								// { accessorKey: 'quarter', header: 'Quarter' },
-								// { accessorKey: 'month', header: 'Month' },
-								// { accessorKey: 'genYear', header: 'Year' },
 								{
 									accessorKey: 're2',
 									header: 'RE2',
-									cell: ({ row }) => {
-										if (row.original.re2 === 1) {
-											return <Badge variant="default">Yes</Badge>;
-										} else {
-											return <Badge variant="destructive">No</Badge>;
-										}
-									},
+									cell: ({ row }) =>
+										row.original.re2 === 1 ? (
+											<Badge variant="default">Yes</Badge>
+										) : (
+											<Badge variant="destructive">No</Badge>
+										),
 								},
 								{
 									accessorKey: 're12',
 									header: 'RE12',
-									cell: ({ row }) => {
-										if (row.original.re12 === 1) {
-											return <Badge variant="default">Yes</Badge>;
-										} else {
-											return <Badge variant="destructive">No</Badge>;
-										}
-									},
+									cell: ({ row }) =>
+										row.original.re12 === 1 ? (
+											<Badge variant="default">Yes</Badge>
+										) : (
+											<Badge variant="destructive">No</Badge>
+										),
 								},
 							]}
 						/>
 					</>
 				)}
-				{!manufacturingDetails.length && !l1L2L3Details.length && <p className="ml-2">No details available.</p>}
+
+				{/* Dispatch Indent Details */}
+				{dispatchdetails.length > 0 && (
+					<>
+						<Separator className="my-4" />
+						<h2 className="text-xl font-bold">Dispatch Indent Details</h2>
+						<DataTable
+							data={dispatchdetails.map((item, index) => ({ ...item, id: index }))}
+							columns={[
+								{ header: 'Indent No', accessorKey: 'indentNo' },
+								{ header: 'Customer Name', accessorKey: 'custName' },
+								{ header: 'Consignee Name', accessorKey: 'conName' },
+								{ header: 'Consignee No.', accessorKey: 'conNo' },
+								{
+									header: 'Indent Date',
+									accessorKey: 'indentDt',
+									cell: ({ row }) => new Date(row.original.indentDt).toLocaleDateString(),
+								},
+								{
+									header: 'PESO Date',
+									accessorKey: 'pesoDt',
+									cell: ({ row }) => new Date(row.original.pesoDt).toLocaleDateString(),
+								},
+							]}
+						/>
+					</>
+				)}
+
+				{/* No Data Fallback */}
+				{!manufacturingDetails.length && !l1L2L3Details.length && !dispatchdetails.length && (
+					<p className="ml-2">No details available.</p>
+				)}
 			</div>
 		);
 	};

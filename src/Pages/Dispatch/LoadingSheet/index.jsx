@@ -44,12 +44,11 @@ function LoadingSheetPage() {
 		},
 	});
 
-	const transformedData = loadingSheetsData?.map(item => ({
-		...item,
-		indentNos: [...new Set(item.indentDetails.map(detail => detail.indentNo))].join(", "),
-	})) || [];
-
-
+	const transformedData =
+		loadingSheetsData?.map((item) => ({
+			...item,
+			indentNos: [...new Set(item.indentDetails.map((detail) => detail.indentNo))].join(', '),
+		})) || [];
 
 	const columns = [
 		{
@@ -61,7 +60,15 @@ function LoadingSheetPage() {
 			},
 		},
 		{ header: 'Loading Sheet No', accessorKey: 'loadingSheetNo' },
-		{ header: 'Indent No', accessorKey: 'indentNos' },
+		{
+			header: 'Indent No',
+			accessorKey: 'indentDetails',
+			cell: ({ row }) => {
+				const items = row.original.indentDetails;
+				const uniqueIndentNos = [...new Set(items.map((item) => item.indentNo))];
+				return uniqueIndentNos.join(', ');
+			},
+		},
 		{ header: 'Truck No', accessorKey: 'truckNo' },
 		{
 			header: 'Status',
@@ -70,8 +77,9 @@ function LoadingSheetPage() {
 				const status = row.getValue('compflag');
 				return (
 					<Badge
-						className={`px-2 py-1 rounded-full text-xs ${status === 0 ? 'bg-yellow-800 text-white' : ' bg-green-700 text-white'
-							}`}
+						className={`px-2 py-1 rounded-full text-xs ${
+							status === 0 ? 'bg-yellow-800 text-white' : ' bg-green-700 text-white'
+						}`}
 					>
 						{status === 0 ? 'Pending' : 'Completed'}
 					</Badge>
@@ -149,10 +157,11 @@ function LoadingSheetPage() {
 														</TableCell>
 														<TableCell className="text-center">
 															<span
-																className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${item.iscompleted === 0
+																className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+																	item.iscompleted === 0
 																		? 'bg-yellow-800 text-white border border-yellow-800'
 																		: '  bg-green-800 text-white border border-green-800'
-																	}`}
+																}`}
 															>
 																{item.iscompleted === 0 ? 'Pending' : 'Completed'}
 															</span>

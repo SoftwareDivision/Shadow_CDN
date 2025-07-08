@@ -36,9 +36,9 @@ function TransferDialog() {
 	} = useQuery({
 		queryKey: ['l1Details', barcodes],
 		queryFn: async () => {
-			if (!barcodes.length) return { l1barcode: [], combined: [] };
+			if (!barcodes.length) return { l1barcode: [], combined: [], magzines: [] };
 			const response = await getL1DetailsByNumber(tokendata, barcodes);
-			return response || { l1barcode: [], combined: [] };
+			return response || { l1barcode: [], combined: [], magzines: [] };
 		},
 		enabled: barcodes.length > 0,
 	});
@@ -120,7 +120,15 @@ function TransferDialog() {
 		}
 	};
 
-	const MagazineSelect = ({ uniqueKey, magazines, isLoading, error, selectedMagazines, setSelectedMagazines }) => {
+	const MagazineSelect = ({
+		uniqueKey,
+		magazines,
+		space,
+		isLoading,
+		error,
+		selectedMagazines,
+		setSelectedMagazines,
+	}) => {
 		const handleChange = (value) => {
 			// Update parent state directly
 			setSelectedMagazines((prev) => ({
@@ -129,9 +137,28 @@ function TransferDialog() {
 			}));
 		};
 
+		const parts = uniqueKey.split('-');
+		const plantCode = parts[1];
+		const filteredMagazines = magazines?.filter(
+			(magzine) =>
+				Array.isArray(magzine.magzineMasterDetails) &&
+				magzine.magzineMasterDetails.some((detail) => detail.product === plantCode),
+		);
+
+		const combinedMagzineStock = filteredMagazines.map((mag) => {
+			const matchingStock = l1Details?.combined.find((stock) => stock.magName === mag.mcode);
+
+			return {
+				...mag,
+				...matchingStock,
+			};
+		});
+
+		console.log('combinedMagzineStock :', combinedMagzineStock);
+
 		if (isLoading) return <div className="text-sm">Loading magazines...</div>;
 		if (error) return <div className="text-red-500 text-sm">Error loading magazines</div>;
-		if (!magazines?.length) return <div className="text-sm">No magazines available</div>;
+		if (!magazines?.length) return <div className="text-sm">No magazines availabl e</div>;
 
 		return (
 			<Select value={selectedMagazines[uniqueKey] || ''} onValueChange={handleChange}>
@@ -141,9 +168,9 @@ function TransferDialog() {
 				<SelectContent>
 					<SelectGroup>
 						<SelectLabel>Magazines</SelectLabel>
-						{magazines.map((magazine) => (
-							<SelectItem key={magazine.magName} value={magazine.magName}>
-								{magazine.magName}
+						{combinedMagzineStock.map((magazine) => (
+							<SelectItem key={magazine.mcode} value={magazine.mcode}>
+								{magazine.mcode} - {magazine.blankspace} Kgs
 							</SelectItem>
 						))}
 					</SelectGroup>
@@ -190,7 +217,8 @@ function TransferDialog() {
 									<td className="p-2">
 										<MagazineSelect
 											uniqueKey={`${detail.plantName}-${detail.plantCode}-${detail.Bid}-${detail.SizeCode}`}
-											magazines={l1Details?.combined}
+											magazines={l1Details?.magzines}
+											space={l1Details?.combined}
 											isLoading={l1Loading}
 											error={l1Error}
 											selectedMagazines={selectedMagazines} // Pass parent state
@@ -233,7 +261,10 @@ function TransferDialog() {
 							</tr>
 						</thead>
 						<tbody>
-							{l1Details?.combined?.map((item, index) => (
+							{(l1Details?.combined
+								? [...l1Details.combined].sort((a, b) => (b.blankspace || 0) - (a.blankspace || 0))
+								: []
+							).map((item, index) => (
 								<tr key={index} className="border-t hover:bg-muted/5">
 									<td className="p-2">{item.magName}</td>
 									<td className="p-2">

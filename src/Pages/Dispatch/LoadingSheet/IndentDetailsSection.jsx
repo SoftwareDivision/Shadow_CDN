@@ -40,10 +40,16 @@ function IndentDetailsSection({
 	const [isIndentComboboxOpen, setIsIndentComboboxOpen] = useState(false);
 	const [splitItems, setSplitItems] = useState({});
 
-	const magazineOptions = data?.magzinesname.map((mag) => ({
-		label: mag,
-		value: mag,
-	}));
+	const combinedMagzineStock = data?.magzine.map((mag) => {
+		const matchingStock = data?.magzinestock.find((stock) => stock.magName === mag.mcode);
+
+		return {
+			...mag,
+			...matchingStock,
+		};
+	});
+
+	console.log('combinedMagzineStock :', combinedMagzineStock);
 
 	const handleAddIndent = (indentNo) => {
 		const indentToAdd = availableIndentsForSelection?.find((indent) => indent.indentNo === indentNo);
@@ -123,7 +129,6 @@ function IndentDetailsSection({
 		);
 	};
 
-	// Helper function to check for duplicate typeOfDispatch and mag combinations
 	const checkForDuplicate = (itemIndex, splitIndex, typeOfDispatch, mag) => {
 		const item = editableIndentItems[itemIndex];
 		const splits = splitItems[itemIndex] || [];
@@ -833,9 +838,9 @@ function IndentDetailsSection({
 																<SelectValue placeholder="Select" />
 															</SelectTrigger>
 															<SelectContent>
-																{magazineOptions.map((mag) => (
-																	<SelectItem key={mag.value} value={mag.value}>
-																		{mag.label}
+																{combinedMagzineStock.map((mag) => (
+																	<SelectItem key={mag.magName} value={mag.magName}>
+																		{mag.magName} - {mag.blankspace} Kgs
 																	</SelectItem>
 																))}
 															</SelectContent>
