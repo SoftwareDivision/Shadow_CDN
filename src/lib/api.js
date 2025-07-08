@@ -192,7 +192,13 @@ export const updateProduct = (t, d) => putData(`/ProductMasters/UpdateProduct/${
 
 // RE2 APIs
 export const getRE2GenData = (t) => getAll('/RE2FileGenerations/GetRE2GenData', t);
-export const getregeneratere2 = (t) => getAll('/RE2FileGenerations/Getregenratere2', t);
+export const getregeneratere2 = (token, fromDate, toDate) => {
+	const params = new URLSearchParams();
+	if (fromDate) params.append('fromDate', fromDate);
+	if (toDate) params.append('toDate', toDate);
+
+	return getAll(`/RE2FileGenerations/Getregenratere2?${params.toString()}`, token);
+};
 
 export const generateRE2File = (token, payload) => {
 	return postData('/RE2FileGenerations/GenerateRE2File', token, payload);
@@ -253,7 +259,21 @@ export const deleteTransport = (t, id) => deleteData(`/TransportMasters/DeleteTr
 export const getRe12IndentDetails = (t) => getAll('/RE12Gens/GetRe12s', t);
 export const createRe12Indent = (token, data) => postData('/RE12Gens/CreateRe12', token, data);
 //Regenre12
-export const getRegenRe12IndentDetails = (t) => getAll('/RE12Gens/GetRegenerate12', t);
+export const getRegenRe12IndentDetails = (token, fromDate, toDate) => {
+	let url = '/RE12Gens/GetRegenerate12';
+
+	const params = new URLSearchParams();
+
+	if (fromDate) params.append('fromDate', fromDate);
+	if (toDate) params.append('toDate', toDate);
+
+	if ([...params].length > 0) {
+		url += `?${params.toString()}`;
+	}
+
+	return getAll(url, token);
+};
+
 export const createRegenRe12Indent = (token, data) => postData('/RE12Gens/CreateRegenRe12', token, data);
 
 //Indent Only
@@ -403,7 +423,7 @@ export const getTracedatabyl3barcode = (token, data) => {
 //Gete Last l1 l2 l3
 export const getl1l2l3 = (token, data) => {
 	const { pcode, shift, productsize, brandid } = data;
-	return getAll(`/L1Generate/Getlastl1l2l3Details/${pcode}/${brandid}/${productsize}/${shift}`, token, );
+	return getAll(`/L1Generate/Getlastl1l2l3Details/${pcode}/${brandid}/${productsize}/${shift}`, token);
 };
 
 //rolemanage

@@ -54,7 +54,15 @@ function LoadingSheetPage() {
 			},
 		},
 		{ header: 'Loading Sheet No', accessorKey: 'loadingSheetNo' },
-		{ header: 'Indent No', accessorKey: 'loadingSheetNo' },
+		{
+			header: 'Indent No',
+			accessorKey: 'indentDetails',
+			cell: ({ row }) => {
+				const items = row.original.indentDetails;
+				const uniqueIndentNos = [...new Set(items.map((item) => item.indentNo))];
+				return uniqueIndentNos.join(', ');
+			},
+		},
 		{ header: 'Truck No', accessorKey: 'truckNo' },
 		{
 			header: 'Status',

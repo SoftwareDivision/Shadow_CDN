@@ -209,9 +209,7 @@ export default function L1BarcodeGeneration() {
 		}
 	}, [initialData, reset, plantData, machineData, shiftData]);
 
-
 	const handlePSizeChange = async (selectedPSize) => {
-
 		setValue('productSize', selectedPSize);
 		const currentBid = watch('brandId');
 		const currentShift = watch('shift');
@@ -238,12 +236,9 @@ export default function L1BarcodeGeneration() {
 			setValue('l1', result?.l1barcode);
 			setValue('l2', result?.l2barcode);
 			setValue('l3', result?.l3barcode);
-
 		} catch (error) {
 			console.log(error.message || 'Failed to fetch Data', { variant: 'error' });
 		}
-
-
 	};
 
 	const onSubmit = (data) => {
@@ -786,37 +781,22 @@ export default function L1BarcodeGeneration() {
 							{/* Number of Boxes */}
 							<div className="flex flex-col gap-y-2">
 								<Label>L1</Label>
-								<Input type="text" {...register('l1')}
-									readOnly
-								/>
-								{errors.l1 && (
-									<span className="text-destructive text-sm">{errors.l1.message}</span>
-								)}
+								<Input type="text" {...register('l1')} readOnly />
+								{errors.l1 && <span className="text-destructive text-sm">{errors.l1.message}</span>}
 							</div>
 
 							<div className="flex flex-col gap-y-2">
 								<Label>L2</Label>
-								<Input type="text" {...register('l2')}
-									readOnly
-								/>
-								{errors.l2 && (
-									<span className="text-destructive text-sm">{errors.l2.message}</span>
-								)}
+								<Input type="text" {...register('l2')} readOnly />
+								{errors.l2 && <span className="text-destructive text-sm">{errors.l2.message}</span>}
 							</div>
 
 							<div className="flex flex-col gap-y-2">
 								<Label>L3</Label>
-								<Input type="text" {...register('l3')}
-									readOnly
-								/>
-								{errors.l3 && (
-									<span className="text-destructive text-sm">{errors.l3.message}</span>
-								)}
+								<Input type="text" {...register('l3')} readOnly />
+								{errors.l3 && <span className="text-destructive text-sm">{errors.l3.message}</span>}
 							</div>
-
-
 						</div>
-
 
 						<div className="relative my-2">
 							<div className="absolute inset-0 flex items-center">

@@ -4,7 +4,7 @@ import { getregeneratere2, regenerateRE2File } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle, FileSpreadsheet } from 'lucide-react';
+import { Loader2, AlertCircle, FileSpreadsheet, CalendarIcon } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { enqueueSnackbar } from 'notistack';
@@ -12,6 +12,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import DataTable from '@/components/DataTable';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Controller, useForm } from 'react-hook-form';
+import { cn } from '@/lib/utils';
 
 const RegenerateRE2FileGeneration = () => {
 	const { token } = useAuthToken.getState();
@@ -21,14 +25,28 @@ const RegenerateRE2FileGeneration = () => {
 	const [selectedRows, setSelectedRows] = useState([]);
 	const timeoutRef = useRef(null);
 
+	const { control, watch, setValue } = useForm({
+		defaultValues: {
+			fromDate: new Date(),
+			toDate: new Date(),
+		},
+	});
+
+	const fromDate = watch('fromDate');
+	const toDate = watch('toDate');
+
 	const {
 		data: apiData,
 		isLoading: isFetching,
 		error: fetchError,
 		refetch,
 	} = useQuery({
-		queryKey: ['regenaratere2GenerateData'],
-		queryFn: () => getregeneratere2(token.data.token),
+		queryKey: ['regenaratere2GenerateData', fromDate, toDate],
+		queryFn: () => {
+			const from = fromDate ? new Date(fromDate).toISOString() : null;
+			const to = toDate ? new Date(toDate).toISOString() : null;
+			return getregeneratere2(token.data.token, from, to);
+		},
 		enabled: !!token,
 	});
 
@@ -52,7 +70,6 @@ const RegenerateRE2FileGeneration = () => {
 		},
 		onSuccess: (data) => {
 			downloadCSV(data);
-			console.log('RE2 file generated successfully:', data);
 			enqueueSnackbar('RE2 file generated successfully', { variant: 'success' });
 			setLoading(false);
 			setselectedtablerow([]);
@@ -66,10 +83,7 @@ const RegenerateRE2FileGeneration = () => {
 	});
 
 	const columns = [
-		{
-			header: 'Transfer ID',
-			accessorKey: 'transferId',
-		},
+		{ header: 'Transfer ID', accessorKey: 'transferId' },
 		{
 			header: 'Transfer Date',
 			accessorKey: 'transferDate',
@@ -78,26 +92,11 @@ const RegenerateRE2FileGeneration = () => {
 				return date ? format(new Date(date), 'dd/MM/yyyy') : '-';
 			},
 		},
-		{
-			header: 'Plant',
-			accessorKey: 'plant',
-		},
-		{
-			header: 'Brand Name',
-			accessorKey: 'brandName',
-		},
-		{
-			header: 'Product Size',
-			accessorKey: 'productSize',
-		},
-		{
-			header: 'Magazine',
-			accessorKey: 'magazineName',
-		},
-		{
-			header: 'Case Quantity',
-			accessorKey: 'caseQuantity',
-		},
+		{ header: 'Plant', accessorKey: 'plant' },
+		{ header: 'Brand Name', accessorKey: 'brandName' },
+		{ header: 'Product Size', accessorKey: 'productSize' },
+		{ header: 'Magazine', accessorKey: 'magazineName' },
+		{ header: 'Case Quantity', accessorKey: 'caseQuantity' },
 		{
 			header: 'Actions',
 			cell: ({ row }) => (
@@ -110,80 +109,56 @@ const RegenerateRE2FileGeneration = () => {
 
 	const showre2data = useCallback(
 		(data) => {
-			// Clear any existing timeout
-			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current);
-			}
+			if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-			// Set a new timeout for the mutation call
 			timeoutRef.current = setTimeout(() => {
-				console.log(data);
-				setLoading(true); // Set loading state before mutation
-
-				const selectedL1Barcodes = data?.transferToMazgnieScanneddata?.map((l1Barcode) => ({
-					l1barcode: l1Barcode.l1Scanned,
+				setLoading(true);
+				const selectedL1Barcodes = data?.transferToMazgnieScanneddata?.map((l1) => ({
+					l1barcode: l1.l1Scanned,
 				}));
-
-				// Construct payload using the 'data' argument directly
 				const payload = {
 					l1L2: selectedL1Barcodes,
-					productionMagzineAllocation: data, // Use data directly
+					productionMagzineAllocation: data,
 				};
+				mutation.mutate(payload);
+			}, 300);
 
-				console.log(payload);
-
-				mutation.mutate(payload, {
-					onSettled: () => console.log('Mutation settled'),
-					// Consider adding onSuccess/onError handlers to set loading to false
-				});
-			}, 300); // 300ms delay (adjust as needed)
-
-			// You can keep this if you need to update state for other purposes
 			setselectedtablerow(data);
 		},
-		[mutation, setLoading, setselectedtablerow], // Dependencies
+		[mutation],
 	);
 
-	// Cleanup effect to clear the timeout on unmount
 	useEffect(() => {
 		return () => {
-			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current);
-			}
+			if (timeoutRef.current) clearTimeout(timeoutRef.current);
 		};
 	}, []);
 
-	function convertArrayToCSVWithoutQuotes(data) {
-		const csvRows = [];
+	const convertArrayToCSVWithoutQuotes = (data) =>
+		data
+			.map((row) =>
+				Object.values(row)
+					.map((val) => val)
+					.join(','),
+			)
+			.join('\n');
 
-		// Loop over the rows
-		for (const row of data) {
-			const values = Object.values(row).map((value) => {
-				return value; // Directly use the value without quotes
-			});
-			csvRows.push(values.join(','));
-		}
-
-		return csvRows.join('\n');
-	}
-
-	function downloadCSV(data) {
+	const downloadCSV = (data) => {
 		const csvData = convertArrayToCSVWithoutQuotes(data);
 		const blob = new Blob([csvData], { type: 'text/csv' });
 		const url = window.URL.createObjectURL(blob);
-		const mfgdt = format(new Date(), 'yyyyMMdd'); // Format the manufacturing date
-		const brandName = selectedtablerow.brandName.replace(/\s+/g, ''); // Remove spaces from brand name
-		const magazineName = selectedtablerow.magazineName.replace(/\s+/g, ''); // Remove spaces from magazine name
-		const totalCases = new Set(data.map((item) => item.l1barcode)).size; // Calculate total cases
+		const mfgdt = format(new Date(), 'yyyyMMdd');
+		const brandName = selectedtablerow.brandName?.replace(/\s+/g, '') || 'BRAND';
+		const magazineName = selectedtablerow.magazineName?.replace(/\s+/g, '') || 'MAG';
+		const totalCases = new Set(data.map((item) => item.l1barcode)).size;
 		const fileName = `${mfgdt}_${brandName}_${magazineName}_${totalCases}_CASES.csv`;
+
 		const a = document.createElement('a');
-		a.setAttribute('hidden', '');
-		a.setAttribute('href', url);
-		a.setAttribute('download', fileName);
-		document.body.appendChild(a);
+		a.href = url;
+		a.download = fileName;
 		a.click();
-		document.body.removeChild(a);
-	}
+		window.URL.revokeObjectURL(url);
+	};
 
 	const handleGenerateRE2 = () => {
 		setLoading(true);
@@ -192,9 +167,7 @@ const RegenerateRE2FileGeneration = () => {
 			l1L2: selectedL1Barcodes,
 			productionMagzineAllocation: selectedtablerow,
 		};
-		mutation.mutate(payload, {
-			onSettled: () => console.log('Mutation settled'),
-		});
+		mutation.mutate(payload);
 	};
 
 	if (isFetching || loading) {
@@ -207,11 +180,75 @@ const RegenerateRE2FileGeneration = () => {
 			</div>
 		);
 	}
+
 	return (
 		<>
-			<Card className="p-4 shadow-md">
-				<div className="flex items-center justify-between">
+			<Card className="p-4 shadow-md mb-4">
+				<div className="flex items-center justify-between mb-4">
 					<h2 className="text-2xl font-bold">Regenerate RE2</h2>
+				</div>
+
+				{/* Filter UI */}
+				<div className="flex gap-4 mb-4">
+					<Controller
+						name="fromDate"
+						control={control}
+						render={({ field }) => (
+							<Popover>
+								<PopoverTrigger asChild>
+									<Button
+										variant="outline"
+										className={cn(
+											'w-[200px] justify-start text-left font-normal',
+											!field.value && 'text-muted-foreground',
+										)}
+									>
+										<CalendarIcon className="mr-2 h-4 w-4" />
+										{field.value ? format(new Date(field.value), 'PPP') : 'From Date'}
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent className="w-auto p-0" align="start">
+									<Calendar
+										mode="single"
+										selected={field.value ? new Date(field.value) : undefined}
+										onSelect={(date) => field.onChange(date?.toISOString())}
+										initialFocus
+									/>
+								</PopoverContent>
+							</Popover>
+						)}
+					/>
+					<Controller
+						name="toDate"
+						control={control}
+						render={({ field }) => (
+							<Popover>
+								<PopoverTrigger asChild>
+									<Button
+										variant="outline"
+										className={cn(
+											'w-[200px] justify-start text-left font-normal',
+											!field.value && 'text-muted-foreground',
+										)}
+									>
+										<CalendarIcon className="mr-2 h-4 w-4" />
+										{field.value ? format(new Date(field.value), 'PPP') : 'To Date'}
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent className="w-auto p-0" align="start">
+									<Calendar
+										mode="single"
+										selected={field.value ? new Date(field.value) : undefined}
+										onSelect={(date) => field.onChange(date?.toISOString())}
+										initialFocus
+									/>
+								</PopoverContent>
+							</Popover>
+						)}
+					/>
+					<Button variant="default" onClick={() => refetch()}>
+						Apply Filter
+					</Button>
 				</div>
 
 				{/* Error Alerts */}
@@ -222,68 +259,9 @@ const RegenerateRE2FileGeneration = () => {
 						<AlertDescription>{fetchError?.message}</AlertDescription>
 					</Alert>
 				)}
-				<DataTable columns={columns} data={apiData} />
-			</Card>
 
-			{/* Display RE2 Data */}
-			{re2Data.length > 0 && (
-				<Card className="p-4 shadow-md mt-4">
-					<div className="flex justify-between items-center">
-						<h2 className="text-2xl font-bold">RE2 Data</h2>
-						<div className="flex items-center gap-4">
-							<div className="font-semibold">
-								<Badge variant="default">
-									Total Cases: {new Set(re2Data?.map((item) => item.l1Barcode)).size}
-								</Badge>
-							</div>
-							<Button onClick={handleGenerateRE2} className="flex items-center gap-2" variant="outline">
-								<FileSpreadsheet className="h-4 w-4" />
-								Generate RE File
-							</Button>
-						</div>
-					</div>
-					<div className="rounded-md border">
-						<div className="max-h-[400px] overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-							<Table>
-								<TableHeader className="bg-muted">
-									<TableRow>
-										<TableHead className="font-medium sticky top-0 z-10 border-b">
-											<Checkbox
-												className="border-blue-600 border-2"
-												checked={re2Data?.length > 0 && selectedRows.length === re2Data?.length}
-												onCheckedChange={handleSelectAll}
-												aria-label="Select all"
-											/>
-											{'  '} Select all
-										</TableHead>
-										<TableHead className="font-medium sticky top-0 z-10 border-b text-center">
-											L1 Barcode
-										</TableHead>
-										<TableHead className="font-medium sticky top-0 z-10 border-b text-center">
-											L2 Barcode
-										</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{re2Data?.map((item, index) => (
-										<TableRow key={index}>
-											<TableCell className="">
-												<Checkbox
-													className="border-blue-600 border-2"
-													checked={selectedRows.includes(item.l1Barcode)}
-													onCheckedChange={() => handleSelectRow(item.l1Barcode)}
-												/>
-											</TableCell>
-											<TableCell className="font-medium text-center">{item.l1Barcode}</TableCell>
-											<TableCell className="font-medium text-center">{item.l2Barcode}</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						</div>
-					</div>
-				</Card>
-			)}
+				<DataTable columns={columns} data={apiData || []} />
+			</Card>
 		</>
 	);
 };
