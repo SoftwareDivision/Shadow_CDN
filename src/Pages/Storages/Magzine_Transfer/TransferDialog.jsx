@@ -145,14 +145,15 @@ function TransferDialog() {
 				magzine.magzineMasterDetails.some((detail) => detail.product === plantCode),
 		);
 
-		const combinedMagzineStock = filteredMagazines.map((mag) => {
-			const matchingStock = l1Details?.combined.find((stock) => stock.magName === mag.mcode);
-
-			return {
-				...mag,
-				...matchingStock,
-			};
-		});
+		const combinedMagzineStock = filteredMagazines
+			.map((mag) => {
+				const matchingStock = l1Details?.combined.find((stock) => stock.magName === mag.mcode);
+				return {
+					...mag,
+					...matchingStock,
+				};
+			})
+			.sort((a, b) => (b.blankspace || 0) - (a.blankspace || 0));
 
 		console.log('combinedMagzineStock :', combinedMagzineStock);
 
@@ -268,13 +269,13 @@ function TransferDialog() {
 								<tr key={index} className="border-t hover:bg-muted/5">
 									<td className="p-2">{item.magName}</td>
 									<td className="p-2">
-										<Badge variant="outline">{item.magzineWt}</Badge>
+										<Badge variant="outline">{item.magzineWt} Kgs</Badge>
 									</td>
 									<td className="p-2">
-										<Badge variant="secondary">{item.totalNetWeight}</Badge>
+										<Badge variant="secondary">{item.totalNetWeight} Kgs</Badge>
 									</td>
 									<td className="p-2">
-										<Badge variant="default">{item.blankspace}</Badge>
+										<Badge variant="default">{item.blankspace} Kgs</Badge>
 									</td>
 								</tr>
 							))}

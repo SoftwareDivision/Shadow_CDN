@@ -231,14 +231,14 @@ export const getRE11CreateIndents = (t) => getAll('/Re11IndentInfos/GetCreateInd
 export const createRE11Indent = (token, data) => postData('/Re11IndentInfos/CreateIndent', token, data);
 export const uploadRe11Pdf = async (token, file) => {
 	const formData = new FormData();
-	formData.append("file", file);
+	formData.append('file', file);
 	const config = {
 		headers: {
-			"Content-Type": "multipart/form-data",
+			'Content-Type': 'multipart/form-data',
 			...(token ? { Authorization: `Bearer ${token}` } : {}),
 		},
 	};
-	return api.post("/Re11IndentInfos/UploadRe11Pdf", formData, config);
+	return api.post('/Re11IndentInfos/UploadRe11Pdf', formData, config);
 };
 
 // Magazine Master APIs

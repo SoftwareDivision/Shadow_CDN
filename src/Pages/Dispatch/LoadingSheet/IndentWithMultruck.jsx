@@ -111,10 +111,16 @@ function IndentWithMultruck({
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
 
-	const magazineOptions = data?.magzinesname.map((mag) => ({
-		label: mag,
-		value: mag,
-	}));
+	const combinedMagzineStock = data?.magzine
+		.map((mag) => {
+			const matchingStock = data?.magzinestock.find((stock) => stock.magName === mag.mcode);
+
+			return {
+				...mag,
+				...matchingStock,
+			};
+		})
+		.sort((a, b) => (b.blankspace || 0) - (a.blankspace || 0));
 
 	const vehicleForm = useForm({
 		defaultValues: {
@@ -493,7 +499,8 @@ function IndentWithMultruck({
 				if (split.loadCase > 0) {
 					if (!split.dispatchType) {
 						enqueueSnackbar(
-							`Please select a Type of Dispatch for split ${splitIndex + 1} of item "${item.bname} (${item.psize
+							`Please select a Type of Dispatch for split ${splitIndex + 1} of item "${item.bname} (${
+								item.psize
 							})".`,
 							{ variant: 'error' },
 						);
@@ -501,7 +508,8 @@ function IndentWithMultruck({
 					}
 					if (!split.magazine) {
 						enqueueSnackbar(
-							`Please select a Magazine for split ${splitIndex + 1} of item "${item.bname} (${item.psize
+							`Please select a Magazine for split ${splitIndex + 1} of item "${item.bname} (${
+								item.psize
 							})".`,
 							{ variant: 'error' },
 						);
@@ -509,7 +517,8 @@ function IndentWithMultruck({
 					}
 					if (split.loadCase > remainingCases + (item.loadcase || 0)) {
 						enqueueSnackbar(
-							`Load Case (${split.loadCase}) for split ${splitIndex + 1} of item "${item.bname} (${item.psize
+							`Load Case (${split.loadCase}) for split ${splitIndex + 1} of item "${item.bname} (${
+								item.psize
 							})" exceeds available remaining cases (${remainingCases}).`,
 							{ variant: 'error' },
 						);
@@ -872,8 +881,9 @@ function IndentWithMultruck({
 								<div className="flex flex-col space-y-2">
 									<div className="flex items-center space-x-2">
 										<Checkbox
-											id={`directDispatch-${itemIndex}-${row.isSplit ? `split-${row.splitIndex}` : 'main'
-												}`}
+											id={`directDispatch-${itemIndex}-${
+												row.isSplit ? `split-${row.splitIndex}` : 'main'
+											}`}
 											checked={row.data.dispatchType === 'DD'}
 											onCheckedChange={(isChecked) =>
 												handleDispatchTypeChange(
@@ -886,16 +896,18 @@ function IndentWithMultruck({
 											}
 										/>
 										<Label
-											htmlFor={`directDispatch-${itemIndex}-${row.isSplit ? `split-${row.splitIndex}` : 'main'
-												}`}
+											htmlFor={`directDispatch-${itemIndex}-${
+												row.isSplit ? `split-${row.splitIndex}` : 'main'
+											}`}
 										>
 											DD
 										</Label>
 									</div>
 									<div className="flex items-center space-x-2">
 										<Checkbox
-											id={`magazineLoading-${itemIndex}-${row.isSplit ? `split-${row.splitIndex}` : 'main'
-												}`}
+											id={`magazineLoading-${itemIndex}-${
+												row.isSplit ? `split-${row.splitIndex}` : 'main'
+											}`}
 											checked={row.data.dispatchType === 'ML'}
 											onCheckedChange={(isChecked) =>
 												handleDispatchTypeChange(
@@ -908,8 +920,9 @@ function IndentWithMultruck({
 											}
 										/>
 										<Label
-											htmlFor={`magazineLoading-${itemIndex}-${row.isSplit ? `split-${row.splitIndex}` : 'main'
-												}`}
+											htmlFor={`magazineLoading-${itemIndex}-${
+												row.isSplit ? `split-${row.splitIndex}` : 'main'
+											}`}
 										>
 											ML
 										</Label>
@@ -986,13 +999,9 @@ function IndentWithMultruck({
 											<SelectValue placeholder="Select" />
 										</SelectTrigger>
 										<SelectContent>
-											{magazineOptions.map((mag) => (
-												<SelectItem
-													key={mag.value}
-													value={mag.value}
-													disabled={currentDispatchType && usedCombinations.has(mag.value)}
-												>
-													{mag.label}
+											{combinedMagzineStock.map((mag) => (
+												<SelectItem key={mag.magName} value={mag.magName}>
+													{mag.magName} - {mag.blankspace} Kgs
 												</SelectItem>
 											))}
 										</SelectContent>
@@ -1047,7 +1056,8 @@ function IndentWithMultruck({
 										const newValue = value === '' ? 0 : parseFloat(value);
 										if (newValue < 0) {
 											enqueueSnackbar(
-												`Load Case cannot be negative for ${row.isSplit ? `split ${row.splitIndex + 1} of ` : ''
+												`Load Case cannot be negative for ${
+													row.isSplit ? `split ${row.splitIndex + 1} of ` : ''
 												}"${item.bname} (${item.psize})".`,
 												{ variant: 'error' },
 											);
@@ -1055,7 +1065,8 @@ function IndentWithMultruck({
 										}
 										if (newValue > remainingCases + (row.data.loadCase || 0)) {
 											enqueueSnackbar(
-												`Load Case for ${row.isSplit ? `split ${row.splitIndex + 1} of ` : ''
+												`Load Case for ${
+													row.isSplit ? `split ${row.splitIndex + 1} of ` : ''
 												}"${item.bname} (${item.psize})" exceeds remaining cases.`,
 												{ variant: 'error' },
 											);

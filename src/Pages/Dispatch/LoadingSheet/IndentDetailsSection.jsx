@@ -40,14 +40,16 @@ function IndentDetailsSection({
 	const [isIndentComboboxOpen, setIsIndentComboboxOpen] = useState(false);
 	const [splitItems, setSplitItems] = useState({});
 
-	const combinedMagzineStock = data?.magzine.map((mag) => {
-		const matchingStock = data?.magzinestock.find((stock) => stock.magName === mag.mcode);
+	const combinedMagzineStock = data?.magzine
+		.map((mag) => {
+			const matchingStock = data?.magzinestock.find((stock) => stock.magName === mag.mcode);
 
-		return {
-			...mag,
-			...matchingStock,
-		};
-	});
+			return {
+				...mag,
+				...matchingStock,
+			};
+		})
+		.sort((a, b) => (b.blankspace || 0) - (a.blankspace || 0));
 
 	console.log('combinedMagzineStock :', combinedMagzineStock);
 
@@ -81,14 +83,14 @@ function IndentDetailsSection({
 		setEditableIndentItems(
 			indent.indentItems
 				? indent.indentItems.map((item, index) => ({
-					...item,
-					loadWt: item.loadWt || 0,
-					loadCase: item.loadCase || 0,
-					typeOfDispatch: item.typeOfDispatch || '',
-					mag: item.mag || '',
-					isSplit: item.isSplit || false,
-					originalIndex: index,
-				}))
+						...item,
+						loadWt: item.loadWt || 0,
+						loadCase: item.loadCase || 0,
+						typeOfDispatch: item.typeOfDispatch || '',
+						mag: item.mag || '',
+						isSplit: item.isSplit || false,
+						originalIndex: index,
+				  }))
 				: [],
 		);
 		setCurrentIndentNo(indent.indentNo);
@@ -199,15 +201,16 @@ function IndentDetailsSection({
 								prevItems.map((item, idx) =>
 									idx === itemIndex
 										? {
-											...item,
-											loadWt: (parseFloat(item.loadWt) || 0) + currentLoadWt,
-											loadCase: (parseFloat(item.loadCase) || 0) + currentLoadCase,
-										}
+												...item,
+												loadWt: (parseFloat(item.loadWt) || 0) + currentLoadWt,
+												loadCase: (parseFloat(item.loadCase) || 0) + currentLoadCase,
+										  }
 										: item,
 								),
 							);
 							enqueueSnackbar(
-								`Split #${splitIndex + 1
+								`Split #${
+									splitIndex + 1
 								} merged with main item due to duplicate Type of Dispatch and Magazine.`,
 								{ variant: 'info' },
 							);
@@ -216,14 +219,15 @@ function IndentDetailsSection({
 							updatedSplits = updatedSplits.map((split, i) =>
 								i === duplicate.index
 									? {
-										...split,
-										loadWt: (parseFloat(split.loadWt) || 0) + currentLoadWt,
-										loadCase: (parseFloat(split.loadCase) || 0) + currentLoadCase,
-									}
+											...split,
+											loadWt: (parseFloat(split.loadWt) || 0) + currentLoadWt,
+											loadCase: (parseFloat(split.loadCase) || 0) + currentLoadCase,
+									  }
 									: split,
 							);
 							enqueueSnackbar(
-								`Split #${splitIndex + 1} merged with Split #${duplicate.index + 1
+								`Split #${splitIndex + 1} merged with Split #${
+									duplicate.index + 1
 								} due to duplicate Type of Dispatch and Magazine.`,
 								{ variant: 'info' },
 							);
@@ -451,15 +455,16 @@ function IndentDetailsSection({
 								prevItems.map((item, idx) =>
 									idx === itemIndex
 										? {
-											...item,
-											loadWt: (parseFloat(item.loadWt) || 0) + currentLoadWt,
-											loadCase: (parseFloat(item.loadCase) || 0) + currentLoadCase,
-										}
+												...item,
+												loadWt: (parseFloat(item.loadWt) || 0) + currentLoadWt,
+												loadCase: (parseFloat(item.loadCase) || 0) + currentLoadCase,
+										  }
 										: item,
 								),
 							);
 							enqueueSnackbar(
-								`Split #${splitIndex + 1
+								`Split #${
+									splitIndex + 1
 								} merged with main item due to duplicate Type of Dispatch and Magazine.`,
 								{ variant: 'info' },
 							);
@@ -468,14 +473,15 @@ function IndentDetailsSection({
 							updatedSplits = updatedSplits.map((split, i) =>
 								i === duplicate.index
 									? {
-										...split,
-										loadWt: (parseFloat(split.loadWt) || 0) + currentLoadWt,
-										loadCase: (parseFloat(split.loadCase) || 0) + currentLoadCase,
-									}
+											...split,
+											loadWt: (parseFloat(split.loadWt) || 0) + currentLoadWt,
+											loadCase: (parseFloat(split.loadCase) || 0) + currentLoadCase,
+									  }
 									: split,
 							);
 							enqueueSnackbar(
-								`Split #${splitIndex + 1} merged with Split #${duplicate.index + 1
+								`Split #${splitIndex + 1} merged with Split #${
+									duplicate.index + 1
 								} due to duplicate Type of Dispatch and Magazine.`,
 								{ variant: 'info' },
 							);
@@ -642,8 +648,8 @@ function IndentDetailsSection({
 											>
 												{field.value
 													? availableIndentsForSelection.find(
-														(indent) => indent.indentNo === field.value,
-													)?.indentNo
+															(indent) => indent.indentNo === field.value,
+													  )?.indentNo
 													: 'Select Indent to Add'}
 												<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 											</Button>
