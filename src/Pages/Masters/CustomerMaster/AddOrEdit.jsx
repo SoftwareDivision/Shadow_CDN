@@ -255,7 +255,7 @@ function AddOrEdit() {
                 <div className="mb-4">
                     <div className="flex justify-between items-center mb-2">
                         <h3 className="text-lg font-semibold">Magazines</h3>
-                        <Button type="button"  variant="outline" onClick={() => appendMagazine({ id: 0, cid: 0, magazine: '', license: '', validity: '', wt: '', unit: '' })}>
+                        <Button type="button" variant="outline" onClick={() => appendMagazine({ id: 0, cid: 0, magazine: '', license: '', validity: '', wt: '', unit: '' })}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Magazine
                         </Button>
@@ -287,30 +287,37 @@ function AddOrEdit() {
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full justify-start text-left font-normal",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? format(new Date(field.value), "PPP") : format(new Date(), "PPP")}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={field.value ? new Date(field.value) : new Date()}
-                                                    onSelect={(date) => {
-                                                        register(`magazines.${index}.validity`).onChange(date);
-                                                    }}
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
+                                        <Controller
+                                            name={`magazines.${index}.validity`}
+                                            control={control}
+                                            render={({ field: { onChange, value } }) => (
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full justify-start text-left font-normal",
+                                                                !value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                                            {value ? format(new Date(value), "PPP") : <span>Pick a date</span>}
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={value ? new Date(value) : undefined}
+                                                            onSelect={(date) => {
+                                                                const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
+                                                                onChange(formattedDate);
+                                                            }}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                            )}
+                                        />
                                         {errors.magazines?.[index]?.validity && (
                                             <span className="text-destructive text-sm">
                                                 {errors.magazines?.[index]?.validity.message}
@@ -373,7 +380,7 @@ function AddOrEdit() {
                 <div className="mb-4">
                     <div className="flex justify-between items-center mb-2">
                         <h3 className="text-lg font-semibold">Members</h3>
-                        <Button type="button"  variant="outline" onClick={() => appendMember({ id: 0, cid: 0, name: '', email: '', contactNo: '' })}>
+                        <Button type="button" variant="outline" onClick={() => appendMember({ id: 0, cid: 0, name: '', email: '', contactNo: '' })}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Member
                         </Button>
@@ -407,6 +414,7 @@ function AddOrEdit() {
                                         <Input
                                             {...register(`members.${index}.contactNo`)}
                                             className={errors.members?.[index]?.contactNo ? 'border-red-500' : ''}
+                                            maxLength={10}
                                         />
                                     </TableCell>
                                     <TableCell className='w-[20px]'>

@@ -33,6 +33,7 @@ function CustomerMaster() {
         enabled: !!tokendata
     });
 
+
     const deleteMutation = useMutation({
         mutationFn: (id) => deleteCustomer(tokendata, id),
         onSuccess: () => {
@@ -112,7 +113,9 @@ function CustomerMaster() {
                         {userpermission.isEdit ? (
 
                             <DropdownMenuItem
-                                onClick={() => handleEdit(row.original)}
+                                onClick={() => navigate(`/customer-master/edit/${row.original.id}`, {
+                                    state: { customerData: row.original }
+                                })}
                                 className="text-blue-600 hover:text-blue-900"
                             >
                                 <PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />

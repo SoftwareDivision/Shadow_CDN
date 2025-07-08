@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
-import { getRE11IndentDetails } from '@/lib/api';
+import { getRE11IndentDetails, uploadRe11Pdf } from '@/lib/api';
 import { Card } from '@/components/ui/card';
 import DataTable from '@/components/DataTable';
 import { useAuthToken } from '@/hooks/authStore';
@@ -19,6 +19,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PdfTextExtractor from '@/components/PdfTextExtractor';
 
 const RE11IndentFileGeneration = () => {
 	const navigate = useNavigate();
@@ -59,11 +60,10 @@ const RE11IndentFileGeneration = () => {
 				const status = row.getValue('completedIndent');
 				return (
 					<Badge
-						className={`px-2 py-1 rounded-full text-xs ${
-							status === 1
-								? 'bg-green-800 text-white border border-green-800 '
-								: 'bg-yellow-800 text-white border border-yellow-800 '
-						}`}
+						className={`px-2 py-1 rounded-full text-xs ${status === 1
+							? 'bg-green-800 text-white border border-green-800 '
+							: 'bg-yellow-800 text-white border border-yellow-800 '
+							}`}
 					>
 						{status === 1 ? 'Completed' : 'Pending'}
 					</Badge>
@@ -141,11 +141,10 @@ const RE11IndentFileGeneration = () => {
 														</TableCell>
 														<TableCell className="text-center">
 															<span
-																className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-																	item.remcase === 0
-																		? 'bg-green-800 text-white border border-green-800'
-																		: '  bg-yellow-800 text-white border border-yellow-800'
-																}`}
+																className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${item.remcase === 0
+																	? 'bg-green-800 text-white border border-green-800'
+																	: '  bg-yellow-800 text-white border border-yellow-800'
+																	}`}
 															>
 																{item.remcase === 0 ? 'Completed' : 'Pending'}
 															</span>
@@ -192,13 +191,25 @@ const RE11IndentFileGeneration = () => {
 		<Card className="p-4 shadow-md">
 			<div className="flex items-center justify-between">
 				<h2 className="text-2xl font-bold">RE-11 Indent</h2>
-				<Button
-					onClick={() => navigate('/re11-indent-generation/add')}
-					className="bg-primary hover:bg-primary/90"
-				>
-					<PlusIcon className="h-4 w-4" />
-					Add Re-11 Indent
-				</Button>
+
+				<div className="flex items-center gap-2">
+
+					<PdfTextExtractor
+						apiEndpoint="uploadRe11Pdf"
+						buttonText="Upload RE11 Indent"
+						onSuccess={(result) => {
+							console.log('API Response:', result.data);
+						}}
+					/>
+
+					<Button
+						onClick={() => navigate('/re11-indent-generation/add')}
+						className="bg-primary hover:bg-primary/90"
+					>
+						<PlusIcon className="h-4 w-4" />
+						Add Re-11 Indent
+					</Button>
+				</div>
 			</div>
 			<DataTable data={indents || []} columns={columns} />
 		</Card>
