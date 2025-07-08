@@ -209,13 +209,13 @@ function TransferDialog() {
 					<Button onClick={handleSaveSelections} disabled={isSaving} className="relative">
 						{isSaving ? (
 							<>
-								<span className="opacity-0">Confirm Transfer</span>
+								<span className="opacity-0">Magzine Allot</span>
 								<div className="absolute inset-0 flex items-center justify-center">
 									<div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
 								</div>
 							</>
 						) : (
-							'Confirm Transfer'
+							'Magzine Allot'
 						)}
 					</Button>
 				</div>

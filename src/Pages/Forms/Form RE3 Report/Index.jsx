@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Popover, PopoverContent, PopoverTrigger, } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import DataTable from '@/components/DataTable';
+import Loader from '@/components/Loader';
 
 
 function FormRE3_Report() {
@@ -126,7 +127,11 @@ function FormRE3_Report() {
         enqueueSnackbar(allerrors.message || 'Failed to fetch data', { variant: 'error' });
     }
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex items-center justify-center h-full">
+                <Loader />
+            </div>
+        );
     }
 
     const detailedReportColumns = [

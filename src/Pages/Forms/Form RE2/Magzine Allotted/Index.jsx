@@ -33,6 +33,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DataTable from '@/components/DataTable';
+import Loader from '@/components/Loader';
 
 
 
@@ -245,7 +246,11 @@ function MagAllotManual() {
         enqueueSnackbar(allerrors.message || 'Failed to fetch data', { variant: 'error' });
     }
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex items-center justify-center h-full">
+                <Loader />
+            </div>
+        );
     }
 
 
