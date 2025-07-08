@@ -44,6 +44,12 @@ function LoadingSheetPage() {
 		},
 	});
 
+	const transformedData =
+		loadingSheetsData?.map((item) => ({
+			...item,
+			indentNos: [...new Set(item.indentDetails.map((detail) => detail.indentNo))].join(', '),
+		})) || [];
+
 	const columns = [
 		{
 			header: 'Date',
@@ -200,7 +206,7 @@ function LoadingSheetPage() {
 					Add Loading Sheet
 				</Button>
 			</div>
-			<DataTable columns={columns} data={loadingSheetsData || []} />
+			<DataTable columns={columns} data={transformedData || []} />
 		</Card>
 	);
 }

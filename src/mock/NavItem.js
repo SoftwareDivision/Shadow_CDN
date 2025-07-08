@@ -46,7 +46,7 @@ const NavItems = [
 		url: '#',
 		icon: Workflow,
 		items: [
-			{ title: 'L1Barcode Generation', url: '/barcode-generation' },
+			{ title: 'Manual L1Barcode Generation', url: '/barcode-generation' },
 			{ title: '2D Barcode Generation', url: '/2Dbarcode-generation' },
 		],
 	},

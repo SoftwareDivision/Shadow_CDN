@@ -229,6 +229,17 @@ export const updateBrand = (t, d) => putData(`/BrandMasters/UpdateBrand/${d.id}`
 export const getRE11IndentDetails = (t) => getAll('/Re11IndentInfos/GetAllIndents', t);
 export const getRE11CreateIndents = (t) => getAll('/Re11IndentInfos/GetCreateIndents', t);
 export const createRE11Indent = (token, data) => postData('/Re11IndentInfos/CreateIndent', token, data);
+export const uploadRe11Pdf = async (token, file) => {
+	const formData = new FormData();
+	formData.append("file", file);
+	const config = {
+		headers: {
+			"Content-Type": "multipart/form-data",
+			...(token ? { Authorization: `Bearer ${token}` } : {}),
+		},
+	};
+	return api.post("/Re11IndentInfos/UploadRe11Pdf", formData, config);
+};
 
 // Magazine Master APIs
 export const getMagzineDetails = (t) => getAll('/MagzineMasters/GetAllMagzines', t);

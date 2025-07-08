@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray, Controller, useFormState } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Card } from '@/components/ui/card';
@@ -10,7 +10,7 @@ import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import { createMagzine, getMfgLocationDetails, updateMagzine } from '@/lib/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Box, Loader2, Plus, Trash2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
@@ -31,7 +31,8 @@ const detailSchema = yup.object().shape({
     product: yup.string().required('Product is required'),
     wt: yup.number().required('Weight is required').positive('Weight must be positive'),
     margin: yup.number().required('Margin is required').min(0, 'Margin cannot be negative'),
-    units: yup.string().required('Units is required')
+    units: yup.string().required('Units is required'),
+    free_space: yup.number().required('Free Space is required').min(0, 'Free Space cannot be negative')
 });
 
 const schema = yup.object().shape({
@@ -93,6 +94,10 @@ function AddOrEdit() {
         formState: { errors },
         reset,
         setValue,
+        setError,
+        clearErrors,
+        getValues,
+        watch,
     } = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
@@ -117,8 +122,6 @@ function AddOrEdit() {
     });
 
     useEffect(() => {
-
-
         if (state?.magzineData) {
             const data = state.magzineData;
             reset({
@@ -141,12 +144,43 @@ function AddOrEdit() {
                     product: detail.product,
                     wt: detail.wt,
                     margin: detail.margin,
-                    units: detail.units
+                    units: detail.units,
+                    free_space: detail.free_space
                 }))
             });
         }
     }, [state, reset, mfgLocations, uomData]);
     console.log('state', state);
+
+    // Inside component
+    const { dirtyFields } = useFormState({ control });
+
+    useEffect(() => {
+        const subscription = watch((value, { name }) => {
+            if (name === 'totalwt') {
+                const totalwt = parseFloat(value.totalwt) || 0;
+                const allDetails = getValues("magzineMasterDetails");
+
+                allDetails.forEach((_, index) => {
+                    const sumOfWeights = allDetails.reduce((sum, detail, idx) => {
+                        const val = parseFloat(detail.wt) || 0;
+                        return sum + val;
+                    }, 0);
+
+                    if (sumOfWeights > totalwt) {
+                        setError(`magzineMasterDetails.${index}.wt`, {
+                            type: "manual",
+                            message: "Sum of weights exceeds Total Weight",
+                        });
+                    } else {
+                        clearErrors(`magzineMasterDetails.${index}.wt`);
+                    }
+                });
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [watch, getValues, setError, clearErrors]);
 
     const mutation = useMutation({
         mutationFn: (data) => {
@@ -165,7 +199,8 @@ function AddOrEdit() {
                 magzineMasterDetails: data.magzineMasterDetails.map(detail => ({
                     ...detail,
                     wt: parseFloat(detail.wt),
-                    margin: parseFloat(detail.margin)
+                    margin: parseFloat(detail.margin),
+                    free_space: parseFloat(detail.free_space)
                 }))
             };
             return id ? updateMagzine(tokendata, payload) : createMagzine(tokendata, payload);
@@ -384,7 +419,7 @@ function AddOrEdit() {
                         {errors.validitydt && <span className="text-sm text-red-500">{errors.validitydt.message}</span>}
                     </div>
 
-                    <div className="space-y-2">                        
+                    <div className="space-y-2">
                         <label htmlFor="totalwt" className="text-sm font-medium">
                             Total Weight (KGs)
                         </label>
@@ -466,6 +501,8 @@ function AddOrEdit() {
                                         <TableHead>Margin</TableHead>
                                         <TableHead>Units</TableHead>
                                         <TableHead className="w-[50px]"></TableHead>
+                                        {/* <TableHead>Free Space</TableHead>
+                                        <TableHead>Carton</TableHead> */}
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -508,7 +545,7 @@ function AddOrEdit() {
                                             </TableCell>
                                             <TableCell className='w-[200px]'>
                                                 <Input
-                                                    type="number"
+                                                    type="text"
                                                     {...register(`magzineMasterDetails.${index}.class`)}
                                                     className={errors.magzineMasterDetails?.[index]?.class ? 'border-red-500' : ''}
                                                     readOnly
@@ -522,18 +559,94 @@ function AddOrEdit() {
                                                     readOnly
                                                 />
                                             </TableCell>
-                                            <TableCell className='w-[200px]'>
+                                            {/* <TableCell className='w-[200px]'>
                                                 <Input
                                                     type="number"
                                                     step="0.01"
-                                                    {...register(`magzineMasterDetails.${index}.wt`)}
+                                                    {...register(`magzineMasterDetails.${index}.wt`, {
+                                                        onChange: (e) => {
+                                                            const currentWt = parseFloat(e.target.value) || 0;
+
+                                                            // Automatically set free_space to same value
+                                                            setValue(`magzineMasterDetails.${index}.free_space`, currentWt);
+
+                                                            // Validation logic for total weight
+                                                            const allDetails = control._formValues.magzineMasterDetails;
+                                                            const totalWeightHeader = parseFloat(control._formValues.totalwt) || 0;
+                                                            let sumOfTableWeights = 0;
+
+                                                            allDetails.forEach((detail, idx) => {
+                                                                const wt = parseFloat(detail.wt) || 0;
+                                                                if (idx === index) {
+                                                                    sumOfTableWeights += currentWt;
+                                                                } else {
+                                                                    sumOfTableWeights += wt;
+                                                                }
+                                                            });
+
+                                                            if (sumOfTableWeights > totalWeightHeader) {
+                                                                setError(`magzineMasterDetails.${index}.wt`, {
+                                                                    type: 'manual',
+                                                                    message: 'Sum of weights exceeds Total Weight',
+                                                                });
+                                                            } else {
+                                                                clearErrors(`magzineMasterDetails.${index}.wt`);
+                                                            }
+                                                        },
+                                                    })}
                                                     className={errors.magzineMasterDetails?.[index]?.wt ? 'border-red-500' : ''}
                                                 />
-                                            </TableCell>
+                                                {errors.magzineMasterDetails?.[index]?.wt && (
+                                                    <span className="text-sm text-red-500">
+                                                        {errors.magzineMasterDetails[index].wt.message}
+                                                    </span>
+                                                )}
+                                            </TableCell> */}
+
                                             <TableCell className='w-[200px]'>
                                                 <Input
                                                     type="number"
                                                     step="0.01"
+                                                    {...register(`magzineMasterDetails.${index}.wt`, {
+                                                        onChange: (e) => {
+                                                            const currentWt = parseFloat(e.target.value) || 0;
+
+                                                            setValue(`magzineMasterDetails.${index}.free_space`, currentWt, {
+                                                                shouldValidate: true,
+                                                                shouldDirty: true,
+                                                            });
+
+                                                            const allDetails = getValues("magzineMasterDetails");
+                                                            const totalwt = parseFloat(getValues("totalwt")) || 0;
+
+                                                            const sumOfWeights = allDetails.reduce((sum, detail, idx) => {
+                                                                const val = idx === index ? currentWt : parseFloat(detail.wt) || 0;
+                                                                return sum + val;
+                                                            }, 0);
+
+                                                            if (sumOfWeights > totalwt) {
+                                                                setError(`magzineMasterDetails.${index}.wt`, {
+                                                                    type: "manual",
+                                                                    message: "Sum of weights exceeds Total Weight",
+                                                                });
+                                                            } else {
+                                                                clearErrors(`magzineMasterDetails.${index}.wt`);
+                                                            }
+                                                        },
+                                                    })}
+                                                    className={errors.magzineMasterDetails?.[index]?.wt ? 'border-red-500' : ''}
+                                                />
+                                                {errors.magzineMasterDetails?.[index]?.wt && (
+                                                    <span className="text-sm text-red-500">
+                                                        {errors.magzineMasterDetails[index].wt.message}
+                                                    </span>
+                                                )}
+                                            </TableCell>
+
+
+                                            <TableCell className='w-[200px]'>
+                                                <Input
+                                                    type="number"
                                                     {...register(`magzineMasterDetails.${index}.margin`)}
                                                     className={errors.magzineMasterDetails?.[index]?.margin ? 'border-red-500' : ''}
                                                 />
@@ -577,6 +690,16 @@ function AddOrEdit() {
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </TableCell>
+
+                                            <TableCell className='w-[200px] hidden'>
+                                                <Input
+                                                    type="number"
+                                                    step="0.01"
+                                                    {...register(`magzineMasterDetails.${index}.free_space`)}
+                                                    className={errors.magzineMasterDetails?.[index]?.free_space ? 'border-red-500' : ''}
+                                                />
+                                            </TableCell>
+
                                         </TableRow>
                                     ))}
                                 </TableBody>
