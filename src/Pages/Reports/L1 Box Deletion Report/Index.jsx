@@ -113,7 +113,11 @@ function L1_Box_Deletion_Report() {
         enqueueSnackbar(allerrors.message || 'Failed to fetch data', { variant: 'error' });
     }
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex items-center justify-center h-full">
+                <Loader />
+            </div>
+        );
     }
 
     const detailedReportColumns = [
