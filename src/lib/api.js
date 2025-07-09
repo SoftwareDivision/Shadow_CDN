@@ -440,6 +440,22 @@ export const getl1l2l3 = (token, data) => {
 	);
 };
 
+//Re6 Gen
+export const fetchIndentData = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/RE6Generation/GetRE6Details?${queryParams}`, token);
+};
+
+export const getConsignorDetails = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/RE6Generation/GetConsigneeData?${queryParams}`, token);
+};
+
+export const getTransportDetails = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/RE6Generation/GetTransData?${queryParams}`, token);
+};
+
 //rolemanage
 export const getroleDetails = (t) => getAll('/RoleMaster/GetRoleMasterList', t);
 export const deleterole = (t, id) => deleteData(`/RoleMaster/DeleteRoleMaster/${id}`, t);
