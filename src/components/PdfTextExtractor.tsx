@@ -7,6 +7,7 @@ import { FileUp } from 'lucide-react';
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
+import { useSnackbar } from 'notistack';
 
 interface PdfTextExtractorProps {
   apiEndpoint: string;
@@ -21,6 +22,7 @@ const PdfTextExtractor: React.FC<PdfTextExtractorProps> = ({ apiEndpoint, button
   const [status, setStatus] = React.useState<string | null>(null);
   const { token } = useAuthToken.getState();
   const tokendata = token.data.token;
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStatus(null);
@@ -38,11 +40,14 @@ const PdfTextExtractor: React.FC<PdfTextExtractorProps> = ({ apiEndpoint, button
       if (typeof apiFunc !== "function") throw new Error("Invalid API endpoint");
       const result = await apiFunc(tokendata, selectedFile);
       setStatus("Upload successful!");
+      enqueueSnackbar("File uploaded successfully!", { variant: "success" });
       setSelectedFile(null);
-      if (onSuccess) onSuccess(result);
+      console.log(result.data);
+      if (onSuccess) onSuccess(result.data);
     } catch (err: any) {
-      console.log(err);
-      setStatus("Upload failed: " + (err?.message || "Unknown error"));
+      console.log(err.response.data);
+      setStatus("Upload failed: " + (err?.response.data.message || "Unknown error"));
+      enqueueSnackbar("File upload failed: " + (err?.response.data.message || "Unknown error"), { variant: "error" });
     } finally {
       setUploading(false);
     }

@@ -60,10 +60,11 @@ const RE11IndentFileGeneration = () => {
 				const status = row.getValue('completedIndent');
 				return (
 					<Badge
-						className={`px-2 py-1 rounded-full text-xs ${status === 1
-							? 'bg-green-800 text-white border border-green-800 '
-							: 'bg-yellow-800 text-white border border-yellow-800 '
-							}`}
+						className={`px-2 py-1 rounded-full text-xs ${
+							status === 1
+								? 'bg-green-800 text-white border border-green-800 '
+								: 'bg-yellow-800 text-white border border-yellow-800 '
+						}`}
 					>
 						{status === 1 ? 'Completed' : 'Pending'}
 					</Badge>
@@ -141,10 +142,11 @@ const RE11IndentFileGeneration = () => {
 														</TableCell>
 														<TableCell className="text-center">
 															<span
-																className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${item.remcase === 0
-																	? 'bg-green-800 text-white border border-green-800'
-																	: '  bg-yellow-800 text-white border border-yellow-800'
-																	}`}
+																className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+																	item.remcase === 0
+																		? 'bg-green-800 text-white border border-green-800'
+																		: '  bg-yellow-800 text-white border border-yellow-800'
+																}`}
 															>
 																{item.remcase === 0 ? 'Completed' : 'Pending'}
 															</span>
@@ -173,6 +175,7 @@ const RE11IndentFileGeneration = () => {
 		data: indents,
 		isLoading,
 		error,
+		refetch: refetchIndents,
 	} = useQuery({
 		queryKey: ['re11-indents'],
 		queryFn: () => getRE11IndentDetails(tokendata),
@@ -193,12 +196,12 @@ const RE11IndentFileGeneration = () => {
 				<h2 className="text-2xl font-bold">RE-11 Indent</h2>
 
 				<div className="flex items-center gap-2">
-
 					<PdfTextExtractor
 						apiEndpoint="uploadRe11Pdf"
 						buttonText="Upload RE11 Indent"
 						onSuccess={(result) => {
 							console.log('API Response:', result.data);
+							refetchIndents();
 						}}
 					/>
 

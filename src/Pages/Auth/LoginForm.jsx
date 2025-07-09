@@ -24,7 +24,7 @@ export default function LoginForm() {
 
 	return (
 		<div className="flex flex-col gap-6">
-			<Card className="overflow-hidden p-0 shadow-md md:shadow-lg">
+			<Card className="overflow-hidden p-0 shadow-lg">
 				<CardContent className="grid p-0 md:grid-cols-2 relative">
 					<form className="p-6 md:p-8" onSubmit={handleSubmit}>
 						<div className="flex flex-col items-center text-center">
@@ -104,7 +104,7 @@ export default function LoginForm() {
 					</form>
 					<div className="hidden md:block w-[1px] bg-border absolute right-1/2 inset-y-8"></div>
 					<div className="bg-muted relative hidden md:block">
-						<img src={logo2} alt="Logo" className="absolute inset-0 h-full w-full object-cover" />
+						<img src={logo2} alt="Logo" className="absolute inset-0 h-full w-full object-fill" />
 					</div>
 				</CardContent>
 			</Card>

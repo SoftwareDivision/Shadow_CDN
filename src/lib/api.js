@@ -433,8 +433,11 @@ export const getTracedatabyl3barcode = (token, data) => {
 
 //Gete Last l1 l2 l3
 export const getl1l2l3 = (token, data) => {
-	const { pcode, shift, productsize, brandid } = data;
-	return getAll(`/L1Generate/Getlastl1l2l3Details/${pcode}/${brandid}/${productsize}/${shift}`, token);
+	const { pcode, shift, productsize, brandid, mcode, mfgdt, countycode, mfglocationcode } = data;
+	return getAll(
+		`/L1Generate/Getlastl1l2l3Details/${pcode}/${brandid}/${productsize}/${shift}/${mcode}/${mfgdt}/${countycode}/${mfglocationcode}`,
+		token,
+	);
 };
 
 //rolemanage

@@ -209,23 +209,27 @@ export default function L1BarcodeGeneration() {
 		}
 	}, [initialData, reset, plantData, machineData, shiftData]);
 
-	const handlePSizeChange = async (selectedPSize) => {
-		setValue('productSize', selectedPSize);
+	const handlePSizeChange = async () => {
 		const currentBid = watch('brandId');
 		const currentShift = watch('shift');
 		const currentPcode = watch('pCode');
-
-		console.log('currentBid:', currentBid);
-		console.log('currentShift:', currentShift);
-		console.log('currentPcode:', currentPcode);
-		console.log('selectedPSize:', selectedPSize);
+		const mcode = watch('mCode');
+		const selectedPSizeCode = watch('pSizeCode');
+		const currentMfgDt = watch('mfgDt');
+		const countycode = watch('countryCode');
+		const mfglocationcode = watch('mfgCode');
 
 		const reportParams = {
 			pcode: currentPcode,
 			brandid: currentBid,
-			productsize: selectedPSize,
+			productsize: selectedPSizeCode,
 			shift: currentShift,
+			mcode: mcode,
+			countycode: countycode,
+			mfglocationcode: mfglocationcode,
+			mfgdt: currentMfgDt,
 		};
+
 		console.log('Report Params:', reportParams);
 
 		try {
@@ -637,7 +641,6 @@ export default function L1BarcodeGeneration() {
 											<Select
 												value={field.value}
 												onValueChange={(value) => {
-													handlePSizeChange(value);
 													field.onChange(value);
 													const selected = productData.find((p) => p.psize === value);
 													if (selected) {
@@ -651,6 +654,7 @@ export default function L1BarcodeGeneration() {
 														setValue('noOfL2', selected.noofl2);
 														setValue('noOfL3perL2', selected.noofl3perl2);
 														setValue('noOfL3', selected.noofl3perl1);
+														handlePSizeChange();
 													}
 												}}
 											>
