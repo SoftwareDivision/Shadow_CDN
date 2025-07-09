@@ -1,22 +1,4 @@
-import {
-	ReceiptText,
-	Database,
-	Frame,
-	GalleryVerticalEnd,
-	LucideTruck,
-	Map,
-	MessageCircle,
-	PieChart,
-	Store,
-	Workflow,
-	FileSpreadsheet,
-	PrinterIcon,
-	ShieldUser,
-	ChevronRight,
-	Home,
-	Search,
-	User2Icon,
-} from 'lucide-react';
+import { ReceiptText, Database, Frame, GalleryVerticalEnd, LucideTruck, Map, MessageCircle, PieChart, Store, Workflow, FileSpreadsheet, PrinterIcon, ShieldUser, ChevronRight, Home, Search, User2Icon,} from 'lucide-react';
 
 const NavItems = [
 	{
@@ -42,7 +24,7 @@ const NavItems = [
 		],
 	},
 	{
-		title: 'Operations',
+		title: 'Production',
 		url: '#',
 		icon: Workflow,
 		items: [
@@ -76,6 +58,8 @@ const NavItems = [
 			{ title: 'RE11 File Generation', url: '/re11-indent-generation' },
 			{ title: 'Loading Sheet Generation', url: '/loading-sheets' },
 			{ title: 'RE12 File Generation', url: '/re12-file-generation' },
+			{ title: 'RE6 Generation', url: '/re6-generation' },
+
 		],
 	},
 	{
