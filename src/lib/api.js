@@ -11,6 +11,8 @@ const api = axios.create({
 	headers: { 'Content-Type': 'application/json-patch+json' },
 });
 
+
+
 // Force logout
 const forceLogout = () => {
 	enqueueSnackbar('Session expired. Please login again', {
@@ -28,6 +30,8 @@ api.interceptors.response.use(
 		return Promise.reject(err);
 	},
 );
+
+
 
 // Utils
 const formatDate = (date) => {
@@ -71,6 +75,27 @@ const request = async (method, url, token, data = null) => {
 	}
 };
 
+const fetchFile = async (method, url, token, data = null) => {
+	try {
+		const config = {
+			method,
+			url,
+			responseType: 'blob',
+			headers: {
+				Accept: 'application/pdf',
+				Authorization: `Bearer ${token}`,
+			},
+			...(data && { data }),
+		};
+		const res = await api(config);
+		console.log(res.data);
+		return res.data;
+	} catch (err) {
+		console.log(err);
+	}
+}
+
+
 // ===================== API Endpoints =====================
 
 // Auth
@@ -89,6 +114,8 @@ const getAll = (url, token) => request('get', url, token);
 
 // POST helpers
 const postData = (url, token, data) => request('post', url, token, data);
+
+const postDataFile = (url, token, data) => fetchFile('post', url, token, data);
 
 // PUT helpers
 const putData = (url, token, data) => request('put', url, token, data);
@@ -452,6 +479,9 @@ export const getTransportDetails = (token, data) => {
 	const queryParams = new URLSearchParams(data);
 	return getAll(`/RE6Generation/GetTransData?${queryParams}`, token);
 };
+
+export const printBarcode = (t, data) => postData('/RE6Generation/RE6barcodeprint', t, data);
+export const downloadBarcode = (t, data) => postDataFile('/RE6Generation/RE6PrintpdfDetails', t, data);
 
 //rolemanage
 export const getroleDetails = (t) => getAll('/RoleMaster/GetRoleMasterList', t);
