@@ -120,6 +120,7 @@ export default function MainLayout() {
 		'/rolemaster/add': { parent: 'Masters', current: 'Add Role' },
 		'/usermaster': { parent: 'Masters', current: 'User Management' },
 		'/usermaster/add': { parent: 'Masters', current: 'Add User' },
+		'/re6-generation': { parent: 'Dispatch', current: 'RE6 Generation' },
 		'/batch-master': { parent: 'Masters', current: 'Batch Master' },
 		'/batch-master/add': { parent: 'Masters', current: 'Add Batch' },
 	};

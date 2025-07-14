@@ -82,7 +82,7 @@ function MagAllotManual() {
     const [magazine, setMagzine] = useState([]);
     const [products, setProducts] = useState([]);
     const [productSizes, setProductSizes] = useState([]);
-    const [reportData, setReportData] = React.useState(null); 
+    const [reportData, setReportData] = React.useState(null); // Or initialize with [] if it's always an array
     const [isLoadingReport, setIsLoadingReport] = React.useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
 

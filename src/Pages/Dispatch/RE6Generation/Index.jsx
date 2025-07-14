@@ -4,11 +4,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
-import { format } from 'date-fns';
+import { add, format } from 'date-fns';
 import { CalendarIcon, Eraser, FileDown, ScanBarcode } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { fetchIndentData, getConsignorDetails, getTransportDetails } from '@/lib/api';
+import { downloadBarcode, fetchIndentData, getConsignorDetails, getTransportDetails, printBarcode } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,8 +31,28 @@ function RE6Generation() {
     // Form validation schema - Added brand and productSize
     const formSchema = yup.object().shape({
         dispatchDate: yup.date().required('Dispatch Date is required'),
-        re11indent: yup.string().required('Indent Number is required'),
-        re12indent: yup.string().required('Indent Number is required'),
+        re11indent: yup.string()
+            .test(
+                'not-default',
+                'Please select a valid RE11 Indent',
+                value =>
+                    value &&
+                    value !== '' &&
+                    value !== 'Select' &&
+                    value !== 'RE-11/2025/'
+            )
+            .required('RE11 Indent is required'),
+        re12indent: yup.string()
+            .test(
+                'not-default',
+                'Please select a valid RE12 Indent',
+                value =>
+                    value &&
+                    value !== '' &&
+                    value !== 'Select' &&
+                    value !== 'RE-12/2025/'
+            )
+            .required('RE12 Indent is required'),
         consignorlicense: yup.string().required('Consignor License is required'),
         consigneename: yup.string().required('Consignee Name is required'),
         consigneeid: yup.string().required('Consignee ID is required'),
@@ -54,6 +74,7 @@ function RE6Generation() {
         register,
         control,
         getValues,
+        trigger,
         formState: { errors },
     } = useForm({
         resolver: yupResolver(formSchema),
@@ -82,7 +103,7 @@ function RE6Generation() {
 
     const { enqueueSnackbar } = useSnackbar();
     const [dispatchDate, setdispatchDate] = React.useState(null);
-    const [indentData, setIndentData] = useState(null);
+    const [product, setIndentData] = useState(null);
     const [isLoadingReport, setIsLoadingReport] = React.useState(false);
     const [licenseNumber, setLicenseNumber] = useState([]);
     const [transporter, setTransporter] = useState([]);
@@ -94,6 +115,7 @@ function RE6Generation() {
     const handleRe11KeyDown = (event) => {
         if (event.key === 'Enter' || event.key === 'Tab') {
             handeleRe11change(event);
+            event.preventDefault();
         }
     };
 
@@ -203,29 +225,57 @@ function RE6Generation() {
 
     const onSubmit = async (data) => {
         setIsLoadingReport(true);
-        setReportData(null); // Clear previous report data
+        setReportData(null);
 
-        // Format dates to YYYY-MM-DD if they exist
-        const formattedFromDate = data.fromDate ? format(data.fromDate, 'yyyy-MM-dd') : '';
-        const formattedToDate = data.toDate ? format(data.toDate, 'yyyy-MM-dd') : '';
+        const vehicalNo = data.vehicle_no;
+        const vehicallicense = data.vehicle_licno;
+        const re12 = data.re12indent;
+        const re11 = data.re11indent;
+        const dispatchDate = data.dispatchDate ? format(data.dispatchDate, 'yyyy-MM-dd') : '';
+        const validity = data.valid;
+        const consigneeName = data.consigneename;
+        const address = data.address;
+        const district = data.district;
+        const state = data.state;
+        const consinorlicenseno = data.consignorlicense;
+        const consigneelicenseno = data.consigneelicenseno;
+        const transporterid = data.transporterid;
+        const transportername = data.transportername;
+        // Transform product data into required format
+        const transformedProducts = product?.map((item, index) => ({
+            ProductName: item.brandName || '',
+            Qty: item.quantity || '',
+            UOM: item.unit || '',
+            CD: item.strClass || '',
+            Cases: item.count || ''
+        })) || [];
 
-        // Handle 'all' values for shift, plant, brand and productsize      
-        const selectedPlant = data.plantId === 'all' ? '' : data.plantId;
-
-        setReportType(data.reportType);
-        // Ensure parameters match API endpoint types
         const reportParams = {
-            fromDate: formattedFromDate.toString(), // Ensure string type
-            toDate: formattedToDate.toString(), // Ensure string type
-            plant: selectedPlant?.toString() || null // Match optional string parameter
+            VehicleNumber: vehicalNo,
+            VehicleLicense: vehicallicense,
+            re12: re12,
+            re11: re11,
+            dispatchDate: dispatchDate,
+            VehicleValue: validity,
+            consigneeName: consigneeName,
+            address: address,
+            district: district,
+            state: state,
+            ConsignorLicense: consinorlicenseno,
+            LicenseNumber: consigneelicenseno,
+            transporterid: transporterid,
+            transportername: transportername,
+            Products: transformedProducts
         };
-        console.log('Report Params:', reportParams);
+        console.log('Submited Params Data:', reportParams);
 
         try {
-            // Make the API call using the new function
-            const result = await getFromRE2Report(tokendata, reportParams);
 
-            enqueueSnackbar('Report fetched successfully', { variant: 'success' });
+            // alert("Report Generation in progress");
+            // Make the API call using the new function
+            const result = await printBarcode(tokendata, reportParams);
+
+            enqueueSnackbar('RE6 Print done successfully', { variant: 'success' });
             console.log('Report Data:', result);
             setReportData(result); // Store the report data
             setIsLoadingReport(false);
@@ -233,6 +283,58 @@ function RE6Generation() {
             enqueueSnackbar(error.message || 'Failed to fetch report', { variant: 'error' });
         }
     };
+
+    const handlePrint = async () => {
+        
+        const isValid = await trigger();
+        
+        if (!isValid) {
+            return;
+        }
+        setIsLoadingReport(true);
+
+        const data = getValues();
+        const transformedProducts = product?.map((item) => ({
+            ProductName: item.brandName || '',
+            Qty: item.quantity || '',
+            UOM: item.unit || '',
+            CD: item.strClass || '',
+            Cases: item.count || ''
+        })) || [];
+
+        const reportParams = {
+            VehicleNumber: data.vehicle_no,
+            VehicleLicense: data.vehicle_licno,
+            re12: data.re12indent,
+            re11: data.re11indent,
+            dispatchDate: data.dispatchDate ? format(data.dispatchDate, 'yyyy-MM-dd') : '',
+            VehicleValue: data.valid,
+            consigneeName: data.consigneename,
+            address: data.address,
+            district: data.district,
+            state: data.state,
+            ConsignorLicense: data.consignorlicense,
+            LicenseNumber: data.consigneelicenseno,
+            transporterid: data.transporterid,
+            transportername: data.transportername,
+            Products: transformedProducts
+        };
+
+        const blob = await downloadBarcode(tokendata, reportParams);
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'RE-6-Sticker.pdf';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setIsLoadingReport(false);
+
+        enqueueSnackbar('RE6 Print done successfully', { variant: 'success' });
+        window.location.reload();
+    };
+
 
     const handleClear = () => {
         window.location.reload();
@@ -367,7 +469,7 @@ function RE6Generation() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {indentData?.map((item, index) => (
+                                {product?.map((item, index) => (
                                     <TableRow key={index}>
                                         <TableCell className="font-medium text-center">{item.brandName}</TableCell>
                                         <TableCell className="font-medium text-center">{item.strClass}</TableCell>
@@ -658,11 +760,11 @@ function RE6Generation() {
 
                 <div className="grid grid-cols-8 gap-5">
                     {/* Submit Button */}
-                    <Button type="button" disabled={isLoadingReport} >
+                    <Button type="submit" disabled={isLoadingReport} >
                         <ScanBarcode /> {isLoadingReport ? 'Printing Barcode...' : 'Print Barcode'}
                     </Button>
 
-                    <Button type="button" disabled={isLoadingReport}>
+                    <Button type="button" onClick={handlePrint}>
                         <FileDown /> {isLoadingReport ? 'PDF Printing...' : 'Print PDF'}
                     </Button>
 
