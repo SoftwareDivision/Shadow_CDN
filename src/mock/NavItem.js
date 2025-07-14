@@ -1,4 +1,22 @@
-import { ReceiptText, Database, Frame, GalleryVerticalEnd, LucideTruck, Map, MessageCircle, PieChart, Store, Workflow, FileSpreadsheet, PrinterIcon, ShieldUser, ChevronRight, Home, Search, User2Icon,} from 'lucide-react';
+import {
+	ReceiptText,
+	Database,
+	Frame,
+	GalleryVerticalEnd,
+	LucideTruck,
+	Map,
+	MessageCircle,
+	PieChart,
+	Store,
+	Workflow,
+	FileSpreadsheet,
+	PrinterIcon,
+	ShieldUser,
+	ChevronRight,
+	Home,
+	Search,
+	User2Icon,
+} from 'lucide-react';
 
 const NavItems = [
 	{
@@ -15,6 +33,7 @@ const NavItems = [
 			{ title: 'Brand Master', url: '/brand-master' },
 			{ title: 'Machine Code Master', url: '/machine-code-master' },
 			{ title: 'Product Master', url: '/product-master' },
+			{ title: 'Batch Master', url: '/batch-master' },
 			{ title: 'UOM Master', url: '/uom-master' },
 			{ title: 'Magzine Master', url: '/magzine-master' },
 			{ title: 'Shift Master', url: '/shift-master' },
@@ -59,7 +78,6 @@ const NavItems = [
 			{ title: 'Loading Sheet Generation', url: '/loading-sheets' },
 			{ title: 'RE12 File Generation', url: '/re12-file-generation' },
 			{ title: 'RE6 Generation', url: '/re6-generation' },
-
 		],
 	},
 	{

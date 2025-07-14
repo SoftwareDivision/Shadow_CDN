@@ -50,25 +50,12 @@ const RegenerateRE2FileGeneration = () => {
 		enabled: !!token,
 	});
 
-	const handleSelectAll = (checked) => {
-		if (checked) {
-			setSelectedRows(re2Data?.map((item) => item.l1Barcode) || []);
-		} else {
-			setSelectedRows([]);
-		}
-	};
-
-	const handleSelectRow = (l1Barcode) => {
-		setSelectedRows((prev) =>
-			prev.includes(l1Barcode) ? prev.filter((id) => id !== l1Barcode) : [...prev, l1Barcode],
-		);
-	};
-
 	const mutation = useMutation({
 		mutationFn: async (payload) => {
 			return await regenerateRE2File(token.data.token, payload);
 		},
 		onSuccess: (data) => {
+			console.log('RE2 file generated successfully:', data);
 			downloadCSV(data);
 			enqueueSnackbar('RE2 file generated successfully', { variant: 'success' });
 			setLoading(false);

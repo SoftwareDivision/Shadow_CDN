@@ -120,6 +120,8 @@ export default function MainLayout() {
 		'/rolemaster/add': { parent: 'Masters', current: 'Add Role' },
 		'/usermaster': { parent: 'Masters', current: 'User Management' },
 		'/usermaster/add': { parent: 'Masters', current: 'Add User' },
+		'/batch-master': { parent: 'Masters', current: 'Batch Master' },
+		'/batch-master/add': { parent: 'Masters', current: 'Add Batch' },
 	};
 
 	const getPathInfo = (path) => {
@@ -146,6 +148,10 @@ export default function MainLayout() {
 		}
 		if (path.startsWith('/usermaster/edit/')) {
 			return { parent: 'Masters', current: 'Edit User' };
+		}
+
+		if (path.startsWith('/batch-master/edit/')) {
+			return { parent: 'Masters', current: 'Edit Batch' };
 		}
 
 		return breadcrumbMap[path] || { parent: 'Home', current: 'Unknown' };

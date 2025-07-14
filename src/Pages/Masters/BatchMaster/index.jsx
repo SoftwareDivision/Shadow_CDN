@@ -1,12 +1,13 @@
-import { useAuthToken } from '@/hooks/authStore';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import React from 'react';
 import DataTable from '@/components/DataTable';
-import { Card } from '@/components/ui/card';
-import { getAllBrands, deleteBrand } from '@/lib/api';
+import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { useAuthToken } from '@/hooks/authStore';
+import { deleteBatch, getAllBatch } from '@/lib/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { MoreVertical, Pencil as PencilIcon, Plus as PlusIcon, Trash as TrashIcon, Loader2 } from 'lucide-react';
 import { useSnackbar } from 'notistack';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
 	AlertDialog,
@@ -25,25 +26,24 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
+import { Badge } from '@/components/ui/badge';
 
-function BrandMaster() {
+function BatchIndex() {
 	const { token } = useAuthToken.getState();
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
-	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'Brand Master');
-
-	console.log('userpermission :-', userpermission);
+	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'Batch Master');
 
 	const {
 		data: brandData,
 		isLoading,
 		error,
+		refetch: refecth,
 	} = useQuery({
-		queryKey: ['brandData'],
+		queryKey: ['batchData'],
 		queryFn: async () => {
-			const response = await getAllBrands(tokendata);
+			const response = await getAllBatch(tokendata);
 			return response || [];
 		},
 		enabled: !!tokendata,
@@ -51,15 +51,15 @@ function BrandMaster() {
 	console.log(brandData);
 
 	const deleteMutation = useMutation({
-		mutationFn: (id) => deleteBrand(tokendata, id),
+		mutationFn: (id) => deleteBatch(tokendata, id),
 		onSuccess: () => {
-			queryClient.invalidateQueries(['brandData']);
-			enqueueSnackbar('Brand deleted successfully', {
+			enqueueSnackbar('Batch deleted successfully', {
 				variant: 'success',
 			});
+			refecth();
 		},
 		onError: (error) => {
-			enqueueSnackbar(error.message || 'Failed to delete brand', {
+			enqueueSnackbar(error.message || 'Failed to delete Batch', {
 				variant: 'error',
 			});
 		},
@@ -67,47 +67,39 @@ function BrandMaster() {
 
 	const navigate = useNavigate();
 	const handleEdit = (row) => {
-		navigate(`/brand-master/edit/${row.id}`, {
+		navigate(`/batch-master/edit/${row.id}`, {
 			state: { brandData: row },
 		});
 	};
-
-	const handleDelete = (row) => {
-		deleteMutation.mutate(row.id);
-	};
-
-	if (isLoading) {
-		return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-	}
-
-	if (error) {
-		return <div className="text-red-500">Error: {error.message}</div>;
-	}
-
 	const columns = [
 		{
-			accessorKey: 'plant_type',
-			header: 'Plant Type',
+			accessorKey: 'plantName',
+			header: 'Plant',
 		},
 		{
-			accessorKey: 'bname',
-			header: 'Brand Name',
-		},
-		{
-			accessorKey: 'bid',
-			header: 'Brand ID',
-		},
-		{
-			accessorKey: 'class',
-			header: 'Class',
-		},
-		{
-			accessorKey: 'division',
-			header: 'Division',
+			accessorKey: 'batchSize',
+			header: 'Batch Size',
 		},
 		{
 			accessorKey: 'unit',
 			header: 'Unit',
+		},
+		{
+			accessorKey: 'batchCode',
+			header: 'Batch Code',
+		},
+		{
+			accessorKey: 'resetType',
+			header: 'Reset Type',
+			cell: ({ row }) => {
+				const resetType = row.original.resetType;
+				let label = '';
+				if (resetType === 'D') label = 'Daily';
+				else if (resetType === 'M') label = 'Monthly';
+				else if (resetType === 'Y') label = 'Yearly';
+				else label = resetType;
+				return <Badge className="capitalize">{label}</Badge>;
+			},
 		},
 		{
 			accessorKey: 'actions',
@@ -122,32 +114,9 @@ function BrandMaster() {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						{userpermission.isEdit ? (
-							<DropdownMenuItem
-								onClick={() => handleEdit(row.original)}
-								className="text-blue-600 hover:text-blue-900"
-							>
-								<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-								Edit
-							</DropdownMenuItem>
-						) : (
-							<PermissionDeniedDialog
-								action="Edit a Brand"
-								trigger={
-									<DropdownMenuItem
-										className="text-blue-600 hover:text-blue-900"
-										onSelect={(e) => e.preventDefault()}
-									>
-										<PencilIcon className="mr-2 h-4 w-4 text-blue-600 hover:text-blue-900" />
-										Edit
-									</DropdownMenuItem>
-								}
-							/>
-						)}
-
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								{userpermission.isDelete ? (
+								{userpermission?.isDelete ? (
 									<DropdownMenuItem
 										className="text-red-600 hover:text-red-900"
 										onSelect={(e) => e.preventDefault()}
@@ -195,20 +164,32 @@ function BrandMaster() {
 		},
 	];
 
+	const handleDelete = (row) => {
+		deleteMutation.mutate(row.id);
+	};
+
+	if (isLoading) {
+		return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+	}
+
+	if (error) {
+		return <div className="text-red-500">Error: {error.message}</div>;
+	}
+
 	return (
 		<Card className="p-4 shadow-md">
 			<div className="flex justify-between items-center">
-				<h2 className="text-2xl font-bold">Brand Master</h2>
-				{userpermission.isAdd ? (
-					<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/brand-master/add')}>
-						<PlusIcon className="h-4 w-4" /> Add Brand
+				<h2 className="text-2xl font-bold">Batch Master</h2>
+				{userpermission?.isAdd ? (
+					<Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/batch-master/add')}>
+						<PlusIcon className="h-4 w-4" /> Add Batch
 					</Button>
 				) : (
 					<PermissionDeniedDialog
 						action="Add a Brand"
 						trigger={
 							<Button className="bg-primary hover:bg-primary/90">
-								<PlusIcon className="h-4 w-4" /> Add Brand
+								<PlusIcon className="h-4 w-4" /> Add Batch
 							</Button>
 						}
 					/>
@@ -219,4 +200,4 @@ function BrandMaster() {
 	);
 }
 
-export default BrandMaster;
+export default BatchIndex;
