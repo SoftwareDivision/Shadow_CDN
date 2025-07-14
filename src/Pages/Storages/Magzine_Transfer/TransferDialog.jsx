@@ -120,6 +120,18 @@ function TransferDialog() {
 		}
 	};
 
+	function getPlantCode(uniqueKey) {
+		const parts = uniqueKey.split('-');
+
+		if (uniqueKey.startsWith('PETN-')) {
+			// For PETN-2-G6-... format, return the third part (G6)
+			return parts[2]; // This will return "G6" for PETN-2-G6-0581-PAC
+		} else {
+			// For others (EMULSION-G2..., SLURRY-G1...), return the second part
+			return parts[1];
+		}
+	}
+
 	const MagazineSelect = ({
 		uniqueKey,
 		magazines,
@@ -136,13 +148,14 @@ function TransferDialog() {
 				[uniqueKey]: value,
 			}));
 		};
+		console.log('uniqueKey :', uniqueKey);
+		const parts = getPlantCode(uniqueKey);
 
-		const parts = uniqueKey.split('-');
-		const plantCode = parts[1];
+		console.log('PARTS :', parts);
 		const filteredMagazines = magazines?.filter(
 			(magzine) =>
 				Array.isArray(magzine.magzineMasterDetails) &&
-				magzine.magzineMasterDetails.some((detail) => detail.product === plantCode),
+				magzine.magzineMasterDetails.some((detail) => detail.product === parts),
 		);
 
 		const combinedMagzineStock = filteredMagazines
@@ -159,7 +172,7 @@ function TransferDialog() {
 
 		if (isLoading) return <div className="text-sm">Loading magazines...</div>;
 		if (error) return <div className="text-red-500 text-sm">Error loading magazines</div>;
-		if (!magazines?.length) return <div className="text-sm">No magazines availabl e</div>;
+		if (!magazines?.length) return <div className="text-sm">No magazines available</div>;
 
 		return (
 			<Select value={selectedMagazines[uniqueKey] || ''} onValueChange={handleChange}>

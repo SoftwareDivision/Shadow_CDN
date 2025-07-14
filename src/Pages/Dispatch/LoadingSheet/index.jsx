@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { use, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, Loader2 } from 'lucide-react';
+import { PlusIcon, Loader2, Printer } from 'lucide-react';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import DataTable from '@/components/DataTable';
@@ -23,12 +23,14 @@ import {
 } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useState } from 'react';
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
+import LoadingSheetPDF from './LoadingSheetPDF';
+
 function LoadingSheetPage() {
 	const navigate = useNavigate();
 	const { token } = useAuthToken.getState();
 	const tokendata = token.data.token;
 	const { enqueueSnackbar } = useSnackbar();
-
 	const [selectedItems, setSelectedItems] = useState(null);
 
 	// Query for fetching Loading Sheet data
@@ -62,7 +64,7 @@ function LoadingSheetPage() {
 		{ header: 'Loading Sheet No', accessorKey: 'loadingSheetNo' },
 		{
 			header: 'Indent No',
-			accessorKey: 'indentDetails',
+			accessorKey: 'Indentno',
 			cell: ({ row }) => {
 				const items = row.original.indentDetails;
 				const uniqueIndentNos = [...new Set(items.map((item) => item.indentNo))];
@@ -140,7 +142,10 @@ function LoadingSheetPage() {
 											</TableHeader>
 											<TableBody>
 												{selectedItems?.map((item, index) => (
-													<TableRow key={index} className="hover:bg-muted/50">
+													<TableRow
+														key={index} // Combine indentNo with index for uniqueness
+														className="hover:bg-muted/50"
+													>
 														<TableCell className="font-medium">{item.indentNo}</TableCell>
 														<TableCell className="font-medium">{item.ptype}</TableCell>
 														<TableCell>{item.bname}</TableCell>
@@ -160,7 +165,7 @@ function LoadingSheetPage() {
 																className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
 																	item.iscompleted === 0
 																		? 'bg-yellow-800 text-white border border-yellow-800'
-																		: '  bg-green-800 text-white border border-green-800'
+																		: 'bg-green-800 text-white border border-green-800'
 																}`}
 															>
 																{item.iscompleted === 0 ? 'Pending' : 'Completed'}
@@ -181,6 +186,27 @@ function LoadingSheetPage() {
 							</DialogContent>
 						</Dialog>
 					</div>
+				);
+			},
+		},
+		{
+			header: 'Print',
+			id: 'print',
+			cell: ({ row }) => {
+				const loadingDetails = row.original;
+				const loadingSheetNo = loadingDetails.loadingSheetNo;
+				console.log('Loading Details:', loadingDetails);
+				return (
+					<PDFDownloadLink
+						document={<LoadingSheetPDF LoadingDeatils={loadingDetails} />}
+						fileName={`LoadingSheet-${loadingSheetNo}.pdf`}
+					>
+						{({ loading }) => (
+							<Button variant="ghost" size="icon" disabled={loading}>
+								{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer size={16} />}
+							</Button>
+						)}
+					</PDFDownloadLink>
 				);
 			},
 		},

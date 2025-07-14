@@ -78,6 +78,7 @@ function TraceBarcodeIndex() {
 		const manufacturingDetails = data.manufacturingDetails || [];
 		const l1L2L3Details = data.l1L2L3Details || [];
 		const dispatchdetails = data.dispatchIndentDetails || [];
+		const magzineStock = data.magzineStock || [];
 
 		return (
 			<div className="text-sm space-y-4">
@@ -175,6 +176,51 @@ function TraceBarcodeIndex() {
 				{/* No Data Fallback */}
 				{!manufacturingDetails.length && !l1L2L3Details.length && !dispatchdetails.length && (
 					<p className="ml-2">No details available.</p>
+				)}
+
+				{magzineStock.length > 0 && (
+					<>
+						<Separator className="my-4" />
+						<h2 className="text-xl font-bold">Magazine Stock Details</h2>
+						<DataTable
+							data={magzineStock.map((item, index) => ({ ...item, id: index }))}
+							columns={[
+								{ accessorKey: 'l1Barcode', header: 'L1 Barcode' },
+								{ accessorKey: 'brandId', header: 'Brand ID' },
+								{ accessorKey: 'brandName', header: 'Brand Name' },
+								{
+									accessorKey: 'magName',
+									header: 'Magazine Name',
+									cell: ({ row }) => <Badge variant="default">{row.original.magName}</Badge>,
+								},
+								{
+									accessorKey: 'stkDt',
+									header: 'Stock Date',
+									cell: ({ row }) => new Date(row.original.stkDt).toLocaleDateString(),
+								},
+								{
+									accessorKey: 're2',
+									header: 'RE2',
+									cell: ({ row }) =>
+										row.original.re2 === 1 ? (
+											<Badge variant="default">Yes</Badge>
+										) : (
+											<Badge variant="destructive">No</Badge>
+										),
+								},
+								{
+									accessorKey: 're12',
+									header: 'RE12',
+									cell: ({ row }) =>
+										row.original.re12 === 1 ? (
+											<Badge variant="default">Yes</Badge>
+										) : (
+											<Badge variant="destructive">No</Badge>
+										),
+								},
+							]}
+						/>
+					</>
 				)}
 			</div>
 		);

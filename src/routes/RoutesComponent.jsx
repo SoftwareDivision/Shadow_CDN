@@ -31,13 +31,15 @@ const MachineCodeMaster = lazy(() => import('../Pages/Masters/MachineCodeMaster/
 const MachineCodeAddOrEdit = lazy(() => import('../Pages/Masters/MachineCodeMaster/AddOrEdit'));
 const UOMMaster = lazy(() => import('../Pages/Masters/UOMMaster/Index'));
 const UOMAddOrEdit = lazy(() => import('../Pages/Masters/UOMMaster/AddOrEdit'));
+const BatchMaster = lazy(() => import('../Pages/Masters/BatchMaster/index'));
+const BatchAddOrEdit = lazy(() => import('../Pages/Masters/BatchMaster/AddOrEdit'));
 const ProductMaster = lazy(() => import('../Pages/Masters/ProductMaster/Index'));
 const ProductAddOrEdit = lazy(() => import('../Pages/Masters/ProductMaster/AddOrEdit'));
 const IntimationMaster = lazy(() => import('../Pages/Masters/IntimationMaster/Index'));
 const IntimationAddOrEdit = lazy(() => import('../Pages/Masters/IntimationMaster/AddOrEdit'));
 const RE2FileGeneration = lazy(() => import('../Pages/Storages/RE2FileGeneration/RE2FileGeneration'));
 const BrandMaster = lazy(() => import('../Pages/Masters/BrandMaster/Index'));
-const BrandAddOrEdit = lazy(() => import('../Pages/Masters/BrandMaster/AddOrEdit'));
+const BrandAddOrEdit = lazy(() => import('../Pages/Masters/BrandMaster/'));
 const CustomerMaster = lazy(() => import('../Pages/Masters/CustomerMaster/Index'));
 const CustomerAddOrEdit = lazy(() => import('../Pages/Masters/CustomerMaster/AddOrEdit'));
 const TransportMaster = lazy(() => import('../Pages/Masters/transportMaster/Index'));
@@ -209,6 +211,30 @@ export default function RoutesComponent() {
 								}
 							/>
 							<Route
+								path="/batch-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<BatchMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/batch-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<BatchAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/batch-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<BatchAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
 								path="/barcode-generation"
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
@@ -284,11 +310,9 @@ export default function RoutesComponent() {
 							/>
 							<Route
 								path="/plant-type-master/add"
-
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<PlantTypeAddOrEdit />
-
 									</SuspenseWrapper>
 								}
 							/>

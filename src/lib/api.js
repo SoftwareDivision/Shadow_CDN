@@ -132,7 +132,7 @@ export const getMachineDetails = (t) => getAll('/MachineCodeMasters/GetAllMachin
 export const getCountryDetails = (t) => getAll('/CountryMasters/GetAllCountries', t);
 export const getStateDetails = (t) => getAll('/StateMasters/GetAllStates', t);
 export const getMfgDetails = (t) => getAll('/MfgMasters/GetAllMfgMasters', t);
-export const getTransferToMagzineData = (t) => getAll('/TransferProdToMagzine', t);
+export const getTransferToMagzineData = (t) => getAll('/MagznieTransfer/GetTransferProdToMagzine', t);
 export const getL1DataOnly = (t) => getAll('/L1Generate/GetOnlyL1L1Generate', t);
 export const getL1GenerateData = (t) => getAll('/L1Generate/GetL1Generate', t);
 
@@ -184,7 +184,8 @@ export const createL1Generate = (t, d) => {
 	return postData('/L1Generate/CreateL1Generate', t, formatted);
 };
 
-export const saveMagazineTransfer = (t, payload) => postData('/ProductionMagzineAllocations', t, payload);
+export const saveMagazineTransfer = (t, payload) =>
+	postData('/MagznieTransfer/PostProductionMagzineAllocation', t, payload);
 
 // Notifications API
 export const notificationsApi = {
@@ -251,6 +252,12 @@ export const getAllBrands = (t) => getAll('/BrandMasters/GetAllBrands', t);
 export const createBrand = (t, data) => postData('/BrandMasters/CreateBrand', t, data);
 export const deleteBrand = (t, id) => deleteData(`/BrandMasters/DeleteBrand/${id}`, t);
 export const updateBrand = (t, d) => putData(`/BrandMasters/UpdateBrand/${d.id}`, t, d);
+
+//batch master APIs
+export const getAllBatch = (t) => getAll('/BatchMasters/GetBatchMasters', t);
+export const createBatch = (t, data) => postData('/BatchMasters/CreateBatchMaster', t, data);
+export const deleteBatch = (t, id) => deleteData(`/BatchMasters/DeleteBatchMaster/${id}`, t);
+export const updateBatch = (t, d) => putData(`/BatchMasters/UpdateBatchMaster/${d.id}`, t, d);
 
 // RE11 Indent APIs
 export const getRE11IndentDetails = (t) => getAll('/Re11IndentInfos/GetAllIndents', t);
@@ -460,8 +467,11 @@ export const getTracedatabyl3barcode = (token, data) => {
 
 //Gete Last l1 l2 l3
 export const getl1l2l3 = (token, data) => {
-	const { pcode, shift, productsize, brandid } = data;
-	return getAll(`/L1Generate/Getlastl1l2l3Details/${pcode}/${brandid}/${productsize}/${shift}`, token);
+	const { pcode, shift, productsize, brandid, mcode, mfgdt, countycode, mfglocationcode } = data;
+	return getAll(
+		`/L1Generate/Getlastl1l2l3Details/${pcode}/${brandid}/${productsize}/${shift}/${mcode}/${mfgdt}/${countycode}/${mfglocationcode}`,
+		token,
+	);
 };
 
 //Re6 Gen

@@ -95,6 +95,7 @@ const AddRE11Indent = () => {
 		data,
 		isLoading: isFetching,
 		error: fetchError,
+		refetch,
 	} = useQuery({
 		queryKey: ['re11Indents'],
 		queryFn: () => getRE11CreateIndents(tokendata),

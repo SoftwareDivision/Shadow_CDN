@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { getTransferToMagzineData } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
+import Loader from '@/components/Loader';
 
 function MagzineTransferViw() {
 	const { token } = useAuthToken.getState();
@@ -18,6 +19,7 @@ function MagzineTransferViw() {
 		data: initialData,
 		isLoading,
 		error,
+		refetch,
 	} = useQuery({
 		queryKey: ['transferData'],
 		queryFn: async () => {
@@ -29,12 +31,17 @@ function MagzineTransferViw() {
 
 	useEffect(() => {
 		if (!isLoading && initialData) {
+			refetch();
 			setTransferData(initialData);
 		}
 	}, [initialData, isLoading]);
 
 	if (isLoading) {
-		return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+		return (
+			<div className="flex min-h-[60vh] justify-center items-center">
+				<Loader />
+			</div>
+		);
 	}
 
 	if (error) {

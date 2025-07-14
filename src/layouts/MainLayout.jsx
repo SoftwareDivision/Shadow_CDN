@@ -121,6 +121,8 @@ export default function MainLayout() {
 		'/usermaster': { parent: 'Masters', current: 'User Management' },
 		'/usermaster/add': { parent: 'Masters', current: 'Add User' },
 		'/re6-generation': { parent: 'Dispatch', current: 'RE6 Generation' },
+		'/batch-master': { parent: 'Masters', current: 'Batch Master' },
+		'/batch-master/add': { parent: 'Masters', current: 'Add Batch' },
 		'/intimation-generation': { parent: 'Dispatch', current: 'AIME Generation' },
 		'/intimation-master': { parent: 'Masters', current: 'Intimation Master' },
 		'/intimation-master/add': { parent: 'Masters', current: 'Add Intimation' },
@@ -155,6 +157,10 @@ export default function MainLayout() {
 		}
 		if (path.startsWith('/usermaster/edit/')) {
 			return { parent: 'Masters', current: 'Edit User' };
+		}
+
+		if (path.startsWith('/batch-master/edit/')) {
+			return { parent: 'Masters', current: 'Edit Batch' };
 		}
 
 		return breadcrumbMap[path] || { parent: 'Home', current: 'Unknown' };
