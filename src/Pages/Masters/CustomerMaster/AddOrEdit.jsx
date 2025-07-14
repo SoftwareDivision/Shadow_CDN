@@ -159,6 +159,9 @@ function AddOrEdit() {
 
     return (
         <Card className="p-4">
+            <div>
+				<h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} Customer</h2>
+			</div>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid grid-cols-3 gap-4 mb-4 ">
                     <div className='hidden'>

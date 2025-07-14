@@ -21,6 +21,8 @@ const NavItems = [
 			{ title: 'Customer Master', url: '/customer-master' },
 			{ title: 'Transport Master', url: '/transport-master' },
 			{ title: 'Reset masters', url: '/reset-type-master' },
+			{ title: 'Intimation Master', url: '/intimation-master' },
+			{ title: 'Route Master', url: '/route-master' },
 		],
 	},
 	{
@@ -58,6 +60,7 @@ const NavItems = [
 			{ title: 'RE11 File Generation', url: '/re11-indent-generation' },
 			{ title: 'Loading Sheet Generation', url: '/loading-sheets' },
 			{ title: 'RE12 File Generation', url: '/re12-file-generation' },
+			{ title: 'Intimation Generation', url: '/intimation-generation' },
 			{ title: 'RE6 Generation', url: '/re6-generation' },
 
 		],

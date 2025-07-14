@@ -121,6 +121,14 @@ export default function MainLayout() {
 		'/usermaster': { parent: 'Masters', current: 'User Management' },
 		'/usermaster/add': { parent: 'Masters', current: 'Add User' },
 		'/re6-generation': { parent: 'Dispatch', current: 'RE6 Generation' },
+		'/intimation-generation': { parent: 'Dispatch', current: 'AIME Generation' },
+		'/intimation-master': { parent: 'Masters', current: 'Intimation Master' },
+		'/intimation-master/add': { parent: 'Masters', current: 'Add Intimation' },
+		'/intimation-master/edit': { parent: 'Masters', current: 'Edit Intimation' },
+		'/route-master': { parent: 'Masters', current: 'Route Master' },
+		'/route-master/add': { parent: 'Masters', current: 'Add Route' },
+		'/route-master/edit': { parent: 'Masters', current: 'Edit Route' },
+		
 	};
 
 	const getPathInfo = (path) => {
