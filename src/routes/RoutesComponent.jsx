@@ -46,6 +46,7 @@ const TransportMaster = lazy(() => import('../Pages/Masters/transportMaster/Inde
 const TransportAddOrEdit = lazy(() => import('../Pages/Masters/transportMaster/AddOrEdit'));
 const RE12FileGeneration = lazy(() => import('../Pages/Dispatch/RE12FileGeneration/RE12FileGeneration'));
 const RE6Generation = lazy(() => import('../Pages/Dispatch/RE6Generation/Index'));
+const RE7Generation = lazy(() => import('../Pages/Reports/RE7 Report/Index'));
 const IntemationGeneration = lazy(() => import('../Pages/Dispatch/AIMES/Index'));
 const L1Reprint = lazy(() => import('../Pages/Reprint/L1Reprint/Index'));
 const L2Reprint = lazy(() => import('../Pages/Reprint/L2Reprint/Index'));
@@ -106,6 +107,7 @@ const UserManagement = lazy(() => import('../Pages/UserManage/UserMangement/inde
 const UsermasterAddorEdit = lazy(() => import('../Pages/UserManage/UserMangement/AddorEdit'));
 const RouteMaster = lazy(() => import('../Pages/Masters/RouteMaster/Index'));
 const RouteAddOrEdit = lazy(() => import('../Pages/Masters/RouteMaster/AddOrEdit'));
+
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -499,6 +501,15 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<RE6Generation />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/re7-generation"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RE7Generation />
 									</SuspenseWrapper>
 								}
 							/>
@@ -1028,6 +1039,7 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+
 
 						</Route>
 						{/* Catch-all 404 page */}

@@ -336,6 +336,13 @@ export const getStockReport = (token, params) => {
 	return getAll(`/Reports/Getstockreport?${queryParams}`, token);
 };
 
+// RE7 Report API
+export const getRE7Report = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return getAll(`/Reports/Getre7report?${queryParams}`, token);
+};
+
+
 export const getDispatchReport = (token, params) => {
 	const queryParams = new URLSearchParams(params).toString();
 	return getAll(`/Reports/GetDispatchData?${queryParams}`, token);

@@ -51,6 +51,7 @@ const NavItems = [
 		items: [
 			{ title: 'Manual L1Barcode Generation', url: '/barcode-generation' },
 			{ title: '2D Barcode Generation', url: '/2Dbarcode-generation' },
+		
 		],
 	},
 	{
@@ -80,7 +81,7 @@ const NavItems = [
 			{ title: 'Loading Sheet Generation', url: '/loading-sheets' },
 			{ title: 'RE12 File Generation', url: '/re12-file-generation' },
 			{ title: 'Intimation Generation', url: '/intimation-generation' },
-			{ title: 'RE6 Generation', url: '/re6-generation' },
+			{ title: 'RE6 Generation', url: '/re6-generation' },			
 		],
 	},
 	{
@@ -145,6 +146,7 @@ const NavItems = [
 			{ title: 'Dispatch Report', url: '/dispatch-report' },
 			{ title: 'RE11 Status Report', url: '/re11-status-report' },
 			{ title: 'RE2 Status Report', url: '/re2-status-report' },
+			{ title: 'RE7 Generation', url: '/re7-generation' },
 			{ title: 'L1 Box Deletion Report', url: '/l1-box-deletion-report' },
 			{ title: 'L1 Barcode Reprint Report', url: '/l1-barcode-reprint-report' },
 			{ title: 'L2 Barcode Reprint Report', url: '/l2-barcode-reprint-report' },

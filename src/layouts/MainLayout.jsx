@@ -121,6 +121,7 @@ export default function MainLayout() {
 		'/usermaster': { parent: 'Masters', current: 'User Management' },
 		'/usermaster/add': { parent: 'Masters', current: 'Add User' },
 		'/re6-generation': { parent: 'Dispatch', current: 'RE6 Generation' },
+		'/re7-generation': { parent: 'Reports', current: 'RE7 Generation' },
 		'/batch-master': { parent: 'Masters', current: 'Batch Master' },
 		'/batch-master/add': { parent: 'Masters', current: 'Add Batch' },
 		'/intimation-generation': { parent: 'Dispatch', current: 'AIME Generation' },
@@ -130,7 +131,7 @@ export default function MainLayout() {
 		'/route-master': { parent: 'Masters', current: 'Route Master' },
 		'/route-master/add': { parent: 'Masters', current: 'Add Route' },
 		'/route-master/edit': { parent: 'Masters', current: 'Edit Route' },
-		
+
 	};
 
 	const getPathInfo = (path) => {

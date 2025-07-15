@@ -10,7 +10,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from '@/components/ui/alert-dialog';
 import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
-import { getAllRoute } from '@/lib/api';
+import { deleteRoute, getAllRoute } from '@/lib/api';
 
 function RouteMaster() {
 	const navigate = useNavigate();
