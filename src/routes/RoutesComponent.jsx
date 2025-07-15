@@ -35,6 +35,8 @@ const BatchMaster = lazy(() => import('../Pages/Masters/BatchMaster/index'));
 const BatchAddOrEdit = lazy(() => import('../Pages/Masters/BatchMaster/AddOrEdit'));
 const ProductMaster = lazy(() => import('../Pages/Masters/ProductMaster/Index'));
 const ProductAddOrEdit = lazy(() => import('../Pages/Masters/ProductMaster/AddOrEdit'));
+const IntimationMaster = lazy(() => import('../Pages/Masters/IntimationMaster/Index'));
+const IntimationAddOrEdit = lazy(() => import('../Pages/Masters/IntimationMaster/AddOrEdit'));
 const RE2FileGeneration = lazy(() => import('../Pages/Storages/RE2FileGeneration/RE2FileGeneration'));
 const BrandMaster = lazy(() => import('../Pages/Masters/BrandMaster/Index'));
 const BrandAddOrEdit = lazy(() => import('../Pages/Masters/BrandMaster/'));
@@ -44,6 +46,8 @@ const TransportMaster = lazy(() => import('../Pages/Masters/transportMaster/Inde
 const TransportAddOrEdit = lazy(() => import('../Pages/Masters/transportMaster/AddOrEdit'));
 const RE12FileGeneration = lazy(() => import('../Pages/Dispatch/RE12FileGeneration/RE12FileGeneration'));
 const RE6Generation = lazy(() => import('../Pages/Dispatch/RE6Generation/Index'));
+const RE7Generation = lazy(() => import('../Pages/Reports/RE7 Report/Index'));
+const IntemationGeneration = lazy(() => import('../Pages/Dispatch/AIMES/Index'));
 const L1Reprint = lazy(() => import('../Pages/Reprint/L1Reprint/Index'));
 const L2Reprint = lazy(() => import('../Pages/Reprint/L2Reprint/Index'));
 // Add this import at the top with other lazy imports
@@ -101,6 +105,9 @@ const RolemasterAddorEdit = lazy(() => import('../Pages/UserManage/RoleManage/Ad
 
 const UserManagement = lazy(() => import('../Pages/UserManage/UserMangement/index'));
 const UsermasterAddorEdit = lazy(() => import('../Pages/UserManage/UserMangement/AddorEdit'));
+const RouteMaster = lazy(() => import('../Pages/Masters/RouteMaster/Index'));
+const RouteAddOrEdit = lazy(() => import('../Pages/Masters/RouteMaster/AddOrEdit'));
+
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -494,6 +501,24 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<RE6Generation />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/re7-generation"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RE7Generation />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/intimation-generation"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<IntemationGeneration />
 									</SuspenseWrapper>
 								}
 							/>
@@ -964,6 +989,58 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+
+							<Route
+								path="/intimation-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<IntimationMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/intimation-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<IntimationAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/intimation-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<IntimationAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+							<Route
+								path="/route-master"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RouteMaster />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/route-master/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RouteAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/route-master/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<RouteAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+
+
 						</Route>
 						{/* Catch-all 404 page */}
 						<Route

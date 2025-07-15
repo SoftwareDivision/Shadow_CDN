@@ -336,6 +336,13 @@ export const getStockReport = (token, params) => {
 	return getAll(`/Reports/Getstockreport?${queryParams}`, token);
 };
 
+// RE7 Report API
+export const getRE7Report = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return getAll(`/Reports/Getre7report?${queryParams}`, token);
+};
+
+
 export const getDispatchReport = (token, params) => {
 	const queryParams = new URLSearchParams(params).toString();
 	return getAll(`/Reports/GetDispatchData?${queryParams}`, token);
@@ -492,6 +499,18 @@ export const getTransportDetails = (token, data) => {
 
 export const printBarcode = (t, data) => postData('/RE6Generation/RE6barcodeprint', t, data);
 export const downloadBarcode = (t, data) => postDataFile('/RE6Generation/RE6PrintpdfDetails', t, data);
+
+//Intimation Master
+export const getAllIntimation = (t) => getAll('/IntimationMasters/GetAllIntimations', t);
+export const createIntimation = (t, data) => postData('/IntimationMasters/CreateIntimation', t, data);
+export const deleteIntimation = (t, id) => deleteData(`/IntimationMasters/DeleteIntimation/${id}`, t);
+export const updateIntimation = (t, d) => putData(`/IntimationMasters/UpdateIntimation/${d.id}`, t, d);
+
+//Route Master
+export const getAllRoute = (t) => getAll('/RouteMasters/GetAllRoutes', t);
+export const createRoute = (t, data) => postData('/RouteMasters/CreateRoute', t, data);
+export const deleteRoute = (t, id) => deleteData(`/RouteMasters/DeleteRoute/${id}`, t);
+export const updateRoute = (t, d) => putData(`/RouteMasters/UpdateRoute/${d.id}`, t, d);
 
 //rolemanage
 export const getroleDetails = (t) => getAll('/RoleMaster/GetRoleMasterList', t);
