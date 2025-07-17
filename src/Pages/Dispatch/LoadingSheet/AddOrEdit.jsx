@@ -246,9 +246,7 @@ function AddOrEditLoadingSheet() {
 								<span className="w-full border-t" />
 							</div>
 							<div className="relative flex justify-center">
-								<span className=" px-2 text-sm font-medium">
-									Loading Sheet Information
-								</span>
+								<span className=" px-2 text-sm font-medium">Loading Sheet Information</span>
 							</div>
 						</div>
 
