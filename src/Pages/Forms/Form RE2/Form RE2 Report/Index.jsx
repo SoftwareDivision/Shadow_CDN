@@ -187,6 +187,10 @@ function FormRE2Report() {
         {
             accessorKey: 'dateoftest',
             header: 'Date Of Test',
+            cell: ({ row }) => {
+                const value = row.getValue('dateoftest');
+                return value ? format(new Date(value), 'dd/MM/yyyy') : '-';
+            },
         },
         {
             accessorKey: 'srno_count',
@@ -194,7 +198,7 @@ function FormRE2Report() {
         },
         {
             accessorKey: 'maglic',
-            header: 'Magazine and Storage House Licence No. to which the Explosive Send',
+            header: <>Magazine and Storage House<br />Licence No. to which the<br /> Explosive Send</>,
         },
         {
             accessorKey: 'test',
@@ -202,7 +206,7 @@ function FormRE2Report() {
         },
         {
             accessorKey: 'test',
-            header: 'Signature of Person InCharge or License',
+            header: <>Signature of Person <br /> InCharge or License</>,
         },
     ];
 

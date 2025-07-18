@@ -251,7 +251,7 @@ function MagAllotManual() {
     return (
         <Card className="p-4 shadow-md">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-semibold">Magazine Allotment - Manually</h1>
+                <h1 className="text-2xl font-semibold">Magazine Transfer</h1>
             </div>
             {/* Updated onSubmit handler */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

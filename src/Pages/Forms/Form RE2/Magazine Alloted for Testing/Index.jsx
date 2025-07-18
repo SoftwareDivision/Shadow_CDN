@@ -165,7 +165,7 @@ function MagAllotForTest() {
             setSelectedRows([]);
             setReportData(null);
 
-            enqueueSnackbar('Stock Added successfully', { variant: 'success' });
+            enqueueSnackbar('Stock Added successfully fot Testing', { variant: 'success' });
             console.log('Report Data:', result);
 
             setIsLoadingReport(false);

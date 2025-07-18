@@ -4,11 +4,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
-import { add, format } from 'date-fns';
+import { add, format, set } from 'date-fns';
 import { CalendarIcon, Eraser, FileDown, ScanBarcode } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { downloadBarcode, fetchIndentData, getAllIntimation, getAllRoute, getConsignorDetails, getTransportDetails, printBarcode } from '@/lib/api';
+import { fetchAIMETableData, getAllIntimation, getAllRoute, getConsignorDetails, printBarcode } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Loader from '@/components/Loader';
 import { data } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
+import AIMEPDF from './AIMEPDF';
 
 
 
@@ -31,7 +33,7 @@ function AIMEGeneration() {
 
     // Form validation schema - Added brand and productSize
     const formSchema = yup.object().shape({
-        dispatchDate: yup.date().required('Dispatch Date is required'),
+        indentDate: yup.date().required('Dispatch Date is required'),
         re11indent: yup.string()
             .test(
                 'not-default',
@@ -43,29 +45,29 @@ function AIMEGeneration() {
                     value !== `RE-11/${year}/`
             )
             .required('RE11 Indent is required'),
-        re12indent: yup.string()
+        aime_no: yup.string()
             .test(
                 'not-default',
-                'Please select a valid RE12 Indent',
+                'Please select a valid AIME No.',
                 value =>
                     value &&
                     value !== '' &&
                     value !== 'Select' &&
                     value !== `AIME/${year}/`
             )
-            .required('RE12 Indent is required'),
-        consignorlicense: yup.string().required('Consignor License is required'),
+            .required('AIME No. is required'),
         consigneename: yup.string().required('Consignee Name is required'),
         consigneeid: yup.string().required('Consignee ID is required'),
         address: yup.string().required('Address is required'),
         district: yup.string().required('District is required'),
         state: yup.string().required('State is required'),
         consigneelicenseno: yup.string().required('Consignee License Number is required'),
-        transportername: yup.string().required('Transporter Name is required'),
-        transporterid: yup.string().required('Transporter ID is required'),
-        vehicle_no: yup.string().required('Vehicle Number is required'),
-        vehicle_licno: yup.string().required('Vehicle License Number is required'),
-        valid: yup.string().required('Validity is required'),
+        datedisp: yup.date().required('Dispatch Date is required'),
+        destinationDate: yup.date().required('Destination Date is required'),
+        ExposovesOffice: yup.string().required('Exposoves Office is required'),
+        routes: yup.string().required('Route is required'),
+        tashil: yup.string().required('Tashil is required'),
+        city: yup.string().required('City is required'),
     });
 
     const {
@@ -83,7 +85,6 @@ function AIMEGeneration() {
             indentDate: new Date(),
             re11indent: `RE-11/${year}/`,
             aime_no: `AIME/${year}/`,
-            consignorlicense: '',
             consigneename: '',
             consigneeid: '',
             address: '',
@@ -112,9 +113,9 @@ function AIMEGeneration() {
     const [product, setIndentData] = useState(null);
     const [isLoadingReport, setIsLoadingReport] = React.useState(false);
     const [licenseNumber, setLicenseNumber] = useState([]);
-    const [transporter, setTransporter] = useState([]);
     const [selectedLicense, setSelectedLicense] = useState('');
     const [routes, setRoutes] = useState([]);
+    const [FormData, setFormData] = useState(null)
 
 
     //intimation data
@@ -180,14 +181,14 @@ function AIMEGeneration() {
         const formattedFromDate = data.indentDate ? format(data.indentDate, 'yyyy-MM-dd') : '';
 
         const indentParams = {
-            dispDate: formattedFromDate,
+            indentdate: formattedFromDate,
             indentNo: data.re11indent
         };
         console.log('Report Params:', indentParams);
 
         try {
             // Make the API call using the new function
-            const result = await fetchIndentData(tokendata, indentParams);
+            const result = await fetchAIMETableData(tokendata, indentParams);
 
             console.log('Report Data:', result);
             setIndentData(result);
@@ -210,12 +211,15 @@ function AIMEGeneration() {
             const result = await getConsignorDetails(tokendata, indentno);
             console.log('Consignee Data:', result);
             // Set values in the form
-            setValue('consignorlicense', Array.isArray(result.consignorLicenses) ? result.consignorLicenses.filter(Boolean).join(', ') : '');
+            // setValue('consignorlicense', Array.isArray(result.consignorLicenses) ? result.consignorLicenses.filter(Boolean).join(', ') : '');
             setValue('consigneename', result.customerName || '');
             setValue('consigneeid', result.customerId || '');
             setValue('address', result.address || '');
             setValue('district', result.district || '');
             setValue('state', result.state || '');
+            setValue('city', result.city || '');
+            setValue('tashil', result.tashil || '');
+            setValue('connName', result.connName || '');
             // Set license and transporter dropdown options with value/text/disabled
             const licenseOptions = [...new Set(result.licenseNumbers || [])]
                 .filter(Boolean)
@@ -225,18 +229,9 @@ function AIMEGeneration() {
             licenseOptions.unshift({ value: 'select', text: '-- Select License --', disabled: true });
             setLicenseNumber(licenseOptions);
 
-            const transporterOptions = [...new Set(result.transportNames || [])]
-                .filter(Boolean)
-                .sort()
-                .map((trans) => ({ value: trans, text: trans, disabled: false }));
-            transporterOptions.unshift({ value: 'select', text: '-- Select Transporter --', disabled: true });
-            setTransporter(transporterOptions);
-
             // Set default selected values if available, else set to ''
             const defaultLicense = licenseOptions.length > 0 ? licenseOptions[0].value : '';
-            const defaultTransporter = transporterOptions.length > 0 ? transporterOptions[0].value : '';
             setValue('consigneelicenseno', defaultLicense);
-            setValue('transportername', defaultTransporter);
             setSelectedLicense(defaultLicense);
             setIsLoadingReport(false);
         } catch (error) {
@@ -244,67 +239,71 @@ function AIMEGeneration() {
         }
     };
 
+    useEffect(() => {
+        console.log(FormData);
+    }, [FormData]);
 
-    const onSubmit = async (data) => {
+    const handlePDFprint = async () => {
+        // Validate required fields before proceeding
+        const data = getValues();
         setIsLoadingReport(true);
         setReportData(null);
 
-        const vehicalNo = data.vehicle_no;
-        const vehicallicense = data.vehicle_licno;
-        const re12 = data.re12indent;
         const re11 = data.re11indent;
-        const dispatchDate = data.dispatchDate ? format(data.dispatchDate, 'yyyy-MM-dd') : '';
-        const validity = data.valid;
+        const indentDate = data.indentDate ? format(data.indentDate, 'yyyy-MM-dd') : '';
+        const datedisp = data.datedisp ? format(data.datedisp, 'yyyy-MM-dd') : '';
+        const destinationDate = data.destinationDate ? format(data.destinationDate, 'yyyy-MM-dd') : '';
         const consigneeName = data.consigneename;
         const address = data.address;
         const district = data.district;
         const state = data.state;
-        const consinorlicenseno = data.consignorlicense;
+        const city = data.city;
+        const tashil = data.tashil;
+        // const consinorlicenseno = data.consignorlicense;
         const consigneelicenseno = data.consigneelicenseno;
-        const transporterid = data.transporterid;
-        const transportername = data.transportername;
+        const connName = data.connName;
+        const aime_no = data.aime_no;
+        const office_address = data.office_address;
+        const ExposovesOffice = data.ExposovesOffice;
+        const routes = data.routes;
+        const route_address = data.route_address;
         // Transform product data into required format
         const transformedProducts = product?.map((item, index) => ({
             ProductName: item.brandName || '',
             Qty: item.quantity || '',
             UOM: item.unit || '',
             CD: item.strClass || '',
-            Cases: item.count || ''
+            Cases: item.count || '',
+            indentNo: item.indentNo
         })) || [];
 
         const reportParams = {
-            VehicleNumber: vehicalNo,
-            VehicleLicense: vehicallicense,
-            re12: re12,
+
             re11: re11,
-            dispatchDate: dispatchDate,
-            VehicleValue: validity,
+            indentDate: indentDate,
+            datedisp: datedisp,
+            destinationDate: destinationDate,
             consigneeName: consigneeName,
             address: address,
             district: district,
             state: state,
-            ConsignorLicense: consinorlicenseno,
+            city: city,
+            tashil: tashil,
+            // ConsignorLicense: consinorlicenseno,
             LicenseNumber: consigneelicenseno,
-            transporterid: transporterid,
-            transportername: transportername,
-            Products: transformedProducts
+            Products: transformedProducts,
+            connName: connName,
+            aime_no: aime_no,
+            office_address: office_address,
+            ExposovesOffice: ExposovesOffice,
+            routes: routes,
+            route_address: route_address
         };
-        console.log('Submited Params Data:', reportParams);
-
-        try {
-
-            // alert("Report Generation in progress");
-            // Make the API call using the new function
-            const result = await printBarcode(tokendata, reportParams);
-
-            enqueueSnackbar('RE6 Print done successfully', { variant: 'success' });
-            console.log('Report Data:', result);
-            setReportData(result); // Store the report data
-            setIsLoadingReport(false);
-        } catch (error) {
-            enqueueSnackbar(error.message || 'Failed to fetch report', { variant: 'error' });
-        }
+        setFormData(reportParams);
+        setIsLoadingReport(false);
     };
+
+
 
     const handleClear = () => {
         window.location.reload();
@@ -332,7 +331,7 @@ function AIMEGeneration() {
                 <h1 className="text-2xl font-semibold">Advance Intimation Of Movement Of Explosives For Sale</h1>
             </div>
             {/* Updated onSubmit handler */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit(handlePDFprint)}>
                 <div className="grid grid-cols-2 gap-10">
                     {/* First Column - All form fields */}
                     <div className="flex flex-col gap-y-6">
@@ -536,7 +535,20 @@ function AIMEGeneration() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-5">
+                        <div className="grid grid-cols-2 gap-5">
+                            <div className="flex flex-col gap-y-2">
+                                <Label>Contact Member Name</Label>
+                                <Input
+                                    {...register('connName')}
+                                    readOnly
+                                    placeholder='Contact Member Name...'
+                                    className={errors.ConnName ? 'border-red-500' : ''}
+                                />
+                                {errors.ConnName && (
+                                    <span className="text-destructive text-sm">{errors.ConnName.message}</span>
+                                )}
+                            </div>
+
                             <div className="flex flex-col gap-y-2">
                                 <Controller
                                     name="consigneelicenseno"
@@ -581,7 +593,7 @@ function AIMEGeneration() {
                         </div>
                     </div>
 
-                    {/* Second Column - With <h1>start</h1> */}
+                    {/* Second Column */}
                     <div>
                         {/* Date and re11 and AIME */}
                         <div className="grid grid-cols-1 gap-5">
@@ -700,7 +712,7 @@ function AIMEGeneration() {
                                                 }}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Select Intimation..." />
+                                                    <SelectValue placeholder="Select Explosives Office..." />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectGroup>
@@ -715,8 +727,8 @@ function AIMEGeneration() {
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
-                                            {errors.intimation && (
-                                                <span className="text-destructive text-sm">{errors.intimation.message}</span>
+                                            {errors.ExposovesOffice && (
+                                                <span className="text-destructive text-sm">{errors.ExposovesOffice.message}</span>
                                             )}
                                         </div>
                                     )}
@@ -788,18 +800,31 @@ function AIMEGeneration() {
 
 
                 <div className="grid grid-cols-8 gap-5">
+
                     {/* Submit Button */}
-                    <Button type="submit" disabled={isLoadingReport} >
+                    <Button type="submit" className="col-span-2" disabled={isLoadingReport} >
                         <ScanBarcode /> {isLoadingReport ? 'Printing Barcode...' : 'Print Barcode'}
                     </Button>
-
                     <Button type="button" onClick={handleClear}>
                         <Eraser />  clear
                     </Button>
                 </div>
+
+
             </form >
 
+
+            {FormData && (
+                <div className="mt-4">
+                    <PDFViewer>
+                        <AIMEPDF AIMEData={FormData} />
+                    </PDFViewer>
+
+                </div>
+            )}
         </Card >
+
+
     );
 }
 

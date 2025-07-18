@@ -518,4 +518,11 @@ export const deleterole = (t, id) => deleteData(`/RoleMaster/DeleteRoleMaster/${
 export const createrole = (t, data) => postData('/RoleMaster/CreateRoleMaster', t, data);
 export const updaterole = (t, d) => putData(`/RoleMaster/UpdateRoleMaster/${d.id}`, t, d);
 
+//AIME DATA
+export const fetchAIMETableData = (token, data) => {
+	const queryParams = new URLSearchParams(data);
+	return getAll(`/AIME/GetAIMETableDetails?${queryParams}`, token);
+};
+
+
 export default api;

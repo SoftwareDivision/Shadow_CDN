@@ -160,6 +160,7 @@ function FormRE3_Report() {
             header: 'Opening',
         },
         {
+            id: 'explosivesReceived',
             header: () =>
                 <div>
                     <div>Explosives recieved</div>
@@ -185,6 +186,7 @@ function FormRE3_Report() {
             header: 'Batch No.',
         },
         {
+            id: 'licence',
             accessorKey: 'licence',
             header: () => (
                 <div>
@@ -194,6 +196,7 @@ function FormRE3_Report() {
             ),
         },
         {
+            id: 'transport',
             accessorKey: 'transport',
             header: () => (
                 <div>
@@ -212,6 +215,7 @@ function FormRE3_Report() {
             header: 'Remarks',
         },
         {
+            id: 'fgh',
             accessorKey: 'fgh',
             header: () =>
                 <div>
