@@ -20,6 +20,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { getBatchDetails } from '@/lib/api';
+import { useAuthToken } from '@/hooks/authStore';
 
 function IndentDetailsSection({
 	control,
@@ -33,12 +36,16 @@ function IndentDetailsSection({
 	data,
 }) {
 	const { enqueueSnackbar } = useSnackbar();
-
+	const { token } = useAuthToken.getState();
+	const tokendata = token.data.token;
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editableIndentItems, setEditableIndentItems] = useState([]);
 	const [currentIndentNo, setCurrentIndentNo] = useState('');
 	const [isIndentComboboxOpen, setIsIndentComboboxOpen] = useState(false);
 	const [splitItems, setSplitItems] = useState({});
+	const [fifoSelections, setFifoSelections] = useState({});
+	const [batchData, setBatchData] = useState({});
+	const [isLoadingBatches, setIsLoadingBatches] = useState(false);
 
 	const combinedMagzineStock = data?.magzine
 		.map((mag) => {
@@ -151,7 +158,26 @@ function IndentDetailsSection({
 		return null;
 	};
 
+	const fetchBatchData = async (bname, psize, reqCase) => {
+		setIsLoadingBatches(true);
+		try {
+			const response = await getBatchDetails(tokendata, { bid: bname, sizeCode: psize, reqCase: reqCase });
+			console.log('Batch Data Response:', response);
+			setBatchData((prev) => ({ ...prev, [`${bname}_${psize}`]: response }));
+		} catch (error) {
+			enqueueSnackbar('Failed to fetch batch data', { variant: 'error' });
+		} finally {
+			setIsLoadingBatches(false);
+		}
+	};
+
 	const handleDispatchTypeChange = (itemIndex, type, isChecked, isSplit = false, splitIndex = null) => {
+		const key = isSplit ? `${itemIndex}_${splitIndex}` : itemIndex;
+
+		if (type === 'magazineLoading' && isChecked) {
+			setFifoSelections((prev) => ({ ...prev, [key]: false }));
+		}
+
 		if (isSplit) {
 			setSplitItems((prev) => {
 				let updatedSplits = prev[itemIndex].map((split, i) => {
@@ -172,16 +198,11 @@ function IndentDetailsSection({
 							newMag = '';
 						}
 
-						return {
-							...split,
-							typeOfDispatch: newTypeOfDispatch,
-							mag: newMag,
-						};
+						return { ...split, typeOfDispatch: newTypeOfDispatch, mag: newMag };
 					}
 					return split;
 				});
 
-				// Check for duplicates after updating typeOfDispatch
 				if (updatedSplits[splitIndex].typeOfDispatch && updatedSplits[splitIndex].mag) {
 					const duplicate = checkForDuplicate(
 						itemIndex,
@@ -196,7 +217,6 @@ function IndentDetailsSection({
 						const currentLoadCase = parseFloat(currentSplit.loadCase) || 0;
 
 						if (duplicate.type === 'main') {
-							// Merge with main item
 							setEditableIndentItems((prevItems) =>
 								prevItems.map((item, idx) =>
 									idx === itemIndex
@@ -215,7 +235,6 @@ function IndentDetailsSection({
 								{ variant: 'info' },
 							);
 						} else {
-							// Merge with another split
 							updatedSplits = updatedSplits.map((split, i) =>
 								i === duplicate.index
 									? {
@@ -233,9 +252,7 @@ function IndentDetailsSection({
 							);
 						}
 
-						// Remove the current split
 						updatedSplits = updatedSplits.filter((_, i) => i !== splitIndex);
-						// Reassign splitIndex for remaining splits
 						updatedSplits = updatedSplits.map((split, i) => ({
 							...split,
 							splitIndex: i + 1,
@@ -267,11 +284,7 @@ function IndentDetailsSection({
 							newMag = '';
 						}
 
-						return {
-							...item,
-							typeOfDispatch: newTypeOfDispatch,
-							mag: newMag,
-						};
+						return { ...item, typeOfDispatch: newTypeOfDispatch, mag: newMag };
 					}
 					return item;
 				}),
@@ -439,7 +452,6 @@ function IndentDetailsSection({
 				i === splitIndex ? { ...split, [field]: value } : split,
 			);
 
-			// If the field being changed is 'mag', check for duplicates
 			if (field === 'mag') {
 				const currentSplit = updatedSplits[splitIndex];
 				if (currentSplit.typeOfDispatch && value) {
@@ -450,7 +462,6 @@ function IndentDetailsSection({
 						const currentLoadCase = parseFloat(currentSplit.loadCase) || 0;
 
 						if (duplicate.type === 'main') {
-							// Merge with main item
 							setEditableIndentItems((prevItems) =>
 								prevItems.map((item, idx) =>
 									idx === itemIndex
@@ -469,7 +480,6 @@ function IndentDetailsSection({
 								{ variant: 'info' },
 							);
 						} else {
-							// Merge with another split
 							updatedSplits = updatedSplits.map((split, i) =>
 								i === duplicate.index
 									? {
@@ -487,9 +497,7 @@ function IndentDetailsSection({
 							);
 						}
 
-						// Remove the current split
 						updatedSplits = updatedSplits.filter((_, i) => i !== splitIndex);
-						// Reassign splitIndex for remaining splits
 						updatedSplits = updatedSplits.map((split, i) => ({
 							...split,
 							splitIndex: i + 1,
@@ -511,105 +519,125 @@ function IndentDetailsSection({
 		return (parseFloat(item.reqWt) || 0) - (parseFloat(item.loadWt) || 0) - allocated;
 	};
 
-	const handleSaveItemChanges = () => {
-		// Validate each item before saving
-		for (const item of editableIndentItems) {
-			const itemIndex = editableIndentItems.indexOf(item);
-			const remainingWeight = calculateRemainingWeight(itemIndex);
+	const FifoRadioGroup = ({ itemIndex, bname, psize, reqCase, isSplit, splitIndex }) => {
+		const key = isSplit ? `${itemIndex}_${splitIndex}` : itemIndex;
+		const itemKey = `${bname}_${psize}`;
 
-			if (!item.typeOfDispatch) {
-				enqueueSnackbar(`Please select Type of Dispatch for item "${item.bname} (${item.psize})".`, {
-					variant: 'error',
+		// State to track selected batches
+		const [selectedBatches, setSelectedBatches] = useState(() => {
+			// Initialize from batchData if available
+			const initial = {};
+			if (batchData[itemKey]) {
+				batchData[itemKey].forEach((batch) => {
+					initial[batch.batch] = true;
 				});
-				return;
 			}
-			if (!item.mag) {
-				enqueueSnackbar(`Please select Magazine for item "${item.bname} (${item.psize})".`, {
-					variant: 'error',
-				});
-				return;
-			}
-			if (typeof item.loadWt !== 'number' || item.loadWt < 0) {
-				enqueueSnackbar(`Please enter a valid Load Weight for item "${item.bname} (${item.psize})".`, {
-					variant: 'error',
-				});
-				return;
-			}
-			if (remainingWeight > 0) {
-				enqueueSnackbar(
-					`Please allocate all required weight for item "${item.bname}" (${remainingWeight} ${item.unit} remaining)`,
-					{ variant: 'error' },
-				);
-				return;
-			}
-
-			// Validate splits
-			const splits = splitItems[itemIndex] || [];
-			for (const split of splits) {
-				if (!split.typeOfDispatch) {
-					enqueueSnackbar(`Please select Type of Dispatch for split in item "${item.bname}".`, {
-						variant: 'error',
-					});
-					return;
-				}
-				if (!split.mag) {
-					enqueueSnackbar(`Please select Magazine for split in item "${item.bname}".`, {
-						variant: 'error',
-					});
-					return;
-				}
-				if (!split.loadWt || parseFloat(split.loadWt) <= 0) {
-					enqueueSnackbar(`Please enter a valid Load Weight for split in item "${item.bname}".`, {
-						variant: 'error',
-					});
-					return;
-				}
-				if (!split.loadCase || parseFloat(split.loadCase) <= 0) {
-					enqueueSnackbar(`Invalid Load Cases for split in item "${item.bname}".`, {
-						variant: 'error',
-					});
-					return;
-				}
-			}
-		}
-
-		// Combine main items and splits into a flat array
-		const updatedItems = [];
-		editableIndentItems.forEach((item, itemIndex) => {
-			// Add the main item
-			updatedItems.push({
-				...item,
-				isSplit: false,
-			});
-
-			// Add splits as separate items
-			const splits = splitItems[itemIndex] || [];
-			splits.forEach((split) => {
-				updatedItems.push({
-					...item,
-					typeOfDispatch: split.typeOfDispatch,
-					mag: split.mag,
-					loadWt: split.loadWt,
-					loadCase: split.loadCase,
-					isSplit: true,
-					splitIndex: split.splitIndex,
-				});
-			});
+			return initial;
 		});
 
-		// Update selected indents
+		// Toggle batch selection and immediately update batchData
+		const toggleBatchSelection = (batch) => {
+			setSelectedBatches((prev) => {
+				const updated = { ...prev, [batch.batch]: !prev[batch.batch] };
+				// Immediately update batchData with only checked batches
+				const selectedBatchData = batchData[itemKey].filter((b) => updated[b.batch]);
+				setBatchData((prevData) => ({
+					...prevData,
+					[itemKey]: selectedBatchData,
+				}));
+				return updated;
+			});
+		};
+
+		return (
+			<div className="mt-2 flex flex-row space-x-6 items-start">
+				{/* Left: Radio Group */}
+				<div className="flex flex-col min-w-[120px]">
+					<RadioGroup
+						value={fifoSelections[key] ? 'fifo' : 'non-fifo'}
+						onValueChange={(value) => {
+							const isFifo = value === 'fifo';
+							setFifoSelections((prev) => ({ ...prev, [key]: isFifo }));
+							if (isFifo) fetchBatchData(bname, psize, reqCase);
+						}}
+						className="space-y-2"
+					>
+						<div className="flex items-center space-x-2">
+							<RadioGroupItem className="border-blue-600" value="non-fifo" id={`non-fifo-${key}`} />
+							<Label htmlFor={`non-fifo-${key}`}>Non-FIFO</Label>
+						</div>
+						<div className="flex items-center space-x-2">
+							<RadioGroupItem className="border-blue-600" value="fifo" id={`fifo-${key}`} />
+							<Label htmlFor={`fifo-${key}`}>FIFO</Label>
+						</div>
+					</RadioGroup>
+				</div>
+				{/* Right: Table */}
+				{fifoSelections[key] && batchData[itemKey] && (
+					<div className="flex-1">
+						<div className="border rounded p-2">
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>Select</TableHead>
+										<TableHead>Batch</TableHead>
+										{/* <TableHead className="text-right">Rem. Cases</TableHead> */}
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{batchData[itemKey].map((batch) => (
+										<TableRow key={batch.batch}>
+											<TableCell>
+												<Checkbox
+													checked={!!selectedBatches[batch.batch]}
+													onCheckedChange={() => toggleBatchSelection(batch)}
+												/>
+											</TableCell>
+											<TableCell>{batch.batch}</TableCell>
+											{/* <TableCell className="text-right">{batch.distinctCount}</TableCell> */}
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
+						</div>
+					</div>
+				)}
+			</div>
+		);
+	};
+	const handleSaveItemChanges = () => {
+		const getFifoData = (item, itemIndex, isSplit = false, splitIndex = null) => {
+			const key = isSplit ? `${itemIndex}_${splitIndex}` : itemIndex;
+			const itemKey = `${item.bname}_${item.psize}`;
+
+			return {
+				isFifo: fifoSelections[key] || false,
+				batches: fifoSelections[key] ? batchData[itemKey] : null,
+			};
+		};
+
+		const updatedItems = editableIndentItems.map((item, itemIndex) => ({
+			...item,
+			isSplit: false,
+			...getFifoData(item, itemIndex),
+		}));
+
+		const splitItemsArray = Object.entries(splitItems).flatMap(([itemIndex, splits]) =>
+			splits.map((split, splitIndex) => ({
+				...split,
+				...getFifoData(split, Number(itemIndex), true, splitIndex),
+			})),
+		);
+
+		const itemsToSave = [...updatedItems, ...splitItemsArray];
+		console.log('Items to save:', itemsToSave);
 		const indentIndexToUpdate = selectedIndents.findIndex((indent) => indent.indentNo === currentIndentNo);
 		if (indentIndexToUpdate !== -1) {
-			const updatedSelectedIndents = selectedIndents.map((indent, index) => {
-				if (index === indentIndexToUpdate) {
-					return {
-						...indent,
-						indentItems: updatedItems,
-					};
-				}
-				return indent;
-			});
-			setSelectedIndents(updatedSelectedIndents);
+			setSelectedIndents(
+				selectedIndents.map((indent, index) =>
+					index === indentIndexToUpdate ? { ...indent, indentItems: itemsToSave } : indent,
+				),
+			);
 			enqueueSnackbar(`Changes saved for Indent ${currentIndentNo}`, { variant: 'success' });
 		} else {
 			enqueueSnackbar(`Failed to save changes for Indent ${currentIndentNo}`, { variant: 'error' });
@@ -758,9 +786,8 @@ function IndentDetailsSection({
 				<DialogContent className="sm:max-w-6xl overflow-y-auto">
 					<DialogHeader>
 						<DialogTitle>Items for Indent: {currentIndentNo}</DialogTitle>
-						<DialogDescription>Edit details for the items in this indent.</DialogDescription>
 					</DialogHeader>
-					<div className="py-2 max-h-[450px] overflow-y-auto overflow-auto scrollbar-thin">
+					<div className="py-2 max-h-[450px] overflow-y-auto">
 						{editableIndentItems.length > 0 ? (
 							<Table>
 								<TableHeader>
@@ -775,12 +802,10 @@ function IndentDetailsSection({
 								</TableHeader>
 								<TableBody>
 									{editableIndentItems.map((item, itemIndex) => {
-										const remainingWeight = calculateRemainingWeight(itemIndex);
 										const splits = splitItems[itemIndex] || [];
-
 										return (
-											<>
-												<TableRow key={`main-${itemIndex}`}>
+											<React.Fragment key={`main-${itemIndex}`}>
+												<TableRow>
 													<TableCell>
 														<div className="font-medium">{item.bname}</div>
 														<div className="text-sm text-muted-foreground">
@@ -790,9 +815,10 @@ function IndentDetailsSection({
 														<div className="text-sm text-muted-foreground">
 															Net WT: {item.l1NetWt} {item.unit}
 														</div>
-														{remainingWeight > 0 && (
+														{calculateRemainingWeight(itemIndex) > 0 && (
 															<div className="text-sm text-red-500">
-																Remaining: {remainingWeight} {item.unit}
+																Remaining: {calculateRemainingWeight(itemIndex)}{' '}
+																{item.unit}
 															</div>
 														)}
 													</TableCell>
@@ -800,6 +826,7 @@ function IndentDetailsSection({
 														<div className="flex flex-col space-y-2">
 															<div className="flex items-center space-x-2">
 																<Checkbox
+																	className="border-blue-600"
 																	id={`directDispatch-${itemIndex}`}
 																	checked={item.typeOfDispatch === 'DD'}
 																	onCheckedChange={(isChecked) =>
@@ -816,6 +843,7 @@ function IndentDetailsSection({
 															</div>
 															<div className="flex items-center space-x-2">
 																<Checkbox
+																	className="border-blue-600"
 																	id={`magazineLoading-${itemIndex}`}
 																	checked={item.typeOfDispatch === 'ML'}
 																	onCheckedChange={(isChecked) =>
@@ -840,7 +868,7 @@ function IndentDetailsSection({
 															}
 															disabled={!item.typeOfDispatch}
 														>
-															<SelectTrigger className="w-[100px]">
+															<SelectTrigger className="w-full">
 																<SelectValue placeholder="Select" />
 															</SelectTrigger>
 															<SelectContent>
@@ -864,7 +892,10 @@ function IndentDetailsSection({
 																	handleLoadWtBlur(itemIndex, e.target.value)
 																}
 																className="text-right w-24"
-																max={remainingWeight + (parseFloat(item.loadWt) || 0)}
+																max={
+																	calculateRemainingWeight(itemIndex) +
+																	(parseFloat(item.loadWt) || 0)
+																}
 															/>
 															<span className="ml-2 text-sm">{item.unit}</span>
 														</div>
@@ -882,146 +913,172 @@ function IndentDetailsSection({
 															size="sm"
 															variant="outline"
 															onClick={() => handleAddSplit(itemIndex)}
-															disabled={remainingWeight <= 0}
+															disabled={calculateRemainingWeight(itemIndex) <= 0}
 														>
 															Add Split
 														</Button>
 													</TableCell>
 												</TableRow>
 
+												{item.typeOfDispatch === 'ML' && (
+													<FifoRadioGroup
+														itemIndex={itemIndex}
+														bname={item.bname}
+														psize={item.psize}
+														reqCase={item.reqCase}
+													/>
+												)}
+
 												{splits.map((split, splitIndex) => (
-													<TableRow key={`split-${itemIndex}-${splitIndex}`}>
-														<TableCell>
-															<div className="font-medium">
-																{split.bname} (Split #{split.splitIndex})
-															</div>
-															<div className="text-sm text-muted-foreground">
-																Size: {split.psize} | Req: {split.reqCase} cases,{' '}
-																{split.reqWt} {split.unit}
-															</div>
-															<div className="text-sm text-muted-foreground">
-																Net WT: {split.l1NetWt} {split.unit}
-															</div>
-														</TableCell>
-														<TableCell>
-															<div className="flex flex-col space-y-2">
-																<div className="flex items-center space-x-2">
-																	<Checkbox
-																		id={`split-directDispatch-${itemIndex}-${splitIndex}`}
-																		checked={split.typeOfDispatch === 'DD'}
-																		onCheckedChange={(isChecked) =>
-																			handleDispatchTypeChange(
+													<React.Fragment key={`split-${itemIndex}-${splitIndex}`}>
+														<TableRow>
+															<TableCell>
+																<div className="font-medium">
+																	{split.bname} (Split #{split.splitIndex})
+																</div>
+																<div className="text-sm text-muted-foreground">
+																	Size: {split.psize} | Req: {split.reqCase} cases,{' '}
+																	{split.reqWt} {split.unit}
+																</div>
+																<div className="text-sm text-muted-foreground">
+																	Net WT: {split.l1NetWt} {split.unit}
+																</div>
+															</TableCell>
+															<TableCell>
+																<div className="flex flex-col space-y-2">
+																	<div className="flex items-center space-x-2">
+																		<Checkbox
+																			id={`split-directDispatch-${itemIndex}-${splitIndex}`}
+																			checked={split.typeOfDispatch === 'DD'}
+																			onCheckedChange={(isChecked) =>
+																				handleDispatchTypeChange(
+																					itemIndex,
+																					'directDispatch',
+																					isChecked,
+																					true,
+																					splitIndex,
+																				)
+																			}
+																		/>
+																		<Label
+																			htmlFor={`split-directDispatch-${itemIndex}-${splitIndex}`}
+																		>
+																			DD
+																		</Label>
+																	</div>
+																	<div className="flex items-center space-x-2">
+																		<Checkbox
+																			id={`split-magazineLoading-${itemIndex}-${splitIndex}`}
+																			checked={split.typeOfDispatch === 'ML'}
+																			onCheckedChange={(isChecked) =>
+																				handleDispatchTypeChange(
+																					itemIndex,
+																					'magazineLoading',
+																					isChecked,
+																					true,
+																					splitIndex,
+																				)
+																			}
+																		/>
+																		<Label
+																			htmlFor={`split-magazineLoading-${itemIndex}-${splitIndex}`}
+																		>
+																			ML
+																		</Label>
+																	</div>
+																</div>
+															</TableCell>
+															<TableCell>
+																<Select
+																	value={split.mag}
+																	onValueChange={(value) =>
+																		handleSplitChange(
+																			itemIndex,
+																			splitIndex,
+																			'mag',
+																			value,
+																		)
+																	}
+																	disabled={!split.typeOfDispatch}
+																>
+																	<SelectTrigger className="w-full">
+																		<SelectValue placeholder="Select" />
+																	</SelectTrigger>
+																	<SelectContent>
+																		{combinedMagzineStock.map((mag) => (
+																			<SelectItem
+																				key={mag.magName}
+																				value={mag.magName}
+																			>
+																				{mag.magName} - {mag.blankspace} Kgs
+																			</SelectItem>
+																		))}
+																	</SelectContent>
+																</Select>
+															</TableCell>
+															<TableCell className="text-right">
+																<div className="flex items-center justify-end">
+																	<Input
+																		type="number"
+																		value={split.loadWt || ''}
+																		onChange={(e) =>
+																			handleLoadWtChange(
 																				itemIndex,
-																				'directDispatch',
-																				isChecked,
+																				e.target.value,
 																				true,
 																				splitIndex,
 																			)
 																		}
-																	/>
-																	<Label
-																		htmlFor={`split-directDispatch-${itemIndex}-${splitIndex}`}
-																	>
-																		DD
-																	</Label>
-																</div>
-																<div className="flex items-center space-x-2">
-																	<Checkbox
-																		id={`split-magazineLoading-${itemIndex}-${splitIndex}`}
-																		checked={split.typeOfDispatch === 'ML'}
-																		onCheckedChange={(isChecked) =>
-																			handleDispatchTypeChange(
+																		onBlur={(e) =>
+																			handleLoadWtBlur(
 																				itemIndex,
-																				'magazineLoading',
-																				isChecked,
+																				e.target.value,
 																				true,
 																				splitIndex,
 																			)
 																		}
+																		className="text-right w-24"
+																		max={
+																			calculateRemainingWeight(itemIndex) +
+																			(parseFloat(split.loadWt) || 0)
+																		}
 																	/>
-																	<Label
-																		htmlFor={`split-magazineLoading-${itemIndex}-${splitIndex}`}
-																	>
-																		ML
-																	</Label>
+																	<span className="ml-2 text-sm">{split.unit}</span>
 																</div>
-															</div>
-														</TableCell>
-														<TableCell>
-															<Select
-																value={split.mag}
-																onValueChange={(value) =>
-																	handleSplitChange(
-																		itemIndex,
-																		splitIndex,
-																		'mag',
-																		value,
-																	)
-																}
-																disabled={!split.typeOfDispatch}
-															>
-																<SelectTrigger className="w-[100px]">
-																	<SelectValue placeholder="Select" />
-																</SelectTrigger>
-																<SelectContent>
-																	{magazineOptions.map((mag) => (
-																		<SelectItem key={mag.value} value={mag.value}>
-																			{mag.label}
-																		</SelectItem>
-																	))}
-																</SelectContent>
-															</Select>
-														</TableCell>
-														<TableCell className="text-right">
-															<div className="flex items-center justify-end">
+															</TableCell>
+															<TableCell className="text-right">
 																<Input
 																	type="number"
-																	value={split.loadWt || ''}
-																	onChange={(e) =>
-																		handleLoadWtChange(
-																			itemIndex,
-																			e.target.value,
-																			true,
-																			splitIndex,
-																		)
-																	}
-																	onBlur={(e) =>
-																		handleLoadWtBlur(
-																			itemIndex,
-																			e.target.value,
-																			true,
-																			splitIndex,
-																		)
-																	}
-																	className="text-right w-24"
-																	max={
-																		remainingWeight +
-																		(parseFloat(split.loadWt) || 0)
-																	}
+																	value={split.loadCase || ''}
+																	readOnly
+																	className="text-right bg-gray-100 cursor-not-allowed w-24"
 																/>
-																<span className="ml-2 text-sm">{split.unit}</span>
-															</div>
-														</TableCell>
-														<TableCell className="text-right">
-															<Input
-																type="number"
-																value={split.loadCase || ''}
-																readOnly
-																className="text-right bg-gray-100 cursor-not-allowed w-24"
+															</TableCell>
+															<TableCell>
+																<Button
+																	size="sm"
+																	variant="ghost"
+																	onClick={() =>
+																		handleRemoveSplit(itemIndex, splitIndex)
+																	}
+																>
+																	<Trash2 className="h-4 w-4 text-red-500" />
+																</Button>
+															</TableCell>
+														</TableRow>
+
+														{split.typeOfDispatch === 'ML' && (
+															<FifoRadioGroup
+																itemIndex={itemIndex}
+																bname={split.bname}
+																psize={split.psize}
+																isSplit
+																splitIndex={splitIndex}
 															/>
-														</TableCell>
-														<TableCell>
-															<Button
-																size="sm"
-																variant="ghost"
-																onClick={() => handleRemoveSplit(itemIndex, splitIndex)}
-															>
-																<Trash2 className="h-4 w-4 text-red-500" />
-															</Button>
-														</TableCell>
-													</TableRow>
+														)}
+													</React.Fragment>
 												))}
-											</>
+											</React.Fragment>
 										);
 									})}
 								</TableBody>

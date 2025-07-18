@@ -11,8 +11,6 @@ const api = axios.create({
 	headers: { 'Content-Type': 'application/json-patch+json' },
 });
 
-
-
 // Force logout
 const forceLogout = () => {
 	enqueueSnackbar('Session expired. Please login again', {
@@ -30,8 +28,6 @@ api.interceptors.response.use(
 		return Promise.reject(err);
 	},
 );
-
-
 
 // Utils
 const formatDate = (date) => {
@@ -93,8 +89,7 @@ const fetchFile = async (method, url, token, data = null) => {
 	} catch (err) {
 		console.log(err);
 	}
-}
-
+};
 
 // ===================== API Endpoints =====================
 
@@ -263,6 +258,7 @@ export const updateBatch = (t, d) => putData(`/BatchMasters/UpdateBatchMaster/${
 export const getRE11IndentDetails = (t) => getAll('/Re11IndentInfos/GetAllIndents', t);
 export const getRE11CreateIndents = (t) => getAll('/Re11IndentInfos/GetCreateIndents', t);
 export const createRE11Indent = (token, data) => postData('/Re11IndentInfos/CreateIndent', token, data);
+
 export const uploadRe11Pdf = async (token, file) => {
 	const formData = new FormData();
 	formData.append('file', file);
@@ -287,6 +283,7 @@ export const createCustomer = (t, data) => postData('/CustomerMasters/CreateCust
 export const updateCustomer = (t, data) => putData('/CustomerMasters/UpdateCustomer', t, data);
 export const deleteCustomer = (t, id) => deleteData(`/CustomerMasters/DeleteCustomer/${id}`, t);
 // Loading Sheet APIs
+
 export const getAllLoadingSheets = (t) => getAll('/AllLoadingSheets/GetAllLoadingSheets', t);
 export const getCreateLoadingData = (t) => getAll('/AllLoadingSheets/GetCreateLoadingData', t);
 export const createLoadingSheet = (token, data) => postData('/AllLoadingSheets/CreateAllLoadingSheet', token, data);
@@ -341,7 +338,6 @@ export const getRE7Report = (token, params) => {
 	const queryParams = new URLSearchParams(params).toString();
 	return getAll(`/Reports/Getre7report?${queryParams}`, token);
 };
-
 
 export const getDispatchReport = (token, params) => {
 	const queryParams = new URLSearchParams(params).toString();
@@ -455,6 +451,12 @@ export const getFromRE4AllotData = (token, data) => {
 export const getFromRE4Report = (token, data) => {
 	const { fromDate, toDate, magname } = data;
 	return getAll(`/FormRE4/FormRE4/${fromDate}/${toDate}/${magname}`, token);
+};
+
+export const getBatchDetails = (t, d) => {
+	const { bid, sizeCode, reqCase } = d;
+	console.log('Batch Details:', d);
+	return getAll('/AllLoadingSheets/GetBatchInfo?bid=' + bid + '&sizeCode=' + sizeCode + '&reqCase=' + reqCase, t); //getAll('/AllLoadingSheets/GetBatchInfo', t);
 };
 
 //dashboard

@@ -50,7 +50,6 @@ function BatchAddorEdit() {
 		{ id: 'serial4', label: 'Serial(0000)' },
 		{ id: 'serial5', label: 'Serial(00000)' },
 		{ id: 'plantcode', label: 'PlantCode' },
-		{ id: 'sep', label: 'Separator(-)' },
 	];
 
 	const resetype = [
@@ -110,11 +109,11 @@ function BatchAddorEdit() {
 					case 'month3':
 						return 'Jun';
 					case 'serial3':
-						return '001';
+						return '000';
 					case 'serial4':
-						return '0001';
+						return '0000';
 					case 'serial5':
-						return '00001';
+						return '00000';
 					case 'plantcode':
 						return plantCode;
 					case 'sep':
