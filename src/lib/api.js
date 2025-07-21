@@ -526,5 +526,4 @@ export const fetchAIMETableData = (token, data) => {
 	return getAll(`/AIME/GetAIMETableDetails?${queryParams}`, token);
 };
 
-
 export default api;
