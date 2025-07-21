@@ -19,6 +19,8 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { getProductionReport } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore';
 import { enqueueSnackbar } from 'notistack';
+import SummableDataTable from '@/components/SummableDataTable';
+import { meta } from '@eslint/js';
 
 function TableSkeleton() {
 	return (
@@ -112,10 +114,14 @@ function Dashboard() {
 		{
 			accessorKey: 'boxcount',
 			header: 'Box Qty.',
+			meta: { isSummable: true },
 		},
 		{
 			accessorKey: 'l1netqty',
 			header: 'Net Wt.',
+			meta: {
+				isSummable: true,
+			},
 		},
 		{
 			accessorKey: 'l1netunit',
@@ -137,7 +143,7 @@ function Dashboard() {
 						{isLoadingReport ? (
 							<TableSkeleton />
 						) : (
-							<DataTable data={reportData || []} columns={summaryReportColumns} />
+							<SummableDataTable data={reportData || []} columns={summaryReportColumns} />
 						)}
 					</Card>
 				</div>
