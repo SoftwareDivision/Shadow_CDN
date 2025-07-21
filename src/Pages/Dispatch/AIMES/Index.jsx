@@ -68,6 +68,21 @@ function AIMEGeneration() {
         routes: yup.string().required('Route is required'),
         tashil: yup.string().required('Tashil is required'),
         city: yup.string().required('City is required'),
+        routeLocations: yup
+            .array()
+            .of(yup.string())
+            .test(
+                'all-dates-present',
+                'Please select a date for each route location.',
+                function (locations) {
+                    if (!locations || !locations.length) return true; // nothing to validate
+                    const errors = locations.some((_, idx) => {
+                        const date = this.parent[`route_${idx}_date`];
+                        return !date;
+                    });
+                    return !errors;
+                }
+            ),
     });
 
     const {
@@ -99,6 +114,7 @@ function AIMEGeneration() {
             office_address: '',
             routes: '',
             route_address: '',
+            routeLocations: '',
 
         },
     });
@@ -251,6 +267,7 @@ function AIMEGeneration() {
 
         const re11 = data.re11indent;
         const indentDate = data.indentDate ? format(data.indentDate, 'yyyy-MM-dd') : '';
+        const todayDate = Date.now();
         const datedisp = data.datedisp ? format(data.datedisp, 'yyyy-MM-dd') : '';
         const destinationDate = data.destinationDate ? format(data.destinationDate, 'yyyy-MM-dd') : '';
         const consigneeName = data.consigneename;
@@ -267,20 +284,29 @@ function AIMEGeneration() {
         const ExposovesOffice = data.ExposovesOffice;
         const routes = data.routes;
         const route_address = data.route_address;
+        const routeLocDate = (data.routeLocations || []).map((location, idx) => ({
+            location,
+            date: data[`route_${idx}_date`] || null,
+        }));
         // Transform product data into required format
         const transformedProducts = product?.map((item, index) => ({
             ProductName: item.brandName || '',
             Qty: item.quantity || '',
             UOM: item.unit || '',
-            CD: item.strClass || '',
+            Netl1: item.netl1 || '',
+            // Split strClass (e.g., "2-0") into class and div, send separately
+            Class: item.strClass ? item.strClass.split('-')[0] : '',
+            Div: item.strClass ? item.strClass.split('-')[1] : '',
             Cases: item.count || '',
             indentNo: item.indentNo
         })) || [];
+        const totalCases = transformedProducts.reduce((total, item) => total + item.Cases, 0);
 
         const reportParams = {
 
             re11: re11,
             indentDate: indentDate,
+            todayDate: todayDate,
             datedisp: datedisp,
             destinationDate: destinationDate,
             consigneeName: consigneeName,
@@ -289,15 +315,16 @@ function AIMEGeneration() {
             state: state,
             city: city,
             tashil: tashil,
-            // ConsignorLicense: consinorlicenseno,
-            LicenseNumber: consigneelicenseno,
+            consigneelicenseno: consigneelicenseno,
             Products: transformedProducts,
+            totalCases: totalCases,
             connName: connName,
             aime_no: aime_no,
             office_address: office_address,
             ExposovesOffice: ExposovesOffice,
             routes: routes,
-            route_address: route_address
+            route_address: route_address,
+            routeLocDate: routeLocDate
         };
         setFormData(reportParams);
         setIsLoadingReport(false);
@@ -742,7 +769,7 @@ function AIMEGeneration() {
                             </div>
 
 
-                            <div className="flex flex-col gap-y-2">
+                            {/* <div className="flex flex-col gap-y-2">
                                 <Controller
                                     name="routes"
                                     control={control}
@@ -791,7 +818,222 @@ function AIMEGeneration() {
                                 <Label>Routes</Label>
                                 <Textarea {...register('route_address')} placeholder="Routes..." rows={7} readOnly />
                                 {errors.route_address && <p className="text-red-500 text-sm">{errors.route_address.message}</p>}
+                            </div> */}
+
+                            <div className="flex flex-col gap-y-2">
+                                <Controller
+                                    name="routes"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <div className="flex flex-col gap-y-2">
+                                            <Label>Route From - To</Label>
+                                            <Select
+                                                value={field.value}
+                                                onValueChange={(value) => {
+                                                    field.onChange(value);
+                                                    // Find the selected route object by value (should match cname)
+                                                    const selected = routeData?.find((route) => route.cname === value);
+                                                    if (selected) {
+                                                        setValue('route_address', selected.locations || '');
+                                                        // Split the locations and create route locations array
+                                                        const routeLocations = selected.locations ? selected.locations.split('-') : [];
+                                                        setValue('routeLocations', routeLocations);
+
+                                                        // Initialize date fields for each route location
+                                                        routeLocations.forEach((location, index) => {
+                                                            setValue(`route_${index}_date`, '');
+                                                        });
+                                                    } else {
+                                                        setValue('route_address', '');
+                                                        setValue('routeLocations', []);
+                                                    }
+                                                }}
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Select Routes..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        {routes.map((mag) => (
+                                                            <SelectItem
+                                                                key={mag.value}
+                                                                value={mag.value}
+                                                                disabled={mag.disabled}
+                                                            >
+                                                                {mag.text}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.routes && (
+                                                <span className="text-destructive text-sm">{errors.routes.message}</span>
+                                            )}
+                                        </div>
+                                    )}
+                                />
                             </div>
+
+                            <div className="space-y-2">
+                                <Label>Routes</Label>
+                                <Textarea {...register('route_address')} placeholder="Routes..." rows={7} readOnly />
+                                {errors.route_address && <p className="text-red-500 text-sm">{errors.route_address.message}</p>}
+                            </div>
+
+                            {/* Dynamic Date Fields for Each Route Location */}
+                            {/* <Controller
+                                name="routeLocations"
+                                control={control}
+                                render={({ field }) => (
+                                    <div className="space-y-4">
+                                        {field.value && field.value.length > 0 && (
+                                            <>
+                                                <Label className="text-lg font-semibold">Route Location Dates</Label>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                    {field.value.map((location, index) => (
+                                                        <div key={index} className="space-y-2">
+                                                            <Label htmlFor={`route_${index}_date`}>
+                                                                Date for {location.trim()}
+                                                            </Label>
+                                                            <Controller
+                                                                name={`route_${index}_date`}
+                                                                control={control}
+                                                                rules={{ required: `Date for ${location.trim()} is required` }}
+                                                                render={({ field: dateField }) => (
+                                                                    // Inside the Controller render function
+                                                                    <Popover>
+                                                                        <PopoverTrigger asChild>
+                                                                            <Button
+                                                                                variant={"outline"}
+                                                                                className={cn(
+                                                                                    "w-full justify-start text-left font-normal",
+                                                                                    !dateField.value && "text-muted-foreground"
+                                                                                )}
+                                                                            >
+                                                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                                                {dateField.value ? format(new Date(dateField.value), "PPP") : "Pick a date"}
+                                                                            </Button>
+                                                                        </PopoverTrigger>
+                                                                        <PopoverContent className="w-auto p-0">
+                                                                            <Calendar
+                                                                                mode="single"
+                                                                                selected={dateField.value ? new Date(dateField.value) : undefined}
+                                                                                onSelect={(date) => {
+                                                                                    if (date) {
+                                                                                        dateField.onChange(date.toISOString());
+                                                                                    }
+                                                                                }}
+                                                                                initialFocus
+                                                                            />
+                                                                        </PopoverContent>
+                                                                    </Popover>
+                                                                )}
+                                                            />
+                                                            {errors[`route_${index}_date`] && (
+                                                                <p className="text-red-500 text-sm">
+                                                                    {errors[`route_${index}_date`].message}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            /> */}
+
+                            <Controller
+                                name="routeLocations"
+                                control={control}
+                                render={({ field }) => (
+                                    <div className="space-y-4">
+                                        {field.value && field.value.length > 0 && (
+                                            <>
+                                                <Label className="text-lg font-semibold">Route Location Dates</Label>
+
+                                                <div className="overflow-hidden border border-border rounded-xl"> {/* Rounded wrapper */}
+                                                    <Table className="w-full">
+                                                        <TableHeader className="bg-muted">
+                                                            <TableRow>
+                                                                <TableHead className="font-medium sticky top-0 z-10 border-b text-center">Location</TableHead>
+                                                                <TableHead className="font-medium sticky top-0 z-10 border-b text-center">Date</TableHead>
+                                                            </TableRow>
+                                                        </TableHeader>
+                                                        <TableBody>
+                                                            {field.value.map((location, index) => (
+                                                                <TableRow key={index}>
+                                                                    <TableCell className="font-medium text-center w-[200px]">{location.trim()}</TableCell>
+                                                                    <TableCell className="font-medium text-center">
+                                                                        <Controller
+                                                                            name={`route_${index}_date`}
+                                                                            control={control}
+                                                                            rules={{
+                                                                                required: `Date for ${location.trim()} is required`,
+                                                                            }}
+                                                                            render={({ field: dateField }) => (
+                                                                                <div className="flex flex-col gap-1 items-center justify-center">
+                                                                                    <Popover>
+                                                                                        <PopoverTrigger asChild>
+                                                                                            <Button
+                                                                                                variant="outline"
+                                                                                                className={cn(
+                                                                                                    "w-[260px] justify-center text-center font-normal",
+                                                                                                    !dateField.value && "text-muted-foreground"
+                                                                                                )}
+                                                                                            >
+                                                                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                                                                {dateField.value
+                                                                                                    ? format(new Date(dateField.value), "PPP")
+                                                                                                    : "Pick a date"}
+                                                                                            </Button>
+                                                                                        </PopoverTrigger>
+                                                                                        <PopoverContent className="w-auto p-0" align="center">
+                                                                                            <Calendar
+                                                                                                mode="single"
+                                                                                                selected={
+                                                                                                    dateField.value
+                                                                                                        ? new Date(dateField.value)
+                                                                                                        : undefined
+                                                                                                }
+                                                                                                onSelect={(date) => {
+                                                                                                    if (date) {
+                                                                                                        dateField.onChange(date.toISOString());
+                                                                                                    }
+                                                                                                }}
+                                                                                                initialFocus
+                                                                                            />
+                                                                                        </PopoverContent>
+                                                                                    </Popover>
+                                                                                    {errors[`route_${index}_date`] && (
+                                                                                        <p className="text-red-500 text-sm text-center">
+                                                                                            {errors[`route_${index}_date`].message}
+                                                                                        </p>
+                                                                                    )}
+                                                                                </div>
+                                                                            )}
+                                                                        />
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            ))}
+                                                        </TableBody>
+                                                    </Table>
+                                                </div>
+                                                {errors.routeLocations && (
+                                                    <p className="text-red-500 text-sm text-center">
+                                                        {errors.routeLocations.message}
+                                                    </p>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            />
+
+
+
 
 
                         </div>
@@ -803,7 +1045,7 @@ function AIMEGeneration() {
 
                     {/* Submit Button */}
                     <Button type="submit" className="col-span-2" disabled={isLoadingReport} >
-                        <ScanBarcode /> {isLoadingReport ? 'Printing Barcode...' : 'Print Barcode'}
+                        <FileDown /> {isLoadingReport ? 'Printing File...' : 'Intamination File'}
                     </Button>
                     <Button type="button" onClick={handleClear}>
                         <Eraser />  clear
@@ -816,12 +1058,12 @@ function AIMEGeneration() {
 
             {FormData && (
                 <div className="mt-4">
-                    <PDFViewer>
+                    <PDFViewer className='w-full' style={{ height: '800px' }}>
                         <AIMEPDF AIMEData={FormData} />
                     </PDFViewer>
-
                 </div>
             )}
+
         </Card >
 
 
