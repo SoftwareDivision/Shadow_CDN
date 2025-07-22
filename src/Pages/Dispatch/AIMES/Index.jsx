@@ -766,59 +766,7 @@ function AIMEGeneration() {
                                 <Label>Address Of office</Label>
                                 <Input {...register('office_address')} readOnly />
                                 {errors.address_office && <p className="text-red-500 text-sm">{errors.address_office.message}</p>}
-                            </div>
-
-
-                            {/* <div className="flex flex-col gap-y-2">
-                                <Controller
-                                    name="routes"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <div className="flex flex-col gap-y-2">
-                                            <Label>Route From - To</Label>
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={(value) => {
-                                                    field.onChange(value);
-                                                    // Find the selected route object by value (should match cname)
-                                                    const selected = routeData?.find((route) => route.cname === value);
-                                                    if (selected) {
-                                                        setValue('route_address', selected.locations || '');
-                                                    } else {
-                                                        setValue('route_address', '');
-                                                    }
-                                                }}
-                                            >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Select Routes..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        {routes.map((mag) => (
-                                                            <SelectItem
-                                                                key={mag.value}
-                                                                value={mag.value}
-                                                                disabled={mag.disabled}
-                                                            >
-                                                                {mag.text}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                            {errors.routes && (
-                                                <span className="text-destructive text-sm">{errors.routes.message}</span>
-                                            )}
-                                        </div>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Routes</Label>
-                                <Textarea {...register('route_address')} placeholder="Routes..." rows={7} readOnly />
-                                {errors.route_address && <p className="text-red-500 text-sm">{errors.route_address.message}</p>}
-                            </div> */}
+                            </div>                          
 
                             <div className="flex flex-col gap-y-2">
                                 <Controller
@@ -1031,11 +979,6 @@ function AIMEGeneration() {
                                     </div>
                                 )}
                             />
-
-
-
-
-
                         </div>
                     </div>
                 </div>
