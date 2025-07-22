@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { useAuthToken } from '@/hooks/authStore';
 import { useAuth } from '@/hooks/useAuth';
 import logo from '@/assets/images/logo.jpg';
 import logo2 from '@/assets/images/logo2.png';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function LoginForm() {
 	const [email, setEmail] = useState('');
@@ -30,13 +31,11 @@ export default function LoginForm() {
 						<div className="flex flex-col items-center text-center">
 							<div className="flex items-center gap-6 mb-6">
 								<img src={logo} alt="Aarkay Explo Logo" className="w-24 h-24 object-contain" />
-								<div className="text-left">
-									<h5 className="text-2xl font-bold text-primary mb-2">
+								<div className="text-left font-sans">
+									<GradientText className="text-2xl font-extrabold">
 										AARKAY EXPLO - TRACK & TRACE
-									</h5>
-									<h4 className="text-sm text-muted-foreground">
-										Complete Solution for Explosives Manufacturer
-									</h4>
+									</GradientText>
+									<TypewriterText />
 								</div>
 							</div>
 						</div>
@@ -111,3 +110,216 @@ export default function LoginForm() {
 		</div>
 	);
 }
+
+const SlideInText = ({ text = 'Simplicity is the ultimate sophistication.' }) => {
+	return (
+		<h2 className="text-2xl md:text-4xl font-bold text-center">
+			{text.split('').map((char, i) => (
+				<motion.span
+					key={i}
+					initial={{
+						x: -50,
+						opacity: 0,
+					}}
+					animate={{
+						x: 0,
+						opacity: 1,
+					}}
+					transition={{
+						delay: i * 0.03,
+						ease: 'easeOut',
+					}}
+					className="inline-block"
+				>
+					{char === ' ' ? '\u00A0' : char}
+				</motion.span>
+			))}
+		</h2>
+	);
+};
+
+const gradientKeyframes = `
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient {
+  animation: gradient 8s linear infinite;
+}
+`;
+function GradientText({
+	children,
+	className = '',
+	colors = ['#ffaa40', '#9c40ff', '#ffaa40'],
+	animationSpeed = 8,
+	showBorder = false,
+}) {
+	const gradientStyle = {
+		backgroundImage: `linear-gradient(to right, ${colors.join(', ')})`,
+		backgroundSize: '300% 100%',
+		animation: `gradient ${animationSpeed}s linear infinite`,
+	};
+	return (
+		<>
+			{}
+			<style
+				dangerouslySetInnerHTML={{
+					__html: gradientKeyframes,
+				}}
+			/>
+			<div
+				className={`relative mx-auto flex max-w-fit flex-row items-center justify-center rounded-[1.25rem] font-medium backdrop-blur transition-shadow duration-500 overflow-hidden cursor-pointer ${className}`}
+			>
+				{showBorder && (
+					<div className="absolute inset-0 bg-cover z-0 pointer-events-none" style={gradientStyle}>
+						<div
+							className="absolute inset-0 bg-black rounded-[1.25rem] z-[-1]"
+							style={{
+								width: 'calc(100% - 2px)',
+								height: 'calc(100% - 2px)',
+								left: '50%',
+								top: '50%',
+								transform: 'translate(-50%, -50%)',
+							}}
+						></div>
+					</div>
+				)}
+				<div
+					className="inline-block relative z-2 text-transparent bg-cover"
+					style={{
+						...gradientStyle,
+						backgroundClip: 'text',
+						WebkitBackgroundClip: 'text',
+					}}
+				>
+					{children}
+				</div>
+			</div>
+		</>
+	);
+}
+
+const TypewriterText = ({
+	text = 'A Complete Solution for Explosives Manufacturer.....',
+	speed = 100,
+	deleteSpeed = 50,
+	pauseDuration = 2000,
+	loop = true,
+	className = '',
+	showCursor = true,
+}) => {
+	const [displayText, setDisplayText] = useState('');
+	const [isDeleting, setIsDeleting] = useState(false);
+	const [isPaused, setIsPaused] = useState(false);
+	useEffect(() => {
+		let timeout;
+		if (isPaused) {
+			timeout = setTimeout(() => {
+				setIsPaused(false);
+				if (loop) {
+					setIsDeleting(true);
+				}
+			}, pauseDuration);
+		} else if (isDeleting) {
+			if (displayText.length > 0) {
+				timeout = setTimeout(() => {
+					setDisplayText(text.substring(0, displayText.length - 1));
+				}, deleteSpeed);
+			} else {
+				setIsDeleting(false);
+			}
+		} else {
+			if (displayText.length < text.length) {
+				timeout = setTimeout(() => {
+					setDisplayText(text.substring(0, displayText.length + 1));
+				}, speed);
+			} else if (loop) {
+				setIsPaused(true);
+			}
+		}
+		return () => clearTimeout(timeout);
+	}, [displayText, isDeleting, isPaused, text, speed, deleteSpeed, pauseDuration, loop]);
+	return (
+		<div className={`font-mono ${className}`}>
+			<span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+				{displayText}
+				{showCursor && (
+					<motion.span
+						animate={{
+							opacity: [1, 0],
+						}}
+						transition={{
+							duration: 0.8,
+							repeat: Infinity,
+							repeatType: 'reverse',
+						}}
+						className="text-blue-500"
+					>
+						|
+					</motion.span>
+				)}
+			</span>
+		</div>
+	);
+};
+
+const MorphingText = ({
+	words = ['AARKAY', 'TECHNO', 'CONSULTANTS', 'PVT.', 'LTD.'],
+	duration = 3000,
+	className = '',
+}) => {
+	const [currentIndex, setCurrentIndex] = useState(0);
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setCurrentIndex((prev) => (prev + 1) % words.length);
+		}, duration);
+		return () => clearInterval(interval);
+	}, [words.length, duration]);
+	return (
+		<div className={`relative inline-block ${className}`}>
+			<AnimatePresence mode="wait">
+				<motion.div
+					key={currentIndex}
+					initial={{
+						opacity: 0,
+						filter: 'blur(10px)',
+						scale: 0.8,
+						rotateX: -90,
+					}}
+					animate={{
+						opacity: 1,
+						filter: 'blur(0px)',
+						scale: 1,
+						rotateX: 0,
+					}}
+					exit={{
+						opacity: 0,
+						filter: 'blur(10px)',
+						scale: 1.2,
+						rotateX: 90,
+					}}
+					transition={{
+						duration: 0.8,
+						ease: [0.25, 0.46, 0.45, 0.94],
+						filter: {
+							duration: 0.6,
+						},
+						scale: {
+							duration: 0.6,
+						},
+						rotateX: {
+							duration: 0.8,
+						},
+					}}
+					className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent"
+					style={{
+						transformStyle: 'preserve-3d',
+					}}
+				>
+					{words[currentIndex]}
+				</motion.div>
+			</AnimatePresence>
+		</div>
+	);
+};

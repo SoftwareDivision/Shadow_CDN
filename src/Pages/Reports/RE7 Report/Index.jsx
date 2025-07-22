@@ -20,6 +20,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import DataTable from '@/components/DataTable';
 import Loader from '@/components/Loader';
+import SummableDataTable from '@/components/SummableDataTable';
+import { meta } from '@eslint/js';
 
 function RE7_Report() {
 	const { token } = useAuthToken.getState();
@@ -140,14 +142,17 @@ function RE7_Report() {
 		{
 			accessorKey: 'inward',
 			header: 'Inward Quantity',
+			meta: { isSummable: true },
 		},
 		{
 			accessorKey: 'outward',
 			header: 'Outward Quantity',
+			meta: { isSummable: true },
 		},
 		{
 			accessorKey: 'remainingStock',
 			header: 'Remaining Quantity',
+			meta: { isSummable: true },
 		},
 	];
 
@@ -285,7 +290,7 @@ function RE7_Report() {
 
 			<div>
 				{reportData ? (
-					<DataTable columns={detailedReportColumns} data={reportData} />
+					<SummableDataTable columns={detailedReportColumns} data={reportData} />
 				) : (
 					<p className="text-center">No report data available.</p>
 				)}
