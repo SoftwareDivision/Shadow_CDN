@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -6,11 +6,17 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+	Select, SelectContent, SelectGroup, SelectItem,
+	SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
-import { createProduct, getAllBrands, updateProduct, getUOMDetails, getPlantDetails } from '@/lib/api';
+import {
+	createProduct, getAllBrands, updateProduct,
+	getUOMDetails, getPlantDetails, getProductById,
+} from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -18,9 +24,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 const schema = yup.object().shape({
 	id: yup.number(),
 	bname: yup.string().required('Brand Name is required'),
-	// bid: yup.string().required('Brand ID is required'),
 	ptype: yup.string().required('Product Type is required'),
-	// ptypecode: yup.string().required('Product Type Code is required'),
 	class: yup.number().required('Class is required'),
 	division: yup.number().required('Division is required'),
 	unit: yup.string().required('Unit is required'),
@@ -36,7 +40,7 @@ const schema = yup.object().shape({
 	noofl3perl1: yup.number().required('No. of L3/L1 is required'),
 	sdcat: yup.string().required('SDCAT is required'),
 	unnoclass: yup.string().required('UN No. Class is required'),
-	act: yup.string().required('Active Flag is required'),	
+	act: yup.string().required('Active Flag is required'),
 });
 
 function AddOrEdit() {
@@ -44,9 +48,10 @@ function AddOrEdit() {
 	const navigate = useNavigate();
 	const { state } = useLocation();
 	const { token } = useAuthToken.getState();
-	const tokendata = token.data.token;
+	const tokendata = token?.data?.token;
 	const { enqueueSnackbar } = useSnackbar();
 	const queryClient = useQueryClient();
+	const isEditMode = !!id;
 
 	const {
 		register,
@@ -82,11 +87,9 @@ function AddOrEdit() {
 		},
 	});
 
-	const [brands, setBrands] = React.useState([]);
-	const [uom, setUom] = React.useState([]);
-	const [plants, setPlants] = React.useState([]);
-
-	const isEditMode = !!id;
+	const [brands, setBrands] = useState([]);
+	const [uom, setUom] = useState([]);
+	const [plants, setPlants] = useState([]);
 
 	const mutation = useMutation({
 		mutationFn: (data) => {
@@ -100,104 +103,118 @@ function AddOrEdit() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries(['products']);
-			enqueueSnackbar(`Product ${id ? 'updated' : 'created'} successfully`, {
-				variant: 'success',
-			});
+			enqueueSnackbar(`Product ${id ? 'updated' : 'created'} successfully`, { variant: 'success' });
 			navigate('/product-master');
 		},
 		onError: (error) => {
-			enqueueSnackbar(error.message || `Failed to ${id ? 'update' : 'create'} product`, {
-				variant: 'error',
-			});
+			enqueueSnackbar(error.message || `Failed to ${id ? 'update' : 'create'} product`, { variant: 'error' });
 		},
 	});
 
 	const onSubmit = (data) => {
 		mutation.mutate(data);
-		console.log('data', data);
 	};
 
-	//plant details
+	// Queries
 	const {
 		data: brandData,
-		isLoading: isBrandFetching,
-		error: fetchBrandError,
+		isLoading: isBrandLoading,
+		error: brandError,
 	} = useQuery({
 		queryKey: ['brandData'],
 		queryFn: () => getAllBrands(tokendata),
 		enabled: !!tokendata,
 	});
 
-	console.log('brandData', brandData);
 
 	const {
 		data: plantData,
-		isLoading: isPlantFetching,
-		error: fetchPlantError,
+		isLoading: isPlantLoading,
+		error: plantError,
 	} = useQuery({
 		queryKey: ['plantData'],
 		queryFn: () => getPlantDetails(tokendata),
 		enabled: !!tokendata,
 	});
 
-	console.log('plantData', plantData);
 
 	const {
 		data: uomData,
-		isLoading: isUomFetching,
-		error: fetchUomError,
+		isLoading: isUomLoading,
+		error: uomError,
 	} = useQuery({
 		queryKey: ['uomData'],
 		queryFn: () => getUOMDetails(tokendata),
 		enabled: !!tokendata,
 	});
 
-	console.log('uomData', uomData);
 
+	const {
+		data: existingProduct,
+		isLoading: isProductLoading,
+		error: productError,
+	} = useQuery({
+		queryKey: ['product', id],
+		queryFn: () => getProductById(tokendata, id),
+		enabled: isEditMode && !!tokendata,
+	});
+
+
+	// Populate form values
 	useEffect(() => {
 		if (brandData) {
-			const brandOptions = brandData?.map((plant) => ({
-				value: plant.bname,
-				text: plant.bname,
+			const brandOptions = brandData.map((b) => ({
+				value: b.bname,
+				text: b.bname,
 				disabled: false,
 			}));
 			brandOptions.unshift({ value: 'all', text: 'All', disabled: false });
 			setBrands(brandOptions);
 		}
-
 		if (plantData) {
-			const plantOptions = plantData?.map((plant) => ({
-				value: plant.pName,
-				text: plant.pName,
+			const plantOptions = plantData.map((p) => ({
+				value: p.pName,
+				text: p.pName,
 				disabled: false,
 			}));
 			setPlants(plantOptions);
 		}
-
 		if (uomData) {
-			const uomOptions = uomData?.map((uom) => ({
-				value: uom.uomcode,
-				text: uom.uomcode,
+			const uomOptions = uomData.map((u) => ({
+				value: u.uomcode,
+				text: u.uomcode,
 				disabled: false,
 			}));
 			uomOptions.unshift({ value: 'all', text: 'All', disabled: false });
 			setUom(uomOptions);
 		}
-
-		if (state) {
+		if (isEditMode && existingProduct) {
+			reset(existingProduct);
+		}
+		if (!isEditMode && state) {
 			reset(state);
 		}
-	}, [reset, brandData, uomData, state, plantData]);
+	}, [brandData, plantData, uomData, reset, existingProduct, isEditMode, state]);
 
-	const loading = isBrandFetching || isUomFetching || isPlantFetching;
-	const allerrors = fetchBrandError || fetchUomError || fetchPlantError;
+	// Handle loading and error
+	const loading = isBrandLoading || isPlantLoading || isUomLoading || (isEditMode && isProductLoading);
+	const allErrors = brandError || plantError || uomError || productError;
 
-	if (allerrors) {
-		enqueueSnackbar(allerrors.message || 'Failed to fetch data', { variant: 'error' });
-	}
+	useEffect(() => {
+		if (allErrors) {
+			enqueueSnackbar(allErrors.message || 'Error loading data', { variant: 'error' });
+		}
+	}, [allErrors, enqueueSnackbar]);
+
 	if (loading) {
-		return <div>Loading...</div>;
+		return (
+			<div className="flex justify-center items-center h-60">
+				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+				<span className="ml-2 text-lg">Loading Product Form...</span>
+			</div>
+		);
 	}
+
 
 	return (
 		<Card className="p-4 shadow-md w-full mx-auto">

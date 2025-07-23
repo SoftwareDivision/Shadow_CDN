@@ -207,7 +207,7 @@ function AddOrEdit() {
 						<label htmlFor="class" className="text-sm font-medium">
 							Class
 						</label>
-						<Input id="class" {...register('class')} className={errors.class ? 'border-red-500' : ''} />
+						<Input id="class" {...register('class')} maxLength={1} className={errors.class ? 'border-red-500' : ''} />
 						{errors.class && <span className="text-sm text-red-500">{errors.class.message}</span>}
 					</div>
 					<div className="space-y-2">
@@ -217,6 +217,7 @@ function AddOrEdit() {
 						<Input
 							id="division"
 							{...register('division')}
+							maxLength={1}
 							className={errors.division ? 'border-red-500' : ''}
 						/>
 						{errors.division && <span className="text-sm text-red-500">{errors.division.message}</span>}

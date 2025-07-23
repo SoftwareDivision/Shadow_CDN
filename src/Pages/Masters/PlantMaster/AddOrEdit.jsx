@@ -187,7 +187,7 @@ function AddOrEdit() {
 							Plant Code
 						</label>
 						<Input id="pCode" {...register('pCode')} className={errors.pCode ? 'border-red-500' : ''}
-						style={{ textTransform: 'uppercase' }}
+							style={{ textTransform: 'uppercase' }}
 						/>
 						{errors.pCode && <span className="text-sm text-red-500">{errors.pCode.message}</span>}
 					</div>
@@ -214,7 +214,7 @@ function AddOrEdit() {
 
 					<div className="space-y-2">
 						<label htmlFor="issue_dt" className="text-sm font-medium">
-							Issue Date
+							License	Issue Date
 						</label>
 						<Popover>
 							<PopoverTrigger asChild>
@@ -246,7 +246,7 @@ function AddOrEdit() {
 
 					<div className="space-y-2">
 						<label htmlFor="validity_dt" className="text-sm font-medium">
-							Validity Date
+							License	Validity Date
 						</label>
 						<Popover>
 							<PopoverTrigger asChild>

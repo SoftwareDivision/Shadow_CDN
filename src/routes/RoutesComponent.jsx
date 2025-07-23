@@ -39,7 +39,7 @@ const IntimationMaster = lazy(() => import('../Pages/Masters/IntimationMaster/In
 const IntimationAddOrEdit = lazy(() => import('../Pages/Masters/IntimationMaster/AddOrEdit'));
 const RE2FileGeneration = lazy(() => import('../Pages/Storages/RE2FileGeneration/RE2FileGeneration'));
 const BrandMaster = lazy(() => import('../Pages/Masters/BrandMaster/Index'));
-const BrandAddOrEdit = lazy(() => import('../Pages/Masters/BrandMaster/'));
+const BrandAddOrEdit = lazy(() => import('../Pages/Masters/BrandMaster/AddOrEdit'));
 const CustomerMaster = lazy(() => import('../Pages/Masters/CustomerMaster/Index'));
 const CustomerAddOrEdit = lazy(() => import('../Pages/Masters/CustomerMaster/AddOrEdit'));
 const TransportMaster = lazy(() => import('../Pages/Masters/transportMaster/Index'));

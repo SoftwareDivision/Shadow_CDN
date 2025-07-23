@@ -131,6 +131,9 @@ export default function MainLayout() {
 		'/route-master': { parent: 'Masters', current: 'Route Master' },
 		'/route-master/add': { parent: 'Masters', current: 'Add Route' },
 		'/route-master/edit': { parent: 'Masters', current: 'Edit Route' },
+		'/plant-type-master': { parent: 'Masters', current: 'Plant Type Master' },
+		'/plant-type-master/add': { parent: 'Masters', current: 'Add Plant Type' },
+		'/plant-type-master/edit': { parent: 'Masters', current: 'Edit Plant Type' },
 
 	};
 

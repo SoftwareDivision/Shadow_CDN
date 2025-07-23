@@ -55,7 +55,7 @@ function FormRE2Report() {
     } = useForm({
         resolver: yupResolver(formSchema),
         defaultValues: {
-            plantId: 'all',
+            plantId: '',
             fromDate: new Date().toISOString(),
             toDate: new Date().toISOString(),
         },
@@ -89,7 +89,6 @@ function FormRE2Report() {
                 text: plant.pName,
                 disabled: false,
             }));
-            plantOptions.unshift({ value: 'all', text: 'All', disabled: false });
             setPlants(plantOptions);
         }
         console.log('Plant Data:', plantData);
@@ -106,7 +105,7 @@ function FormRE2Report() {
         const formattedToDate = data.toDate ? format(data.toDate, 'yyyy-MM-dd') : '';
 
         // Handle 'all' values for shift, plant, brand and productsize      
-        const selectedPlant = data.plantId === 'all' ? '' : data.plantId;
+        const selectedPlant = data.plantId;
 
         setReportType(data.reportType);
         // Ensure parameters match API endpoint types
@@ -123,7 +122,7 @@ function FormRE2Report() {
 
             enqueueSnackbar('Report fetched successfully', { variant: 'success' });
             console.log('Report Data:', result);
-            setReportData(result); // Store the report data
+            setReportData(result.re2FormData); // Store the report data
             setIsLoadingReport(false);
         } catch (error) {
             enqueueSnackbar(error.message || 'Failed to fetch report', { variant: 'error' });
@@ -205,7 +204,7 @@ function FormRE2Report() {
             header: 'Remarks',
         },
         {
-            accessorKey: 'test',
+            accessorKey: 'Signature',
             header: <>Signature of Person <br /> InCharge or License</>,
         },
     ];
@@ -350,7 +349,8 @@ function FormRE2Report() {
             <div>
                 {reportData ? (
                     <DataTable
-                        columns={detailedReportColumns} data={reportData} />
+                        columns={detailedReportColumns} data={reportData}
+                        heading={"Form RE2 Report"} filename={"Form RE2 Report"} />
                 ) : (
                     <p className='text-center'>No report data available.</p>
                 )}

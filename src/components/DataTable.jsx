@@ -72,7 +72,7 @@ function DraggableRow({ row }) {
 	);
 }
 
-export default function DataTable({ data: initialData, columns }) {
+export default function DataTable({ data: initialData, columns, heading, filename }) {
 	// Add state for table data
 	const [data, setData] = React.useState(initialData);
 
@@ -155,6 +155,10 @@ export default function DataTable({ data: initialData, columns }) {
 	// Export to PDF
 	const exportToPDF = () => {
 		const doc = new jsPDF();
+		if (heading) {
+			doc.setFontSize(16);
+			doc.text(heading, 14, 8);
+		}
 		const tableHeaders = table
 			.getAllColumns()
 			.filter(
@@ -177,12 +181,12 @@ export default function DataTable({ data: initialData, columns }) {
 		autoTable(doc, {
 			head: [tableHeaders.map((header) => header.toUpperCase())],
 			body: tableRows,
-			startY: 10,
+			startY: heading ? 14 : 10,
 			theme: 'grid',
 			headStyles: { fillColor: [100, 100, 100] },
 		});
 
-		doc.save('table_data.pdf');
+		doc.save(`${filename || 'table_data'}.pdf`);
 	};
 
 	// Export to Excel
@@ -207,11 +211,31 @@ export default function DataTable({ data: initialData, columns }) {
 			}, {}),
 		);
 
-		const worksheet = XLSX.utils.json_to_sheet(tableRows);
-		XLSX.utils.sheet_add_aoa(worksheet, [tableHeaders], { origin: 'A1' });
+		// Prepare worksheet data: heading in first row, headers in second, data from third
+		const worksheetData = [];
+		if (heading) {
+			worksheetData.push([heading]);
+		}
+		worksheetData.push(tableHeaders);
+		for (const row of tableRows) {
+			worksheetData.push(tableHeaders.map((header) => row[header]));
+		}
+
+		const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+		// Merge heading row across all columns if heading is present
+		if (heading) {
+			const mergeRef = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: 0, c: tableHeaders.length - 1 } });
+			worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: tableHeaders.length - 1 } }];
+			worksheet['A1'].s = {
+				font: { bold: true, sz: 16 },
+				alignment: { horizontal: 'center', vertical: 'center' },
+			};
+		}
 
 		// Apply Excel theme styling
 		const range = XLSX.utils.decode_range(worksheet['!ref']);
+		const headerRowIndex = heading ? 1 : 0;
 		const headerStyle = {
 			font: { bold: true, color: { rgb: 'FFFFFF' } },
 			fill: { fgColor: { rgb: '4472C4' } },
@@ -226,13 +250,13 @@ export default function DataTable({ data: initialData, columns }) {
 
 		// Apply header styles
 		for (let C = range.s.c; C <= range.e.c; ++C) {
-			const headerCell = XLSX.utils.encode_cell({ r: 0, c: C });
+			const headerCell = XLSX.utils.encode_cell({ r: headerRowIndex, c: C });
 			if (!worksheet[headerCell]) worksheet[headerCell] = {};
 			worksheet[headerCell].s = headerStyle;
 		}
 
 		// Apply alternating row colors and borders to data cells
-		for (let R = 1; R <= range.e.r; ++R) {
+		for (let R = headerRowIndex + 1; R <= range.e.r; ++R) {
 			for (let C = range.s.c; C <= range.e.c; ++C) {
 				const cell = XLSX.utils.encode_cell({ r: R, c: C });
 				if (!worksheet[cell]) worksheet[cell] = {};
@@ -255,7 +279,7 @@ export default function DataTable({ data: initialData, columns }) {
 
 		const workbook = XLSX.utils.book_new();
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-		XLSX.writeFile(workbook, 'table_data.xlsx');
+		XLSX.writeFile(workbook, `${filename || 'table_data'}.xlsx`);
 	};
 
 	return (

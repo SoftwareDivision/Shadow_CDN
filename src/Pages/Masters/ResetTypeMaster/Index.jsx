@@ -36,10 +36,6 @@ function ResetTypeMaster() {
 
 	console.log('userpermission :-', userpermission);
 
-	userpermission.isAdd = false;
-	userpermission.isEdit = false;
-	userpermission.isDelete = false;
-
 	const {
 		data: resetData,
 		isLoading,

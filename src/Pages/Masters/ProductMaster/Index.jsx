@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Pencil as PencilIcon, Plus as PlusIcon, Trash as TrashIcon, Loader2 } from 'lucide-react';
+import { MoreVertical, Pencil as PencilIcon, Plus as PlusIcon, Trash as TrashIcon, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
 import DataTable from '@/components/DataTable';
@@ -79,7 +79,11 @@ function ProductMaster() {
 		{ header: 'No. of L2', accessorKey: 'noofl2' },
 		{ header: 'No. of L3/L2', accessorKey: 'noofl3perl2' },
 		{ header: 'No. of L3/L1', accessorKey: 'noofl3perl1' },
-		{ header: 'Active', accessorKey: 'act' },
+		{
+			header: 'Active', accessorKey: 'act',
+			cell: ({ cell }) =>
+				cell.getValue() ? <CheckCircle2 className="text-green-600" /> : <XCircle className="text-red-600" />,
+		},
 		{
 			accessorKey: 'actions',
 			header: 'Actions',
