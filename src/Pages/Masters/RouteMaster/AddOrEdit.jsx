@@ -61,15 +61,27 @@ function SortableLocationItem({ id, onRemove }) {
 	return (
 		<div
 			ref={setNodeRef}
-			{...attributes}
-			{...listeners}
 			style={style}
-			className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full px-4 py-1 shadow text-sm flex items-center gap-2 text-gray-900 dark:text-gray-100 cursor-move"
+			className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full px-4 py-1 shadow text-sm flex items-center gap-2 text-gray-900 dark:text-gray-100"
 		>
+			{/* 👇 Drag Handle Only */}
+			<span
+				className="cursor-move"
+				{...attributes}
+				{...listeners}
+				title="Drag"
+			>
+				☰
+			</span>
+
 			<span>{id}</span>
+
 			<button
 				type="button"
-				onClick={() => onRemove(id)}
+				onClick={(e) => {
+					e.stopPropagation();
+					onRemove(id);
+				}}
 				className="text-red-500 hover:text-red-700"
 			>
 				×
@@ -77,6 +89,8 @@ function SortableLocationItem({ id, onRemove }) {
 		</div>
 	);
 }
+
+
 
 export default function AddOrEdit() {
 	const { id } = useParams();
