@@ -51,11 +51,11 @@ function PlantMaster() {
 	};
 
 	const columns = [
+		{ header: 'Company ID', accessorKey: 'company_ID' },
 		{ header: 'Plant Type', accessorKey: 'plant_type' },
 		{ header: 'Plant Name', accessorKey: 'pName' },
 		{ header: 'Plant Code', accessorKey: 'pCode' },
 		{ header: 'License', accessorKey: 'license' },
-		{ header: 'Company ID', accessorKey: 'company_ID' },
 		{
 			header: 'Issue Date',
 			accessorKey: 'issue_dt',
@@ -178,7 +178,7 @@ function PlantMaster() {
 					<Loader2 className="h-8 w-8 animate-spin text-primary" />
 				</div>
 			) : (
-				<DataTable columns={columns} data={plantData || []} />
+				<DataTable columns={columns} data={plantData || []} heading={'Plant Master'} filename={'Plant_Master'} />
 			)}
 		</Card>
 	);

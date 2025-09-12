@@ -152,7 +152,7 @@ function UserManagement() {
 					<PlusIcon className="h-4 w-4" /> Add User
 				</Button>
 			</div>
-			<DataTable columns={columns} data={userData} />
+			<DataTable columns={columns} data={userData} heading={'User List'} filename={'User_List'} />
 		</Card>
 	);
 }

@@ -203,7 +203,7 @@ function IntimationMaster() {
 					/>
 				)}
 			</div>
-			<DataTable columns={columns} data={intimationData} />
+			<DataTable columns={columns} data={intimationData} heading={'Intimation Master'} filename={'Intimation_Master'} />	
 		</Card>
 	);
 }

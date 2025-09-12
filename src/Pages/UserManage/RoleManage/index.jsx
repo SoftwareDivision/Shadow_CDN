@@ -120,8 +120,8 @@ function RoleMaster() {
 								<AlertDialogHeader>
 									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 									<AlertDialogDescription>
-										This action cannot be undone. This will permanently delete the country "
-										{row.original.cname}" and all associated data.
+										This action cannot be undone. This will permanently delete the Role "
+										{row.original.roleName}" and all associated data.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
@@ -149,7 +149,7 @@ function RoleMaster() {
 					<PlusIcon className="h-4 w-4" /> Add Role
 				</Button>
 			</div>
-			<DataTable columns={columns} data={roleData} />
+			<DataTable columns={columns} data={roleData} heading={'Role List'} filename={'Role_List'}/>
 		</Card>
 	);
 }

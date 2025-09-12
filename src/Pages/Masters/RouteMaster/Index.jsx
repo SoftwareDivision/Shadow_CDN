@@ -167,7 +167,7 @@ function RouteMaster() {
 					<Loader2 className="h-8 w-8 animate-spin text-primary" />
 				</div>
 			) : (
-				<DataTable columns={columns} data={routeData || []} />
+				<DataTable columns={columns} data={routeData || []} heading={'Route Master'} filename={'Route_Master'} />
 			)}
 		</Card>
 	);

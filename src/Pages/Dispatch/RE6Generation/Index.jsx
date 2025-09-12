@@ -455,7 +455,7 @@ function RE6Generation() {
                                         Class/Division
                                     </TableHead>
                                     <TableHead className="font-medium sticky top-0 z-10 border-b text-center">
-                                        Quality
+                                        Quantity
                                     </TableHead>
                                     <TableHead className="font-medium sticky top-0 z-10 border-b text-center">
                                         UOM

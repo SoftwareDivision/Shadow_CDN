@@ -190,7 +190,7 @@ function StateMaster() {
 					<Loader2 className="h-8 w-8 animate-spin text-primary" />
 				</div>
 			) : (
-				<DataTable columns={columns} data={stateData || []} />
+				<DataTable columns={columns} data={stateData || []} heading={'State Master'} filename={'State_Master'} />
 			)}
 		</Card>
 	);

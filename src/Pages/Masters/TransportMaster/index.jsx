@@ -194,6 +194,8 @@ function TransportMaster() {
                 columns={columns}
                 data={transportData || []}
                 isLoading={isLoading}
+                heading={'Transports Master'}
+                filename={'Transport_Master'}
             />
         </Card>
     );

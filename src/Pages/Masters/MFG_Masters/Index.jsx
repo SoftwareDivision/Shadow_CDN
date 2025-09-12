@@ -203,7 +203,7 @@ function MFGMasters() {
 					<Loader2 className="h-8 w-8 animate-spin text-primary" />
 				</div>
 			) : (
-				<DataTable columns={columns} data={mfgData || []} />
+				<DataTable columns={columns} data={mfgData || []} heading={'MFG Master'} filename={'MFG_Master'} />
 			)}
 		</Card>
 	);

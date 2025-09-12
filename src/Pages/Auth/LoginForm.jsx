@@ -1,25 +1,60 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useAuthToken } from '@/hooks/authStore';
-import { useAuth } from '@/hooks/useAuth';
 import logo from '@/assets/images/logo.jpg';
 import logo2 from '@/assets/images/logo2.png';
 import { motion, AnimatePresence } from 'framer-motion';
 
+/* ---------- Main LoginForm ---------- */
 export default function LoginForm() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [rememberMe, setRememberMe] = useState(false);
 	const { login, isLoading, error } = useAuth();
 
+	const [invalidFields, setInvalidFields] = useState({ email: false, password: false });
+
+	// also catch server-side login error
+	useEffect(() => {
+		if (error) {
+			setInvalidFields({ email: true, password: true });
+			const t = setTimeout(() => setInvalidFields({ email: false, password: false }), 600);
+			return () => clearTimeout(t);
+		}
+	}, [error]);
+
+	const fieldVariants = {
+		idle: { x: 0 },
+		shake: {
+			x: [0, -6, 6, -6, 6, 0],
+			transition: { duration: 0.45, ease: 'easeInOut' },
+		},
+	};
+
+
 	const handleSubmit = (e) => {
 		e.preventDefault();
+
+		// check empty fields
+		const newInvalidFields = {
+			email: email.trim() === '',
+			password: password.trim() === '',
+		};
+
+		if (newInvalidFields.email || newInvalidFields.password) {
+			setInvalidFields(newInvalidFields);
+
+			// reset back after 600ms
+			setTimeout(() => setInvalidFields({ email: false, password: false }), 600);
+			return;
+		}
+
+		// try login
 		login({ username: email, password, rememberMe });
 	};
 
@@ -39,45 +74,64 @@ export default function LoginForm() {
 								</div>
 							</div>
 						</div>
-						{error && <div className="text-destructive text-sm text-center mb-4">{error}</div>}
+
+						{/* {error && <div className="text-destructive text-sm text-center mb-4">{error}</div>} */}
+
 						<div className="space-y-6">
-							<div className="grid gap-4">
+							{/* Username */}
+							<motion.div
+								variants={fieldVariants}
+								animate={invalidFields.email ? 'shake' : 'idle'}
+								className="grid gap-4"
+							>
 								<Label htmlFor="email">Username</Label>
 								<Input
 									id="email"
 									type="text"
 									placeholder="m@example.com"
-									required
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
+									className={cn(
+										invalidFields.email && 'border-red-500 focus-visible:ring-red-500'
+									)}
 								/>
-							</div>
-							<div className="grid gap-4">
+							</motion.div>
+
+							<motion.div
+								variants={fieldVariants}
+								animate={invalidFields.password ? 'shake' : 'idle'}
+								className="grid gap-4"
+							>
 								<Label htmlFor="password">Password</Label>
 								<Input
 									id="password"
 									type="password"
-									required
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
+									className={cn(
+										invalidFields.password && 'border-red-500 focus-visible:ring-red-500'
+									)}
 								/>
-							</div>
+							</motion.div>
+
+
 							<div className="flex items-center space-x-2">
 								<Checkbox
 									id="remember"
 									checked={rememberMe}
-									onCheckedChange={(checked) => setRememberMe(checked)}
+									onCheckedChange={(checked) => setRememberMe(!!checked)}
 								/>
 								<Label htmlFor="remember" className="ml-2">
 									Remember me
 								</Label>
 							</div>
+
 							<Button type="submit" className="w-full" disabled={isLoading}>
 								{isLoading ? 'Logging in...' : 'Login'}
 								{isLoading && (
 									<span className="ml-2 animate-spin">
 										<svg
-											xmlns="URL_ADDRESS.w3.org/2000/svg"
+											xmlns="http://www.w3.org/2000/svg"
 											fill="none"
 											viewBox="0 0 24 24"
 											className="w-4 h-4 text-white"
@@ -101,6 +155,7 @@ export default function LoginForm() {
 							</Button>
 						</div>
 					</form>
+
 					<div className="hidden md:block w-[1px] bg-border absolute right-1/2 inset-y-8"></div>
 					<div className="bg-muted relative hidden md:block">
 						<img src={logo2} alt="Logo" className="absolute inset-0 h-full w-full object-fill" />
@@ -111,24 +166,30 @@ export default function LoginForm() {
 	);
 }
 
+/* ---------- Helpers (unchanged, kept as before) ---------- */
+
+const gradientKeyframes = `
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient {
+  background-size: 400% 400%;
+  animation: gradient 12s ease-in-out infinite;
+}
+`;
+
+
 const SlideInText = ({ text = 'Simplicity is the ultimate sophistication.' }) => {
 	return (
 		<h2 className="text-2xl md:text-4xl font-bold text-center">
 			{text.split('').map((char, i) => (
 				<motion.span
 					key={i}
-					initial={{
-						x: -50,
-						opacity: 0,
-					}}
-					animate={{
-						x: 0,
-						opacity: 1,
-					}}
-					transition={{
-						delay: i * 0.03,
-						ease: 'easeOut',
-					}}
+					initial={{ x: -50, opacity: 0 }}
+					animate={{ x: 0, opacity: 1 }}
+					transition={{ delay: i * 0.03, ease: 'easeOut' }}
 					className="inline-block"
 				>
 					{char === ' ' ? '\u00A0' : char}
@@ -138,16 +199,6 @@ const SlideInText = ({ text = 'Simplicity is the ultimate sophistication.' }) =>
 	);
 };
 
-const gradientKeyframes = `
-@keyframes gradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-.animate-gradient {
-  animation: gradient 8s linear infinite;
-}
-`;
 function GradientText({
 	children,
 	className = '',
@@ -162,12 +213,7 @@ function GradientText({
 	};
 	return (
 		<>
-			{}
-			<style
-				dangerouslySetInnerHTML={{
-					__html: gradientKeyframes,
-				}}
-			/>
+			<style dangerouslySetInnerHTML={{ __html: gradientKeyframes }} />
 			<div
 				className={`relative mx-auto flex max-w-fit flex-row items-center justify-center rounded-[1.25rem] font-medium backdrop-blur transition-shadow duration-500 overflow-hidden cursor-pointer ${className}`}
 			>
@@ -182,7 +228,7 @@ function GradientText({
 								top: '50%',
 								transform: 'translate(-50%, -50%)',
 							}}
-						></div>
+						/>
 					</div>
 				)}
 				<div
@@ -246,14 +292,8 @@ const TypewriterText = ({
 				{displayText}
 				{showCursor && (
 					<motion.span
-						animate={{
-							opacity: [1, 0],
-						}}
-						transition={{
-							duration: 0.8,
-							repeat: Infinity,
-							repeatType: 'reverse',
-						}}
+						animate={{ opacity: [1, 0] }}
+						transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }}
 						className="text-blue-500"
 					>
 						|
@@ -281,41 +321,18 @@ const MorphingText = ({
 			<AnimatePresence mode="wait">
 				<motion.div
 					key={currentIndex}
-					initial={{
-						opacity: 0,
-						filter: 'blur(10px)',
-						scale: 0.8,
-						rotateX: -90,
-					}}
-					animate={{
-						opacity: 1,
-						filter: 'blur(0px)',
-						scale: 1,
-						rotateX: 0,
-					}}
-					exit={{
-						opacity: 0,
-						filter: 'blur(10px)',
-						scale: 1.2,
-						rotateX: 90,
-					}}
+					initial={{ opacity: 0, filter: 'blur(10px)', scale: 0.8, rotateX: -90 }}
+					animate={{ opacity: 1, filter: 'blur(0px)', scale: 1, rotateX: 0 }}
+					exit={{ opacity: 0, filter: 'blur(10px)', scale: 1.2, rotateX: 90 }}
 					transition={{
 						duration: 0.8,
 						ease: [0.25, 0.46, 0.45, 0.94],
-						filter: {
-							duration: 0.6,
-						},
-						scale: {
-							duration: 0.6,
-						},
-						rotateX: {
-							duration: 0.8,
-						},
+						filter: { duration: 0.6 },
+						scale: { duration: 0.6 },
+						rotateX: { duration: 0.8 },
 					}}
 					className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent"
-					style={{
-						transformStyle: 'preserve-3d',
-					}}
+					style={{ transformStyle: 'preserve-3d' }}
 				>
 					{words[currentIndex]}
 				</motion.div>

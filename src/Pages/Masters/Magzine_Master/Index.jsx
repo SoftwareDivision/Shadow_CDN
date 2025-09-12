@@ -225,7 +225,7 @@ function MagzineMaster() {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
             ) : (
-                <DataTable columns={columns} data={magzineData || []} />
+                <DataTable columns={columns} data={magzineData || []} heading={'Magzine Master'} filename={'Magzine_Master'} />
             )}
         </Card>
     );

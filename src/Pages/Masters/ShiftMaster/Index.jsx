@@ -202,7 +202,7 @@ function ShiftMaster() {
                     />
                 )}
             </div>
-            <DataTable columns={columns} data={shiftData || []} />
+            <DataTable columns={columns} data={shiftData || []} heading={'Shift Master'} filename={'Shift_Master'} />
         </Card>
     );
 }

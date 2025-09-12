@@ -517,7 +517,7 @@ function MagAllotForTest() {
 
                 <div className="grid grid-cols-2 gap-5">
                     <div className="flex flex-col gap-y-2">
-                        <Label>L1 Net Weight</Label>
+                        <Label>L1 Barcode</Label>
                         <Input
                             {...register('l1barcode')}
                             placeholder='L1 Barcode...'

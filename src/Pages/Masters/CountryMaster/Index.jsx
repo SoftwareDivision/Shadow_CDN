@@ -203,7 +203,7 @@ function CountryMaster() {
 					/>
 				)}
 			</div>
-			<DataTable columns={columns} data={countryData} />
+			<DataTable columns={columns} data={countryData} heading={'Country Master'} filename={'Country_Master'} />
 		</Card>
 	);
 }

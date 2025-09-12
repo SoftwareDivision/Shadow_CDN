@@ -157,7 +157,7 @@ export default function DataTable({ data: initialData, columns, heading, filenam
 		const doc = new jsPDF();
 		if (heading) {
 			doc.setFontSize(16);
-			doc.text(heading, 14, 8);
+			doc.text(heading, doc.internal.pageSize.getWidth() / 2, 8, { align: 'center' });
 		}
 		const tableHeaders = table
 			.getAllColumns()
@@ -169,17 +169,17 @@ export default function DataTable({ data: initialData, columns, heading, filenam
 					column.id !== 'srno' &&
 					column.id !== 'actions',
 			)
-			.map((column) => column.id);
+			.map((column) => ({ id: column.id, header: column.columnDef.header }));
 
 		const tableRows = table.getRowModel().rows.map((row) =>
-			tableHeaders.map((header) => {
-				const value = row.original[header];
+			tableHeaders.map((column) => {
+				const value = row.original[column.id];
 				return Array.isArray(value) ? value.length : value || '';
 			}),
 		);
 
 		autoTable(doc, {
-			head: [tableHeaders.map((header) => header.toUpperCase())],
+			head: [tableHeaders.map((column) => String(column.header).toUpperCase())],
 			body: tableRows,
 			startY: heading ? 14 : 10,
 			theme: 'grid',
@@ -201,12 +201,12 @@ export default function DataTable({ data: initialData, columns, heading, filenam
 					column.id !== 'srno' &&
 					column.id !== 'actions',
 			)
-			.map((column) => column.id.toUpperCase());
+			.map((column) => ({ id: column.id, header: column.columnDef.header }));
 
 		const tableRows = table.getRowModel().rows.map((row) =>
-			tableHeaders.reduce((acc, header) => {
-				const value = row.original[header.toLowerCase()];
-				acc[header] = Array.isArray(value) ? value.length : value || '';
+			tableHeaders.reduce((acc, column) => {
+				const value = row.original[column.id];
+				acc[column.header] = Array.isArray(value) ? value.length : value || '';
 				return acc;
 			}, {}),
 		);
@@ -216,9 +216,9 @@ export default function DataTable({ data: initialData, columns, heading, filenam
 		if (heading) {
 			worksheetData.push([heading]);
 		}
-		worksheetData.push(tableHeaders);
+		worksheetData.push(tableHeaders.map((column) => String(column.header).toUpperCase()));
 		for (const row of tableRows) {
-			worksheetData.push(tableHeaders.map((header) => row[header]));
+			worksheetData.push(tableHeaders.map((column) => row[column.header]));
 		}
 
 		const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
@@ -237,8 +237,8 @@ export default function DataTable({ data: initialData, columns, heading, filenam
 		const range = XLSX.utils.decode_range(worksheet['!ref']);
 		const headerRowIndex = heading ? 1 : 0;
 		const headerStyle = {
-			font: { bold: true, color: { rgb: 'FFFFFF' } },
-			fill: { fgColor: { rgb: '4472C4' } },
+			font: { bold: true, color: { rgb: '000000' } },
+			fill: { fgColor: { rgb: 'D3D3D3' } },
 			alignment: { horizontal: 'center' },
 			border: {
 				top: { style: 'thin' },
@@ -274,7 +274,7 @@ export default function DataTable({ data: initialData, columns, heading, filenam
 		}
 
 		// Set column widths
-		const colWidths = tableHeaders.map((header) => ({ wch: Math.max(header.length + 2, 12) }));
+		const colWidths = tableHeaders.map((column) => ({ wch: Math.max(String(column.header).length + 2, 12) }));
 		worksheet['!cols'] = colWidths;
 
 		const workbook = XLSX.utils.book_new();

@@ -212,7 +212,7 @@ function MfgLocationMaster() {
 					/>
 				)}
 			</div>
-			<DataTable columns={columns} data={mfgLocationData} />
+			<DataTable columns={columns} data={mfgLocationData} heading={'Mfg Location Master'} filename={'Mfg_Location_Master'} />
 		</Card>
 	);
 }

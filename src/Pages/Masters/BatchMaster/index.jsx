@@ -195,7 +195,7 @@ function BatchIndex() {
 					/>
 				)}
 			</div>
-			<DataTable columns={columns} data={brandData} />
+			<DataTable columns={columns} data={brandData} heading={'Batch Master'} filename={'Batch_Master'} />
 		</Card>
 	);
 }

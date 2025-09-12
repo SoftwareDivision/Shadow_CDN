@@ -201,7 +201,7 @@ function ResetTypeMaster() {
 					/>
 				)}
 			</div>
-			<DataTable columns={columns} data={resetData} />
+			<DataTable columns={columns} data={resetData} heading={'Reset Type Master'} filename={'Reset_Type_Master'} />
 		</Card>
 	);
 }

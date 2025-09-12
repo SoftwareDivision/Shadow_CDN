@@ -187,7 +187,7 @@ function MachineCodeMaster() {
 					<Loader2 className="h-8 w-8 animate-spin text-primary" />
 				</div>
 			) : (
-				<DataTable columns={columns} data={machineData || []} />
+				<DataTable columns={columns} data={machineData || []} heading={'Machine Code Master'} filename={'Machine_Code_Master'} />
 			)}
 		</Card>
 	);

@@ -197,7 +197,7 @@ function ProductMaster() {
 					<Loader2 className="h-8 w-8 animate-spin text-primary" />
 				</div>
 			) : (
-				<DataTable columns={columns} data={productData || []} />
+				<DataTable columns={columns} data={productData || []} heading={'Product Master'} filename={'Product_Master'} />
 			)}
 		</Card>
 	);

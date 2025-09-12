@@ -57,6 +57,7 @@ function AddOrEdit() {
 		register,
 		handleSubmit,
 		setValue,
+		getValues,
 		formState: { errors },
 		reset,
 		control,
@@ -160,17 +161,8 @@ function AddOrEdit() {
 	});
 
 
-	// Populate form values
+	// Populate dropdown options
 	useEffect(() => {
-		if (brandData) {
-			const brandOptions = brandData.map((b) => ({
-				value: b.bname,
-				text: b.bname,
-				disabled: false,
-			}));
-			brandOptions.unshift({ value: 'all', text: 'All', disabled: false });
-			setBrands(brandOptions);
-		}
 		if (plantData) {
 			const plantOptions = plantData.map((p) => ({
 				value: p.pName,
@@ -188,13 +180,50 @@ function AddOrEdit() {
 			uomOptions.unshift({ value: 'all', text: 'All', disabled: false });
 			setUom(uomOptions);
 		}
-		if (isEditMode && existingProduct) {
+	}, [plantData, uomData]);
+
+	// Handle form data population for edit mode
+	useEffect(() => {
+		if (isEditMode && existingProduct && brandData && plantData) {
+			// First, filter brands based on the existing product's plant type
+			const selectedPlant = plantData.find((plant) => plant.pName === existingProduct.ptype);
+			if (selectedPlant) {
+				const filteredBrands = brandData.filter(
+					(brand) => brand.plant_type === selectedPlant.plant_type
+				).map(brand => ({
+					value: brand.bname,
+					text: brand.bname,
+					disabled: false
+				}));
+				setBrands(filteredBrands);
+			} else {
+				// Fallback: set all brands if plant not found
+				const allBrandOptions = brandData.map((b) => ({
+					value: b.bname,
+					text: b.bname,
+					disabled: false,
+				}));
+				allBrandOptions.unshift({ value: 'all', text: 'All', disabled: false });
+				setBrands(allBrandOptions);
+			}
+			
+			// Reset form with existing product data
 			reset(existingProduct);
 		}
-		if (!isEditMode && state) {
+		else if (!isEditMode && state) {
 			reset(state);
 		}
-	}, [brandData, plantData, uomData, reset, existingProduct, isEditMode, state]);
+		else if (!isEditMode && brandData) {
+			// For add mode, show all brands initially
+			const brandOptions = brandData.map((b) => ({
+				value: b.bname,
+				text: b.bname,
+				disabled: false,
+			}));
+			brandOptions.unshift({ value: 'all', text: 'All', disabled: false });
+			setBrands(brandOptions);
+		}
+	}, [isEditMode, existingProduct, brandData, plantData, reset, state]);
 
 	// Handle loading and error
 	const loading = isBrandLoading || isPlantLoading || isUomLoading || (isEditMode && isProductLoading);
@@ -248,7 +277,7 @@ function AddOrEdit() {
 												}));
 												setBrands(filteredBrands || []);
 												// Clear brand selection if current brand is not in filtered list
-												const currentBname = field.value;
+												const currentBname = getValues('bname');
 												if (currentBname && !filteredBrands?.some(b => b.value === currentBname)) {
 													setValue('bname', '');
 													setValue('bid', '');
@@ -555,17 +584,16 @@ function AddOrEdit() {
 							render={({ field }) => (
 								<div className="flex flex-col gap-2">
 									<RadioGroup
-										defaultValue=""
 										className="flex space-x-4"
 										onValueChange={field.onChange}
-										value={field.value}
+										value={field.value.toString()} // Convert to string for comparison
 									>
 										<div className="flex items-center space-x-2">
-											<RadioGroupItem value="true" id="active" />
+											<RadioGroupItem value="true" id="active" checked={field.value === "true"} />
 											<label htmlFor="active">Active</label>
 										</div>
 										<div className="flex items-center space-x-2">
-											<RadioGroupItem value="false" id="inactive" />
+											<RadioGroupItem value="false" id="inactive" checked={field.value === "false"} />
 											<label htmlFor="inactive">Inactive</label>
 										</div>
 									</RadioGroup>

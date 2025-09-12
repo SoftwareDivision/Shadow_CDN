@@ -127,7 +127,7 @@ function AddOrEditUser() {
 							</label>
 							<Input
 								id="passwordHash"
-								type="password"
+								type="text"
 								{...register('passwordHash')}
 								className={errors.passwordHash ? 'border-destructive' : ''}
 							/>

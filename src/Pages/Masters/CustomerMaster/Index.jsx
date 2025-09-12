@@ -211,6 +211,8 @@ function CustomerMaster() {
                 columns={columns}
                 data={customerData || []}
                 isLoading={isLoading}
+                heading={'Customer Master'}
+                filename={'Customer_Master'}
             />
         </Card>
     );

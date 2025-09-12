@@ -214,7 +214,7 @@ function BrandMaster() {
 					/>
 				)}
 			</div>
-			<DataTable columns={columns} data={brandData} />
+			<DataTable columns={columns} data={brandData} heading={'Brand Master'} filename={'Brand_Master'}/>
 		</Card>
 	);
 }

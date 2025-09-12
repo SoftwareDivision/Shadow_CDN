@@ -365,6 +365,10 @@ function AIMEGeneration() {
 												<Calendar
 													mode="single"
 													selected={indentDate}
+													disabled={(date) => {
+														// Disable dates before today
+														return date < new Date().setHours(0, 0, 0, 0);
+													}}
 													onSelect={(date) => {
 														setindentDate(date);
 														setValue('indentDate', date);
@@ -422,7 +426,7 @@ function AIMEGeneration() {
 												Class/Division
 											</TableHead>
 											<TableHead className="font-medium sticky top-0 z-10 border-b text-center">
-												Quality
+												Quantity
 											</TableHead>
 											<TableHead className="font-medium sticky top-0 z-10 border-b text-center">
 												UOM
@@ -660,6 +664,10 @@ function AIMEGeneration() {
 												<Calendar
 													mode="single"
 													selected={datedisp}
+													disabled={(date) => {
+														// Disable dates before today
+														return date < new Date().setHours(0, 0, 0, 0);
+													}}
 													onSelect={(date) => {
 														setdatedisp(date);
 														setValue('datedisp', date);
@@ -696,6 +704,10 @@ function AIMEGeneration() {
 												<Calendar
 													mode="single"
 													selected={destinationDate}
+													disabled={(date) => {
+														// Disable dates before today
+														return date < new Date().setHours(0, 0, 0, 0);
+													}}
 													onSelect={(date) => {
 														setdestinationDate(date);
 														setValue('destinationDate', date);
@@ -928,17 +940,17 @@ function AIMEGeneration() {
 																								className={cn(
 																									'w-[260px] justify-center text-center font-normal',
 																									!dateField.value &&
-																										'text-muted-foreground',
+																									'text-muted-foreground',
 																								)}
 																							>
 																								<CalendarIcon className="mr-2 h-4 w-4" />
 																								{dateField.value
 																									? format(
-																											new Date(
-																												dateField.value,
-																											),
-																											'PPP',
-																									  )
+																										new Date(
+																											dateField.value,
+																										),
+																										'PPP',
+																									)
 																									: 'Pick a date'}
 																							</Button>
 																						</PopoverTrigger>
@@ -951,10 +963,14 @@ function AIMEGeneration() {
 																								selected={
 																									dateField.value
 																										? new Date(
-																												dateField.value,
-																										  )
+																											dateField.value,
+																										)
 																										: undefined
 																								}
+																								disabled={(date) => {
+																									// Disable dates before today
+																									return date < new Date().setHours(0, 0, 0, 0);
+																								}}
 																								onSelect={(date) => {
 																									if (date) {
 																										dateField.onChange(
@@ -1001,7 +1017,7 @@ function AIMEGeneration() {
 				<div className="grid grid-cols-8 gap-5">
 					{/* Submit Button */}
 					<Button type="submit" className="col-span-2" disabled={isLoadingReport}>
-						<FileDown /> {isLoadingReport ? 'Printing File...' : 'Intamination File'}
+						<FileDown /> {isLoadingReport ? 'Printing File...' : 'Intimation File'}
 					</Button>
 					<Button type="button" onClick={handleClear}>
 						<Eraser /> Clear
@@ -1016,9 +1032,22 @@ function AIMEGeneration() {
 							<DialogTitle>PDF Preview</DialogTitle>
 						</DialogHeader>
 						<div className="w-full" style={{ height: '500px' }}>
-							<PDFViewer className="w-full" style={{ height: '100%' }}>
-								<AIMEPDF AIMEData={FormData} />
-							</PDFViewer>
+							<div className="w-full" style={{ height: '100%' }}>
+								<PDFViewer className="w-full" style={{ height: '90%' }}>
+									<AIMEPDF AIMEData={FormData} />
+								</PDFViewer>
+								<div className="mt-2 flex justify-end">
+									<PDFDownloadLink
+										document={<AIMEPDF AIMEData={FormData} />}
+										fileName={`Intimation_${FormData?.aime_no || 'report'}.pdf`}
+										className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+									>
+										{({ blob, url, loading, error }) =>
+											loading ? 'Loading document...' : 'Download PDF'
+										}
+									</PDFDownloadLink>
+								</div>
+							</div>
 						</div>
 					</DialogContent>
 				</Dialog>

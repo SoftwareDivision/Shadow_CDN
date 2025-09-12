@@ -175,7 +175,7 @@ function UOMMaster() {
                 )}
             </div>
 
-            <DataTable columns={columns} data={uomData || []} isLoading={isLoading} />
+            <DataTable columns={columns} data={uomData || []} isLoading={isLoading} heading={'UOM Master'} filename={'UOM_Master'} />
         </Card>
     );
 }
