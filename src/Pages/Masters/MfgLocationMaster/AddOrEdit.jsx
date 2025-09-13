@@ -209,7 +209,20 @@ function AddOrEdit() {
 						</label>
 						<Input
 							id="mfgloccode"
-							{...register('mfgloccode')}
+							{...register('mfgloccode', {
+								onChange: (e) => {
+									// Allow only single alphabetic character
+									const value = e.target.value;
+									const lastChar = value.slice(-1);
+									if (lastChar && !lastChar.match(/[A-Za-z]/)) {
+										e.target.value = value.slice(0, -1);
+									}
+									if (value.length > 1) {
+										e.target.value = value.slice(0, 1);
+									}
+								}
+							})}
+							maxLength={1}
 							style={{ textTransform: 'uppercase' }}
 							className={errors.mfgloccode ? 'border-red-500' : ''}
 						/>
