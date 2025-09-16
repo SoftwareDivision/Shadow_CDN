@@ -6,17 +6,11 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-	Select, SelectContent, SelectGroup, SelectItem,
-	SelectTrigger, SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthToken } from '@/hooks/authStore';
 import { useSnackbar } from 'notistack';
-import {
-	createProduct, getAllBrands, updateProduct,
-	getUOMDetails, getPlantDetails, getProductById,
-} from '@/lib/api';
+import { createProduct, getAllBrands, updateProduct, getUOMDetails, getPlantDetails, getProductById } from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -127,7 +121,6 @@ function AddOrEdit() {
 		enabled: !!tokendata,
 	});
 
-
 	const {
 		data: plantData,
 		isLoading: isPlantLoading,
@@ -137,7 +130,6 @@ function AddOrEdit() {
 		queryFn: () => getPlantDetails(tokendata),
 		enabled: !!tokendata,
 	});
-
 
 	const {
 		data: uomData,
@@ -149,7 +141,6 @@ function AddOrEdit() {
 		enabled: !!tokendata,
 	});
 
-
 	const {
 		data: existingProduct,
 		isLoading: isProductLoading,
@@ -159,7 +150,6 @@ function AddOrEdit() {
 		queryFn: () => getProductById(tokendata, id),
 		enabled: isEditMode && !!tokendata,
 	});
-
 
 	// Populate dropdown options
 	useEffect(() => {
@@ -188,13 +178,13 @@ function AddOrEdit() {
 			// First, filter brands based on the existing product's plant type
 			const selectedPlant = plantData.find((plant) => plant.pName === existingProduct.ptype);
 			if (selectedPlant) {
-				const filteredBrands = brandData.filter(
-					(brand) => brand.plant_type === selectedPlant.plant_type
-				).map(brand => ({
-					value: brand.bname,
-					text: brand.bname,
-					disabled: false
-				}));
+				const filteredBrands = brandData
+					.filter((brand) => brand.plant_type === selectedPlant.plant_type)
+					.map((brand) => ({
+						value: brand.bname,
+						text: brand.bname,
+						disabled: false,
+					}));
 				setBrands(filteredBrands);
 			} else {
 				// Fallback: set all brands if plant not found
@@ -206,14 +196,30 @@ function AddOrEdit() {
 				allBrandOptions.unshift({ value: 'all', text: 'All', disabled: false });
 				setBrands(allBrandOptions);
 			}
-			
+
 			// Reset form with existing product data
 			reset(existingProduct);
-		}
-		else if (!isEditMode && state) {
+
+			// Manually trigger the ptype change logic to filter brands and set ptypecode
+			const selectedPlantFromExistingProduct = plantData?.find((plant) => plant.pName === existingProduct.ptype);
+			if (selectedPlantFromExistingProduct) {
+				setValue('ptypecode', selectedPlantFromExistingProduct.pCode);
+
+				const filteredBrands = brandData
+					?.filter((brand) => brand.plant_type === selectedPlantFromExistingProduct.plant_type)
+					.map((brand) => ({
+						value: brand.bname,
+						text: brand.bname,
+						disabled: false,
+					}));
+				setBrands(filteredBrands || []);
+			} else {
+				setValue('ptypecode', '');
+				setBrands([]);
+			}
+		} else if (!isEditMode && state) {
 			reset(state);
-		}
-		else if (!isEditMode && brandData) {
+		} else if (!isEditMode && brandData) {
 			// For add mode, show all brands initially
 			const brandOptions = brandData.map((b) => ({
 				value: b.bname,
@@ -244,7 +250,6 @@ function AddOrEdit() {
 		);
 	}
 
-
 	return (
 		<Card className="p-4 shadow-md w-full mx-auto">
 			<div>
@@ -263,22 +268,30 @@ function AddOrEdit() {
 										value={field.value}
 										onValueChange={(value) => {
 											field.onChange(value);
-											const selectedPlantFromData = plantData?.find((plant) => plant.pName === value);
+											const selectedPlantFromData = plantData?.find(
+												(plant) => plant.pName === value,
+											);
 											if (selectedPlantFromData) {
 												setValue('ptypecode', selectedPlantFromData.pCode);
 
 												// Filter brands based on selected plant_type
-												const filteredBrands = brandData?.filter(
-													(brand) => brand.plant_type === selectedPlantFromData.plant_type
-												).map(brand => ({
-													value: brand.bname,
-													text: brand.bname,
-													disabled: false
-												}));
+												const filteredBrands = brandData
+													?.filter(
+														(brand) =>
+															brand.plant_type === selectedPlantFromData.plant_type,
+													)
+													.map((brand) => ({
+														value: brand.bname,
+														text: brand.bname,
+														disabled: false,
+													}));
 												setBrands(filteredBrands || []);
 												// Clear brand selection if current brand is not in filtered list
 												const currentBname = getValues('bname');
-												if (currentBname && !filteredBrands?.some(b => b.value === currentBname)) {
+												if (
+													currentBname &&
+													!filteredBrands?.some((b) => b.value === currentBname)
+												) {
 													setValue('bname', '');
 													setValue('bid', '');
 													setValue('class', '');
@@ -356,11 +369,15 @@ function AddOrEdit() {
 										</SelectTrigger>
 										<SelectContent>
 											<SelectGroup>
-												{brands.map((brand) => ( // Use 'brands' state here
-													<SelectItem key={brand.value} value={brand.value}>
-														{brand.text}
-													</SelectItem>
-												))}
+												{brands.map(
+													(
+														brand, // Use 'brands' state here
+													) => (
+														<SelectItem key={brand.value} value={brand.value}>
+															{brand.text}
+														</SelectItem>
+													),
+												)}
 											</SelectGroup>
 										</SelectContent>
 									</Select>
@@ -382,7 +399,12 @@ function AddOrEdit() {
 				<div className="grid grid-cols-3 gap-4 space-y-2">
 					<div className="space-y-2">
 						<Label>Class</Label>
-						<Input type="number" {...register('class')} className={errors.class ? 'border-red-500' : ''} readOnly />
+						<Input
+							type="number"
+							{...register('class')}
+							className={errors.class ? 'border-red-500' : ''}
+							readOnly
+						/>
 						{errors.class && <span className="text-sm text-red-500">{errors.class.message}</span>}
 					</div>
 
@@ -589,22 +611,27 @@ function AddOrEdit() {
 										value={field.value.toString()} // Convert to string for comparison
 									>
 										<div className="flex items-center space-x-2">
-											<RadioGroupItem value="true" id="active" checked={field.value === "true"} />
+											<RadioGroupItem value="true" id="active" checked={field.value === 'true'} />
 											<label htmlFor="active">Active</label>
 										</div>
 										<div className="flex items-center space-x-2">
-											<RadioGroupItem value="false" id="inactive" checked={field.value === "false"} />
+											<RadioGroupItem
+												value="false"
+												id="inactive"
+												checked={field.value === 'false'}
+											/>
 											<label htmlFor="inactive">Inactive</label>
 										</div>
 									</RadioGroup>
 									{errors.act && (
-										<span className="text-destructive text-center text-sm">{errors.act.message}</span>
+										<span className="text-destructive text-center text-sm">
+											{errors.act.message}
+										</span>
 									)}
 								</div>
 							)}
 						/>
 					</div>
-
 				</div>
 
 				{/* Submit button */}

@@ -97,6 +97,7 @@ const fetchFile = async (method, url, token, data = null) => {
 export const login = async (credentials) => {
 	try {
 		const res = await api.post('/Login/Login', credentials);
+		console.log(res);
 		if (res.data.statusCode === 200) return res.data;
 		throw new Error(res.data.data || 'Login failed');
 	} catch (err) {

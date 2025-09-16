@@ -9,12 +9,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import logo from '@/assets/images/logo.jpg';
 import logo2 from '@/assets/images/logo2.png';
 import { motion, AnimatePresence } from 'framer-motion';
+import { enqueueSnackbar } from 'notistack';
+import { Eye, EyeOff } from 'lucide-react';
 
 /* ---------- Main LoginForm ---------- */
 export default function LoginForm() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [rememberMe, setRememberMe] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 	const { login, isLoading, error } = useAuth();
 
 	const [invalidFields, setInvalidFields] = useState({ email: false, password: false });
@@ -22,6 +25,10 @@ export default function LoginForm() {
 	// also catch server-side login error
 	useEffect(() => {
 		if (error) {
+			enqueueSnackbar(error, {
+				variant: 'error',
+				anchorOrigin: { vertical: 'top', horizontal: 'right' },
+			});
 			setInvalidFields({ email: true, password: true });
 			const t = setTimeout(() => setInvalidFields({ email: false, password: false }), 600);
 			return () => clearTimeout(t);
@@ -35,7 +42,6 @@ export default function LoginForm() {
 			transition: { duration: 0.45, ease: 'easeInOut' },
 		},
 	};
-
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -91,9 +97,7 @@ export default function LoginForm() {
 									placeholder="m@example.com"
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
-									className={cn(
-										invalidFields.email && 'border-red-500 focus-visible:ring-red-500'
-									)}
+									className={cn(invalidFields.email && 'border-red-500 focus-visible:ring-red-500')}
 								/>
 							</motion.div>
 
@@ -103,17 +107,26 @@ export default function LoginForm() {
 								className="grid gap-4"
 							>
 								<Label htmlFor="password">Password</Label>
-								<Input
-									id="password"
-									type="password"
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
-									className={cn(
-										invalidFields.password && 'border-red-500 focus-visible:ring-red-500'
-									)}
-								/>
+								<div className="relative">
+									<Input
+										id="password"
+										type={showPassword ? 'text' : 'password'}
+										value={password}
+										onChange={(e) => setPassword(e.target.value)}
+										className={cn(
+											invalidFields.password && 'border-red-500 focus-visible:ring-red-500',
+											'pr-10',
+										)}
+									/>
+									<button
+										type="button"
+										className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+										onClick={() => setShowPassword(!showPassword)}
+									>
+										{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+									</button>
+								</div>
 							</motion.div>
-
 
 							<div className="flex items-center space-x-2">
 								<Checkbox
@@ -179,7 +192,6 @@ const gradientKeyframes = `
   animation: gradient 12s ease-in-out infinite;
 }
 `;
-
 
 const SlideInText = ({ text = 'Simplicity is the ultimate sophistication.' }) => {
 	return (

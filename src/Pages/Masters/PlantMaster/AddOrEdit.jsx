@@ -16,20 +16,18 @@ import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
 const validationSchema = yup.object().shape({
 	plant_type: yup.string().required('Plant type is required'),
 	pName: yup.string().required('Plant name is required'),
-	pCode: yup.string().required('Plant code is required'),
+	pCode: yup.string().min(2).max(2).required('Plant code is required'),
 	license: yup.string().required('License is required'),
 	company_ID: yup.string().required('Company ID is required'),
 	issue_dt: yup.date().required('Issue date is required'),
 	validity_dt: yup.date().required('Validity date is required'),
 });
-
-
 
 function AddOrEdit() {
 	const { id } = useParams();
@@ -91,9 +89,6 @@ function AddOrEdit() {
 			setValue('issue_dt', plantData.issue_dt.split('T')[0]);
 			setValue('validity_dt', plantData.validity_dt.split('T')[0]);
 		}
-
-
-
 	}, [id, location.state, planttypeData, setValue]);
 
 	const mutation = useMutation({
@@ -186,7 +181,10 @@ function AddOrEdit() {
 						<label htmlFor="pCode" className="text-sm font-medium">
 							Plant Code
 						</label>
-						<Input id="pCode" {...register('pCode')} className={errors.pCode ? 'border-red-500' : ''}
+						<Input
+							id="pCode"
+							{...register('pCode')}
+							className={errors.pCode ? 'border-red-500' : ''}
 							style={{ textTransform: 'uppercase' }}
 						/>
 						{errors.pCode && <span className="text-sm text-red-500">{errors.pCode.message}</span>}
@@ -196,7 +194,11 @@ function AddOrEdit() {
 						<label htmlFor="license" className="text-sm font-medium">
 							License
 						</label>
-						<Input id="license" {...register('license')} className={errors.license ? 'border-red-500' : ''} />
+						<Input
+							id="license"
+							{...register('license')}
+							className={errors.license ? 'border-red-500' : ''}
+						/>
 						{errors.license && <span className="text-sm text-red-500">{errors.license.message}</span>}
 					</div>
 
@@ -214,7 +216,7 @@ function AddOrEdit() {
 
 					<div className="space-y-2">
 						<label htmlFor="issue_dt" className="text-sm font-medium">
-							License	Issue Date
+							License Issue Date
 						</label>
 						<Popover>
 							<PopoverTrigger asChild>
@@ -227,9 +229,9 @@ function AddOrEdit() {
 									)}
 								>
 									<CalendarIcon className="mr-2 h-4 w-4" />
-									{watch('issue_dt') ? (
-										format(new Date(watch('issue_dt')), 'PPP')
-									) : format(new Date(), "PPP")}
+									{watch('issue_dt')
+										? format(new Date(watch('issue_dt')), 'PPP')
+										: format(new Date(), 'PPP')}
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent className="w-auto p-0" align="start">
@@ -246,7 +248,7 @@ function AddOrEdit() {
 
 					<div className="space-y-2">
 						<label htmlFor="validity_dt" className="text-sm font-medium">
-							License	Validity Date
+							License Validity Date
 						</label>
 						<Popover>
 							<PopoverTrigger asChild>
@@ -259,9 +261,9 @@ function AddOrEdit() {
 									)}
 								>
 									<CalendarIcon className="mr-2 h-4 w-4" />
-									{watch('validity_dt') ? (
-										format(new Date(watch('validity_dt')), 'PPP')
-									) : format(new Date(), "PPP")}
+									{watch('validity_dt')
+										? format(new Date(watch('validity_dt')), 'PPP')
+										: format(new Date(), 'PPP')}
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent className="w-auto p-0" align="start">
@@ -273,7 +275,9 @@ function AddOrEdit() {
 								/>
 							</PopoverContent>
 						</Popover>
-						{errors.validity_dt && <span className="text-sm text-red-500">{errors.validity_dt.message}</span>}
+						{errors.validity_dt && (
+							<span className="text-sm text-red-500">{errors.validity_dt.message}</span>
+						)}
 					</div>
 				</div>
 				<div className="flex justify-end space-x-2">

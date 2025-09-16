@@ -37,6 +37,7 @@ function AddOrEditUser() {
 			const response = await getroleDetails(tokendata);
 			return response || [];
 		},
+		staleTime: 0, // Ensure fresh data on each render
 	});
 
 	const {
@@ -60,16 +61,24 @@ function AddOrEditUser() {
 
 	useEffect(() => {
 		if (state?.userData) {
+			console.log(state.userData);
 			const { id, username, passwordHash, company_ID, role } = state.userData;
-			reset({
-				id,
-				username,
-				passwordHash: '',
-				company_ID,
-				role: role,
-			});
+
+			// Ensure we have the role data before setting form values
+			if (roles?.length > 0) {
+				// Find matching role in the roles array if role is an object
+				const roleValue = typeof role === 'object' && role !== null ? role.roleName : role;
+				console.log(roleValue);
+				reset({
+					id,
+					username,
+					passwordHash: '',
+					company_ID,
+					role: roleValue,
+				});
+			}
 		}
-	}, [state, reset]);
+	}, [state, reset, roles]);
 
 	const mutation = useMutation({
 		mutationFn: (data) => {
@@ -155,11 +164,14 @@ function AddOrEditUser() {
 								Role
 							</label>
 							<Select
-								className="w-full"
-								onValueChange={(value) => setValue('role', value)}
+								{...register('role')}
 								value={watch('role')}
+								onValueChange={(value) => setValue('role', value)}
 							>
-								<SelectTrigger className={errors.role ? 'border-destructive w-full' : 'w-full'}>
+								<SelectTrigger
+									id="role"
+									className={errors.role ? 'border-destructive w-full' : 'w-full'}
+								>
 									<SelectValue placeholder="Select a role" />
 								</SelectTrigger>
 								<SelectContent>
@@ -169,7 +181,7 @@ function AddOrEditUser() {
 										</div>
 									) : (
 										roles?.map((role) => (
-											<SelectItem key={role.id} value={role.roleName.toString()}>
+											<SelectItem key={role.id} value={role.roleName}>
 												{role.roleName}
 											</SelectItem>
 										))

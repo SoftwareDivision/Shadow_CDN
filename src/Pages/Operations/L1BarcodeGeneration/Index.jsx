@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, Loader2 } from 'lucide-react';
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 import { Controller } from 'react-hook-form';
 import { cn } from '../../../lib/utils';
 import { useMutation, useQuery } from '@tanstack/react-query';
