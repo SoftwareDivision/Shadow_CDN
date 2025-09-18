@@ -504,7 +504,7 @@ function MagAllotForTest() {
 						<Label>L1 Barcode</Label>
 						<Input
 							{...register('l1barcode')}
-							placeholder="L1 Barcode..."
+							placeholder="Scan L1 Barcode..."
 							className={errors.l1barcode ? 'border-red-500' : ''}
 						/>
 						{errors.l1barcode && (

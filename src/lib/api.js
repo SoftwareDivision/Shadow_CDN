@@ -281,7 +281,7 @@ export const updateMagzine = (t, d) => putData(`/MagzineMasters/UpdateMagzine/${
 // Customer Master APIs
 export const getCustomerDetails = (t) => getAll('/CustomerMasters/GetAllCustomers', t);
 export const createCustomer = (t, data) => postData('/CustomerMasters/CreateCustomer', t, data);
-export const updateCustomer = (t, data) => putData('/CustomerMasters/UpdateCustomer', t, data);
+export const updateCustomer = (t, data) => putData(`/CustomerMasters/UpdateCustomer/${data.id}`, t, data);
 export const deleteCustomer = (t, id) => deleteData(`/CustomerMasters/DeleteCustomer/${id}`, t);
 // Loading Sheet APIs
 

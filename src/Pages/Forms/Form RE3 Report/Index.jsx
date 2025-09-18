@@ -158,7 +158,7 @@ function FormRE3_Report() {
 			header: () => (
 				<div>
 					<div>Explosives received</div>
-					<div>by licensee</div>
+					<div>by license</div>
 				</div>
 			),
 			cell: ({ row }) => {
@@ -214,7 +214,7 @@ function FormRE3_Report() {
 			accessorKey: 'fgh',
 			header: () => (
 				<div>
-					<div>Signature of licensee</div>
+					<div>Signature of license</div>
 					<div>or person in charge</div>
 				</div>
 			),
