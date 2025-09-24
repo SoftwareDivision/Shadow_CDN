@@ -5,11 +5,11 @@ import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, DownloadIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 // Assuming getPlantDetails, getShiftDetails, getBrands, and getProductSizes are available in your api.js
-import { getMagzineDetails, getStockReport, getProductDetails } from '@/lib/api';
+import { getMagzineDetails, getStockReport, getProductDetails, exportStockReportToExcel } from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
 
 import { Card } from '@/components/ui/card';
@@ -62,6 +62,7 @@ function Storage_Report() {
 	const [productSizes, setProductSizes] = useState([]);
 	const [reportData, setReportData] = React.useState(null);
 	const [isLoadingReport, setIsLoadingReport] = React.useState(false);
+	const [isExporting, setIsExporting] = React.useState(false);
 	const [reportType, setReportType] = React.useState('Detailed');
 
 	const { enqueueSnackbar } = useSnackbar();
@@ -113,6 +114,52 @@ function Storage_Report() {
 			setMagzine(magOptions);
 		}
 	}, [reset, productData, magazineData]);
+
+	// Handle export to Excel
+	const onExportToExcel = async (data) => {
+		setIsExporting(true);
+
+		// Format dates to YYYY-MM-DD if they exist
+		const formattedFromDate = data.fromDate ? format(data.fromDate, 'yyyy-MM-dd') : '';
+		const formattedToDate = data.toDate ? format(data.toDate, 'yyyy-MM-dd') : '';
+
+		// Handle 'all' values for shift, plant, brand and productsize
+		const selectedMagazine = data.magazine === 'all' ? '' : data.magazine;
+		const selectedBrand = data.brand === 'all' ? '' : data.brand;
+		const selectedProductSize = data.productsize === 'all' ? '' : data.productsize;
+
+		const reportParams = {
+			fromDate: formattedFromDate,
+			toDate: formattedToDate,
+			reportType: data.reportType,
+			magazine: selectedMagazine,
+			brand: selectedBrand,
+			productsize: selectedProductSize,
+		};
+
+		try {
+			// Make the API call to export to Excel
+			const blob = await exportStockReportToExcel(tokendata, reportParams);
+			console.log('Blob:', blob);
+			// Create a download link and trigger the download
+			const url = window.URL.createObjectURL(new Blob([blob]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', `Storage_Report_${data.reportType}_${format(new Date(), 'dd-MM-yyyy')}.xlsx`);
+			document.body.appendChild(link);
+			link.click();
+
+			// Clean up
+			link.parentNode.removeChild(link);
+			window.URL.revokeObjectURL(url);
+
+			enqueueSnackbar('Report exported successfully', { variant: 'success' });
+		} catch (error) {
+			enqueueSnackbar(error.message || 'Failed to export report', { variant: 'error' });
+		} finally {
+			setIsExporting(false);
+		}
+	};
 
 	// Handle form submission
 	const onSubmit = async (data) => {
@@ -550,9 +597,40 @@ function Storage_Report() {
 				</div>
 
 				{/* Submit Button */}
-				<Button type="submit" disabled={isLoadingReport}>
-					{isLoadingReport ? 'Generating Report...' : 'Generate Report'}
-				</Button>
+				<div className="flex gap-2">
+					<Button type="submit" disabled={isLoadingReport}>
+						{isLoadingReport ? (
+							<>
+								<DownloadIcon className="mr-2 h-4 w-4 animate-spin" />
+								Generating Report...
+							</>
+						) : (
+							<>
+								<DownloadIcon className="mr-2 h-4 w-4" />
+								Generate Report
+							</>
+						)}
+					</Button>
+					<Button
+						type="button"
+						variant="outline"
+						className="border-red-500 text-red-500"
+						onClick={handleSubmit(onExportToExcel)}
+						disabled={isExporting}
+					>
+						{isExporting ? (
+							<>
+								<DownloadIcon className="mr-2 h-4 w-4 animate-spin" />
+								Exporting...
+							</>
+						) : (
+							<>
+								<DownloadIcon className="mr-2 h-4 w-4" />
+								Export to Excel
+							</>
+						)}
+					</Button>
+				</div>
 			</form>
 
 			<div>
@@ -560,6 +638,8 @@ function Storage_Report() {
 					<SummableDataTable
 						columns={reportType === 'Storage' ? detailedReportColumns : summaryReportColumns} // Use 'columns' for Detailed, 'summaryReportColumns' for Summary
 						data={reportData}
+						fileName={`Storage_Report_${reportType}_${format(new Date(), 'dd-MM-yyyy')}`}
+						showExportButtons={false}
 					/>
 				) : (
 					<p className="text-center">No report data available.</p>

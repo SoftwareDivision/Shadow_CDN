@@ -71,7 +71,12 @@ function DraggableRow({ row }) {
 	);
 }
 
-export default function SummableDataTable({ data: initialData, columns }) {
+export default function SummableDataTable({
+	data: initialData,
+	columns,
+	fileName = 'table_data',
+	showExportButtons = true,
+}) {
 	const [data, setData] = useState(initialData);
 	const [rowSelection, setRowSelection] = useState({});
 	const [columnFilters, setColumnFilters] = useState([]);
@@ -150,10 +155,118 @@ export default function SummableDataTable({ data: initialData, columns }) {
 	// 📤 Export to PDF
 	const exportToPDF = () => {
 		const doc = new jsPDF();
+
+		// Get table headers and data
+		const tableHeaders = table
+			.getAllColumns()
+			.filter((c) => c.getIsVisible() && !['srno', 'select', 'actions'].includes(c.id))
+			.map((col) => (typeof col.columnDef.header === 'string' ? col.columnDef.header : col.id));
+
+		const tableRows = table.getRowModel().rows.map((row) =>
+			tableHeaders.map((header, index) => {
+				const colId = table
+					.getAllColumns()
+					.filter((c) => c.getIsVisible() && !['srno', 'select', 'actions'].includes(c.id))[index].id;
+				const v = row.original[colId];
+				return Array.isArray(v) ? v.length : v || '';
+			}),
+		);
+
+		// Prepare data for autoTable with proper styling
+		const headerStyles = {
+			fillColor: [64, 64, 64],
+			textColor: 255,
+			fontSize: 10,
+			cellPadding: 4,
+			fontStyle: 'bold',
+		};
+
+		const bodyStyles = {
+			fontSize: 9,
+			cellPadding: 3,
+		};
+
+		// Add title
+		const exportFileName = fileName && fileName.trim() !== '' ? fileName : 'Table Report';
+		doc.setFontSize(16);
+		doc.setFont(undefined, 'bold');
+		doc.text(exportFileName, 14, 20);
+
+		// Add date
+		const dateStr = new Date().toLocaleDateString('en-GB');
+		doc.setFontSize(10);
+		doc.setFont(undefined, 'normal');
+		doc.text(`Exported on: ${dateStr}`, 14, 30);
+
+		// Create the table
+		autoTable(doc, {
+			head: [tableHeaders],
+			body: tableRows,
+			startY: 40,
+			styles: { cellPadding: 2, fontSize: 8 },
+			headStyles: headerStyles,
+			bodyStyles: bodyStyles,
+			alternateRowStyles: { fillColor: [240, 240, 240] },
+			didDrawCell: (data) => {
+				// Add borders to all cells
+				doc.setDrawColor(0);
+				doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
+			},
+		});
+
+		// Add sum row if there are summable columns
+		// Get visible columns first
+		const visibleColumns = table
+			.getAllColumns()
+			.filter((c) => c.getIsVisible() && !['srno', 'select', 'actions'].includes(c.id));
+
+		// Find summable columns among visible ones
+		const summableColumns = visibleColumns.filter((col) => col.columnDef?.meta?.isSummable);
+
+		if (summableColumns.length > 0) {
+			const sumRow = new Array(tableHeaders.length).fill('');
+			sumRow[0] = 'Total';
+
+			summableColumns.forEach((col) => {
+				const sum = calculateColumnSum(col.id);
+				// Find the correct index in the visible columns
+				const visibleIndex = visibleColumns.findIndex((c) => c.id === col.id);
+				if (visibleIndex >= 0) {
+					sumRow[visibleIndex] = sum;
+				}
+			});
+
+			// Add sum row to the table
+			autoTable(doc, {
+				body: [sumRow],
+				startY: doc.lastAutoTable.finalY + 2,
+				styles: { cellPadding: 2, fontSize: 8, fontStyle: 'bold' },
+				headStyles: { fillColor: [64, 64, 64], textColor: 255 },
+				bodyStyles: { fillColor: [200, 200, 200] },
+				didDrawCell: (data) => {
+					// Add borders to all cells
+					doc.setDrawColor(0);
+					doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
+				},
+			});
+		}
+
+		// Save the PDF
+		const finalFileName = fileName && fileName.trim() !== '' ? fileName : 'table_data';
+		doc.save(`${finalFileName}.pdf`);
+	};
+
+	// 📤 Export to Excel
+	const exportToExcel = () => {
 		const tableHeaders = table
 			.getAllColumns()
 			.filter((c) => c.getIsVisible() && !['srno', 'select', 'actions'].includes(c.id))
 			.map((col) => col.id);
+
+		const headerNames = table
+			.getAllColumns()
+			.filter((c) => c.getIsVisible() && !['srno', 'select', 'actions'].includes(c.id))
+			.map((col) => (typeof col.columnDef.header === 'string' ? col.columnDef.header : col.id));
 
 		const tableRows = table.getRowModel().rows.map((row) =>
 			tableHeaders.map((header) => {
@@ -162,53 +275,129 @@ export default function SummableDataTable({ data: initialData, columns }) {
 			}),
 		);
 
-		autoTable(doc, {
-			head: [tableHeaders.map((h) => h.toUpperCase())],
-			body: tableRows,
-			startY: 10,
-			theme: 'grid',
-			headStyles: { fillColor: [100, 100, 100] },
-		});
-
-		doc.save('table_data.pdf');
-	};
-
-	// 📤 Export to Excel
-	const exportToExcel = () => {
-		const tableHeaders = table
-			.getAllColumns()
-			.filter((c) => c.getIsVisible() && !['srno', 'select', 'actions'].includes(c.id))
-			.map((col) => col.id.toUpperCase());
-
-		const tableRows = table.getRowModel().rows.map((row) =>
-			tableHeaders.reduce((acc, header) => {
-				const value = row.original[header.toLowerCase()];
-				acc[header] = Array.isArray(value) ? value.length : value || '';
-				return acc;
-			}, {}),
-		);
-
-		const sheet = XLSX.utils.json_to_sheet(tableRows);
-		XLSX.utils.sheet_add_aoa(sheet, [tableHeaders], { origin: 'A1' });
+		// Create workbook and worksheet
 		const wb = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(wb, sheet, 'Sheet1');
-		XLSX.writeFile(wb, 'table_data.xlsx');
+		const ws = XLSX.utils.aoa_to_sheet([headerNames, ...tableRows]);
+
+		// Get the worksheet range
+		const range = XLSX.utils.decode_range(ws['!ref']);
+
+		// Define border style object (define once to avoid repetition)
+		const borderStyle = {
+			top: { style: 'thin', color: { rgb: '000000' } },
+			bottom: { style: 'thin', color: { rgb: '000000' } },
+			left: { style: 'thin', color: { rgb: '000000' } },
+			right: { style: 'thin', color: { rgb: '000000' } },
+		};
+
+		// Define header style
+		const headerStyle = {
+			fill: { fgColor: { rgb: 'CCCCCC' } },
+			font: { bold: true },
+			border: borderStyle,
+		};
+
+		// Apply borders to all cells
+		for (let row = range.s.r; row <= range.e.r; row++) {
+			for (let col = range.s.c; col <= range.e.c; col++) {
+				const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+				if (!ws[cellAddress]) {
+					// Create empty cell if it doesn't exist
+					ws[cellAddress] = { v: '', t: 's' };
+				}
+
+				// Initialize style object if it doesn't exist
+				if (!ws[cellAddress].s) {
+					ws[cellAddress].s = {};
+				}
+
+				// Apply border to all cells
+				ws[cellAddress].s.border = borderStyle;
+
+				// Apply header style to first row
+				if (row === 0) {
+					ws[cellAddress].s.fill = headerStyle.fill;
+					ws[cellAddress].s.font = headerStyle.font;
+				}
+			}
+		}
+
+		// Add sum row if there are summable columns
+		const visibleColumns = table
+			.getAllColumns()
+			.filter((c) => c.getIsVisible() && !['srno', 'select', 'actions'].includes(c.id));
+
+		const summableColumns = visibleColumns.filter((col) => col.columnDef?.meta?.isSummable);
+
+		if (summableColumns.length > 0) {
+			const sumRow = new Array(headerNames.length).fill('');
+			sumRow[0] = 'Total';
+
+			summableColumns.forEach((col) => {
+				const sum = calculateColumnSum(col.id);
+				const visibleIndex = visibleColumns.findIndex((c) => c.id === col.id);
+				if (visibleIndex >= 0) {
+					sumRow[visibleIndex] = sum;
+				}
+			});
+
+			// Add sum row to worksheet
+			XLSX.utils.sheet_add_aoa(ws, [sumRow], { origin: -1 });
+
+			// Update range to include the sum row
+			const updatedRange = XLSX.utils.decode_range(ws['!ref']);
+
+			// Style the sum row
+			const sumRowIndex = updatedRange.e.r;
+			const sumRowStyle = {
+				font: { bold: true },
+				fill: { fgColor: { rgb: 'EEEEEE' } },
+				border: borderStyle,
+			};
+
+			for (let col = updatedRange.s.c; col <= updatedRange.e.c; col++) {
+				const cellAddress = XLSX.utils.encode_cell({ r: sumRowIndex, c: col });
+				if (!ws[cellAddress]) {
+					ws[cellAddress] = { v: '', t: 's' };
+				}
+				if (!ws[cellAddress].s) {
+					ws[cellAddress].s = {};
+				}
+				ws[cellAddress].s.font = sumRowStyle.font;
+				ws[cellAddress].s.fill = sumRowStyle.fill;
+				ws[cellAddress].s.border = sumRowStyle.border;
+			}
+		}
+
+		// Set column widths
+		const colWidths = headerNames.map((name, index) => {
+			const maxWidth = Math.max(name.length, ...tableRows.map((row) => String(row[index] || '').length));
+			return { wch: Math.min(Math.max(maxWidth, 10), 50) };
+		});
+		ws['!cols'] = colWidths;
+
+		// Add worksheet to workbook
+		const exportFileName = fileName && fileName.trim() !== '' ? fileName : 'table_data';
+		XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+		XLSX.writeFile(wb, `${exportFileName}.xlsx`);
 	};
 
 	return (
 		<div className="flex w-full flex-col gap-4">
 			{/* Toolbar Section */}
 			<div className="flex flex-col gap-4 md:flex-row md:justify-between">
-				<div className="flex gap-2">
-					<Button onClick={exportToPDF} variant="outline" size="sm">
-						<DownloadIcon className="mr-2 h-4 w-4" />
-						Export PDF
-					</Button>
-					<Button onClick={exportToExcel} variant="outline" size="sm">
-						<DownloadIcon className="mr-2 h-4 w-4" />
-						Export Excel
-					</Button>
-				</div>
+				{showExportButtons && (
+					<div className="flex gap-2">
+						<Button onClick={exportToPDF} variant="outline" size="sm">
+							<DownloadIcon className="mr-2 h-4 w-4" />
+							Export PDF
+						</Button>
+						<Button onClick={exportToExcel} variant="outline" size="sm">
+							<DownloadIcon className="mr-2 h-4 w-4" />
+							Export Excel
+						</Button>
+					</div>
+				)}
 				<div className="flex items-center gap-2">
 					<Input
 						placeholder="Search..."

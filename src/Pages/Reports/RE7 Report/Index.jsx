@@ -5,23 +5,18 @@ import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
-
+import { CalendarIcon, DownloadIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-// Assuming getPlantDetails, getShiftDetails, getBrands, and getProductSizes are available in your api.js
-import { getMagzineDetails, getRE7Report } from '@/lib/api';
-import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
-
+import { getMagzineDetails, getRE7Report, exportRE7ReportToExcel } from '@/lib/api';
+import { useAuthToken } from '@/hooks/authStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import DataTable from '@/components/DataTable';
-import Loader from '@/components/Loader';
 import SummableDataTable from '@/components/SummableDataTable';
-import { meta } from '@eslint/js';
+import Loader from '@/components/Loader';
 
 function RE7_Report() {
 	const { token } = useAuthToken.getState();
@@ -54,7 +49,7 @@ function RE7_Report() {
 	const [magazine, setMagzine] = useState([]);
 	const [reportData, setReportData] = React.useState(null);
 	const [isLoadingReport, setIsLoadingReport] = React.useState(false);
-	const [reportType, setReportType] = React.useState('Detailed');
+	const [isExporting, setIsExporting] = React.useState(false);
 
 	const { enqueueSnackbar } = useSnackbar();
 
@@ -111,6 +106,47 @@ function RE7_Report() {
 			setIsLoadingReport(false);
 		} catch (error) {
 			enqueueSnackbar(error.message || 'Failed to fetch report', { variant: 'error' });
+		}
+	};
+
+	// Handle export to Excel
+	const onExportToExcel = async (data) => {
+		setIsExporting(true);
+
+		// Format dates to YYYY-MM-DD if they exist
+		const formattedFromDate = data.fromDate ? format(data.fromDate, 'yyyy-MM-dd') : '';
+		const formattedToDate = data.toDate ? format(data.toDate, 'yyyy-MM-dd') : '';
+
+		// Handle 'all' values for shift, plant, brand and productsize
+		const selectedMagazine = data.magazine === 'all' ? '' : data.magazine;
+
+		const reportParams = {
+			fromDate: formattedFromDate,
+			toDate: formattedToDate,
+			magname: selectedMagazine,
+		};
+
+		try {
+			// Make the API call to export to Excel
+			const blob = await exportRE7ReportToExcel(tokendata, reportParams);
+			console.log('Blob:', blob);
+			// Create a download link and trigger the download
+			const url = window.URL.createObjectURL(new Blob([blob]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', `RE7_Report_${format(new Date(), 'dd-MM-yyyy')}.xlsx`);
+			document.body.appendChild(link);
+			link.click();
+
+			// Clean up
+			link.parentNode.removeChild(link);
+			window.URL.revokeObjectURL(url);
+
+			enqueueSnackbar('Report exported successfully', { variant: 'success' });
+		} catch (error) {
+			enqueueSnackbar(error.message || 'Failed to export report', { variant: 'error' });
+		} finally {
+			setIsExporting(false);
 		}
 	};
 
@@ -283,14 +319,50 @@ function RE7_Report() {
 				</div>
 
 				{/* Submit Button */}
-				<Button type="submit" disabled={isLoadingReport}>
-					{isLoadingReport ? 'Generating Report...' : 'Generate Report'}
-				</Button>
+				<div className="flex gap-2">
+					<Button type="submit" disabled={isLoadingReport}>
+						{isLoadingReport ? (
+							<>
+								<DownloadIcon className="mr-2 h-4 w-4 animate-spin" />
+								Generating Report...
+							</>
+						) : (
+							<>
+								<DownloadIcon className="mr-2 h-4 w-4" />
+								Generate Report
+							</>
+						)}
+					</Button>
+					<Button
+						type="button"
+						variant="outline"
+						className="border-red-500 text-red-500"
+						onClick={handleSubmit(onExportToExcel)}
+						disabled={isExporting}
+					>
+						{isExporting ? (
+							<>
+								<DownloadIcon className="mr-2 h-4 w-4 animate-spin" />
+								Exporting...
+							</>
+						) : (
+							<>
+								<DownloadIcon className="mr-2 h-4 w-4" />
+								Export to Excel
+							</>
+						)}
+					</Button>
+				</div>
 			</form>
 
 			<div>
 				{reportData ? (
-					<SummableDataTable columns={detailedReportColumns} data={reportData} />
+					<SummableDataTable
+						columns={detailedReportColumns}
+						data={reportData}
+						fileName={`RE7_Report_${format(new Date(), 'dd-MM-yyyy')}`}
+						showExportButtons={false}
+					/>
 				) : (
 					<p className="text-center">No report data available.</p>
 				)}
