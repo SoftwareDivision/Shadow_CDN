@@ -75,8 +75,7 @@ const RE2_Status_Report = lazy(() => import('../Pages/Reports/RE2 Status Report/
 const L1_Box_Deletion_Report = lazy(() => import('../Pages/Reports/L1 Box Deletion Report/Index'));
 const L1_Barcode_Reprint_Report = lazy(() => import('../Pages/Reports/L1 Barcode Reprint Report/Index'));
 const L2_Barcode_Reprint_Report = lazy(() => import('../Pages/Reports/L2 Barcode Reprint Report/Index'));
-const Production_Material_Transfer_Report = lazy(() =>
-	import('../Pages/Reports/Production Material Transfer Report/Index'),
+const Production_Material_Transfer_Report = lazy(() => import('../Pages/Reports/Production Material Transfer Report/Index'),
 );
 
 // Admin

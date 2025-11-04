@@ -150,7 +150,7 @@ function ProductMaster() {
 								<AlertDialogHeader>
 									<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 									<AlertDialogDescription>
-										This action cannot be undone. This will permanently delete the Product "{row.original.pname}"
+										This action cannot be undone. This will permanently delete the Product "{row.original.bname}"
 										and all associated data.
 									</AlertDialogDescription>
 								</AlertDialogHeader>

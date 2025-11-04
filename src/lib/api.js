@@ -31,9 +31,10 @@ api.interceptors.response.use(
 
 // Utils
 const formatDate = (date) => {
-	const d = new Date(date);
-	const offset = d.getTimezoneOffset();
-	return new Date(d.getTime() - offset * 60000).toISOString().split('T')[0];
+    if (!date) return '';
+    const d = new Date(date);
+    // Use toISOString to avoid timezone issues
+    return d.toISOString().split('T')[0];
 };
 
 const handleResponse = (res) => {
@@ -273,9 +274,15 @@ export const uploadRe11Pdf = async (token, file) => {
 
 // Magazine Master APIs
 export const getMagzineDetails = (t) => getAll('/MagzineMasters/GetAllMagzines', t);
-export const createMagzine = (t, data) => postData('/MagzineMasters/CreateMagzine', t, data);
+export const createMagzine = (t, data) => {
+    console.log('Creating magazine with data:', data);
+    return postData('/MagzineMasters/CreateMagzine', t, data);
+};
 export const deleteMagzine = (t, id) => deleteData(`/MagzineMasters/DeleteMagzine/${id}`, t);
-export const updateMagzine = (t, d) => putData(`/MagzineMasters/UpdateMagzine/${d.id}`, t, d);
+export const updateMagzine = (t, data) => {
+    console.log('Updating magazine with data:', data);
+    return putData(`/MagzineMasters/UpdateMagzine/${data.id}`, t, data);
+};
 
 // Customer Master APIs
 export const getCustomerDetails = (t) => getAll('/CustomerMasters/GetAllCustomers', t);

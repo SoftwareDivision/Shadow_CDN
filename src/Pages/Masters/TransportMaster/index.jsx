@@ -92,7 +92,7 @@ function TransportMaster() {
                                 }
                             />
                         )}
-                        < AlertDialog >
+                        <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 {userpermission.isDelete ? (
                                     <DropdownMenuItem
@@ -121,14 +121,14 @@ function TransportMaster() {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete the shift "{row.original.shift}"
+                                        This action cannot be undone. This will permanently delete the Transport Name "{row.original.tName}"
                                         and all associated data.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                                     <AlertDialogAction
-                                        onClick={() => handleDelete(row.original)}
+                                        onClick={() => handleDelete(row.original.id)}
                                         className="bg-red-600 hover:bg-red-700"
                                     >
                                         Delete
@@ -137,7 +137,7 @@ function TransportMaster() {
                             </AlertDialogContent>
                         </AlertDialog>
                     </DropdownMenuContent>
-                </DropdownMenu >
+                </DropdownMenu>
             ),
         },
     ];

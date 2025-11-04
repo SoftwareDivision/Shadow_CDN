@@ -22,7 +22,6 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 
-
 const detailSchema = yup.object().shape({
     id: yup.number(),
     magzineid: yup.number(),
@@ -53,7 +52,8 @@ const schema = yup.object().shape({
         .required('Margin is required')
         .min(0, 'Margin cannot be negative'),
     autoallot_flag: yup.boolean().default(false),
-    magzineMasterDetails: yup.array().of(detailSchema)
+    magzineMasterDetails: yup.array().of(detailSchema).required('Magazine details are required')
+        .min(1, 'At least one magazine detail is required')
 });
 
 function AddOrEdit() {
@@ -82,7 +82,7 @@ function AddOrEdit() {
     });
 
     const { data: mfgLoc } = useQuery({
-        queryKey: ['classes'],
+        queryKey: ['mfgLocations'],
         queryFn: () => getMfgLocationDetails(tokendata),
         enabled: !!tokendata
     });
@@ -124,33 +124,55 @@ function AddOrEdit() {
     useEffect(() => {
         if (state?.magzineData) {
             const data = state.magzineData;
+            // Fix date formatting to prevent timezone issues
+            const formatDateString = (date) => {
+                if (!date) return '';
+                // Convert to ISO string and extract only the date part (YYYY-MM-DD)
+                return new Date(date).toISOString().split('T')[0];
+            };
+
             reset({
-                id: data.id,
-                mfgloc: data.mfgloc,
-                mfgloccode: data.mfgloccode,
-                magname: data.magname,
-                mcode: data.mcode,
-                licno: data.licno,
-                issuedate: new Date(data.issuedate).toISOString().split('T')[0],
-                validitydt: new Date(data.validitydt).toISOString().split('T')[0],
-                totalwt: data.totalwt,
-                margin: data.margin,
-                autoallot_flag: data.autoallot_flag,
-                magzineMasterDetails: data.magzineMasterDetails.map(detail => ({
-                    id: detail.id,
-                    magzineid: detail.magzineid,
-                    class: detail.class,
-                    division: detail.division,
-                    product: detail.product,
-                    wt: detail.wt,
-                    margin: detail.margin,
-                    units: detail.units,
-                    free_space: detail.free_space
-                }))
+                id: data.id || 0,
+                mfgloc: data.mfgloc || '',
+                mfgloccode: data.mfgloccode || '',
+                magname: data.magname || '',
+                mcode: data.mcode || '',
+                licno: data.licno || '',
+                issuedate: data.issuedate ? formatDateString(data.issuedate) : '',
+                validitydt: data.validitydt ? formatDateString(data.validitydt) : '',
+                totalwt: data.totalwt || '',
+                margin: data.margin || '',
+                autoallot_flag: data.autoallot_flag || false,
+                magzineMasterDetails: Array.isArray(data.magzineMasterDetails) ? data.magzineMasterDetails.map(detail => ({
+                    id: detail.id || 0,
+                    magzineid: detail.magzineid || (id ? parseInt(id) : 0),
+                    class: detail.class || '',
+                    division: detail.division || '',
+                    product: detail.product || '',
+                    wt: detail.wt || '',
+                    margin: detail.margin || '',
+                    units: detail.units || 'KGs',
+                    free_space: detail.free_space || ''
+                })) : []
+            });
+        } else {
+            // Reset to default values when adding new
+            reset({
+                id: 0,
+                mfgloc: '',
+                mfgloccode: '',
+                magname: '',
+                mcode: '',
+                licno: '',
+                issuedate: '',
+                validitydt: '',
+                totalwt: '',
+                margin: '',
+                autoallot_flag: false,
+                magzineMasterDetails: []
             });
         }
-    }, [state, reset, mfgLocations, uomData]);
-    console.log('state', state);
+    }, [state, reset, id]);
 
     // Inside component
     const { dirtyFields } = useFormState({ control });
@@ -159,7 +181,7 @@ function AddOrEdit() {
         const subscription = watch((value, { name }) => {
             if (name === 'totalwt') {
                 const totalwt = parseFloat(value.totalwt) || 0;
-                const allDetails = getValues("magzineMasterDetails");
+                const allDetails = getValues("magzineMasterDetails") || [];
 
                 allDetails.forEach((_, index) => {
                     const sumOfWeights = allDetails.reduce((sum, detail, idx) => {
@@ -184,35 +206,50 @@ function AddOrEdit() {
 
     const mutation = useMutation({
         mutationFn: (data) => {
+            // Ensure dates are properly formatted
+            const formatDateString = (date) => {
+                if (!date) return '';
+                // Convert to ISO string and extract only the date part (YYYY-MM-DD)
+                return new Date(date).toISOString().split('T')[0];
+            };
+
             const payload = {
                 id: id ? parseInt(id) : 0,
-                mfgloc: data.mfgloc.toUpperCase(),
-                mfgloccode: data.mfgloccode.toUpperCase(),
-                magname: data.magname.toUpperCase(),
-                mcode: data.mcode.toUpperCase(),
-                licno: data.licno,
-                issuedate: data.issuedate,
-                validitydt: data.validitydt,
-                totalwt: parseFloat(data.totalwt),
-                margin: parseFloat(data.margin),
-                autoallot_flag: data.autoallot_flag,
-                magzineMasterDetails: data.magzineMasterDetails.map(detail => ({
-                    ...detail,
-                    wt: parseFloat(detail.wt),
-                    margin: parseFloat(detail.margin),
-                    free_space: parseFloat(detail.free_space)
-                }))
+                mfgloc: data.mfgloc?.toUpperCase() || '',
+                mfgloccode: data.mfgloccode?.toUpperCase() || '',
+                magname: data.magname?.toUpperCase() || '',
+                mcode: data.mcode?.toUpperCase() || '',
+                licno: data.licno || '',
+                issuedate: formatDateString(data.issuedate),
+                validitydt: formatDateString(data.validitydt),
+                totalwt: parseFloat(data.totalwt) || 0,
+                margin: parseFloat(data.margin) || 0,
+                autoallot_flag: data.autoallot_flag || false,
+                magzineMasterDetails: Array.isArray(data.magzineMasterDetails) ? data.magzineMasterDetails.map(detail => ({
+                    id: detail.id || 0,
+                    magzineid: id ? parseInt(id) : 0,
+                    class: parseInt(detail.class) || 0,
+                    division: parseInt(detail.division) || 0,
+                    product: detail.product || '',
+                    wt: parseFloat(detail.wt) || 0,
+                    margin: parseFloat(detail.margin) || 0,
+                    units: detail.units || 'KGs',
+                    free_space: parseFloat(detail.free_space) || 0
+                })) : []
             };
+            
+            console.log('Payload being sent:', payload);
             return id ? updateMagzine(tokendata, payload) : createMagzine(tokendata, payload);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries(['magzines']);
+            queryClient.invalidateQueries({ queryKey: ['magzines'] });
             enqueueSnackbar(`Magazine ${id ? 'updated' : 'created'} successfully`, {
                 variant: 'success',
             });
             navigate('/magzine-master');
         },
         onError: (error) => {
+            console.error('Error saving magazine:', error);
             enqueueSnackbar(error.message || `Failed to ${id ? 'update' : 'create'} magazine`, {
                 variant: 'error',
             });
@@ -220,12 +257,9 @@ function AddOrEdit() {
     });
 
     const onSubmit = (data) => {
+        console.log('Form data:', data);
         mutation.mutate(data);
-        console.log('data', data);
     };
-
-
-
 
     useEffect(() => {
         if (mfgLoc) {
@@ -317,7 +351,7 @@ function AddOrEdit() {
                         <label htmlFor="mfgloccode" className="text-sm font-medium">
                             MFG Location Code
                         </label>
-                        <Input id="mfgloccode" {...register('mfgloccode')} className={errors.mfgloccode ? 'border-red-500' : ''} />
+                        <Input id="mfgloccode" {...register('mfgloccode')} className={errors.mfgloccode ? 'border-red-500' : ''} readOnly />
                         {errors.mfgloccode && <span className="text-sm text-red-500">{errors.mfgloccode.message}</span>}
                     </div>
 
@@ -352,7 +386,7 @@ function AddOrEdit() {
                         <Controller
                             name="issuedate"
                             control={control}
-                            render={({ field }) => (
+                            render={({ field: { onChange, value } }) => (
                                 <div>
                                     <Popover>
                                         <PopoverTrigger asChild>
@@ -360,18 +394,21 @@ function AddOrEdit() {
                                                 variant={"outline"}
                                                 className={cn(
                                                     "w-full justify-start text-left font-normal",
-                                                    !field.value && "text-muted-foreground"
+                                                    !value && "text-muted-foreground"
                                                 )}
                                             >
                                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {field.value ? format(new Date(field.value), "PPP") : format(new Date(), "PPP")}
+                                                {value ? format(new Date(value), "PPP") : <span>Pick a date</span>}
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
                                             <Calendar
                                                 mode="single"
-                                                selected={field.value ? new Date(field.value) : new Date()}
-                                                onSelect={field.onChange}
+                                                selected={value ? new Date(value) : undefined}
+                                                onSelect={(date) => {
+                                                    const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
+                                                    onChange(formattedDate);
+                                                }}
                                                 initialFocus
                                             />
                                         </PopoverContent>
@@ -382,6 +419,7 @@ function AddOrEdit() {
                         {errors.issuedate && <span className="text-sm text-red-500">{errors.issuedate.message}</span>}
                     </div>
 
+
                     <div className="space-y-2">
                         <label htmlFor="validitydt" className="text-sm font-medium">
                             Validity Date
@@ -389,7 +427,7 @@ function AddOrEdit() {
                         <Controller
                             name="validitydt"
                             control={control}
-                            render={({ field }) => (
+                            render={({ field: { onChange, value } }) => (
                                 <div>
                                     <Popover>
                                         <PopoverTrigger asChild>
@@ -397,18 +435,21 @@ function AddOrEdit() {
                                                 variant={"outline"}
                                                 className={cn(
                                                     "w-full justify-start text-left font-normal",
-                                                    !field.value && "text-muted-foreground"
+                                                    !value && "text-muted-foreground"
                                                 )}
                                             >
                                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {field.value ? format(new Date(field.value), "PPP") : format(new Date(), "PPP")}
+                                                {value ? format(new Date(value), "PPP") : <span>Pick a date</span>}
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
                                             <Calendar
                                                 mode="single"
-                                                selected={field.value ? new Date(field.value) : new Date()}
-                                                onSelect={field.onChange}
+                                                selected={value ? new Date(value) : undefined}
+                                                onSelect={(date) => {
+                                                    const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
+                                                    onChange(formattedDate);
+                                                }}
                                                 initialFocus
                                             />
                                         </PopoverContent>
@@ -476,13 +517,14 @@ function AddOrEdit() {
                                 size="sm"
                                 onClick={() => append({
                                     id: 0,
-                                    magzineid: id || 0,
-                                    Plant: '',
+                                    magzineid: id ? parseInt(id) : 0,
                                     class: '',
                                     division: '',
+                                    product: '',
                                     wt: '',
                                     margin: '',
-                                    units: 'KGs'
+                                    units: 'KGs',
+                                    free_space: ''
                                 })}
                             >
                                 <Plus className="h-4 w-4 mr-2" />
@@ -501,8 +543,6 @@ function AddOrEdit() {
                                         <TableHead>Margin</TableHead>
                                         <TableHead>Units</TableHead>
                                         <TableHead className="w-[50px]"></TableHead>
-                                        {/* <TableHead>Free Space</TableHead>
-                                        <TableHead>Carton</TableHead> */}
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -514,13 +554,19 @@ function AddOrEdit() {
                                                     control={control}
                                                     render={({ field }) => (
                                                         <Select
-                                                            value={field.value}
+                                                            value={field.value || ''}
                                                             onValueChange={(value) => {
                                                                 field.onChange(value);
-                                                                const selectedProduct = productData.find(p => p.ptypecode === value);
+                                                                const selectedProduct = productData?.find(p => p.ptypecode === value);
                                                                 if (selectedProduct) {
-                                                                    setValue(`magzineMasterDetails.${index}.class`, selectedProduct.class);
-                                                                    setValue(`magzineMasterDetails.${index}.division`, selectedProduct.division);
+                                                                    setValue(`magzineMasterDetails.${index}.class`, selectedProduct.class || '', {
+                                                                        shouldValidate: true,
+                                                                        shouldDirty: true
+                                                                    });
+                                                                    setValue(`magzineMasterDetails.${index}.division`, selectedProduct.division || '', {
+                                                                        shouldValidate: true,
+                                                                        shouldDirty: true
+                                                                    });
                                                                 }
                                                             }}
                                                         >
@@ -542,6 +588,11 @@ function AddOrEdit() {
                                                         </Select>
                                                     )}
                                                 />
+                                                {errors.magzineMasterDetails?.[index]?.product && (
+                                                    <span className="text-sm text-red-500">
+                                                        {errors.magzineMasterDetails[index].product.message}
+                                                    </span>
+                                                )}
                                             </TableCell>
                                             <TableCell className='w-[200px]'>
                                                 <Input
@@ -559,50 +610,6 @@ function AddOrEdit() {
                                                     readOnly
                                                 />
                                             </TableCell>
-                                            {/* <TableCell className='w-[200px]'>
-                                                <Input
-                                                    type="number"
-                                                    step="0.01"
-                                                    {...register(`magzineMasterDetails.${index}.wt`, {
-                                                        onChange: (e) => {
-                                                            const currentWt = parseFloat(e.target.value) || 0;
-
-                                                            // Automatically set free_space to same value
-                                                            setValue(`magzineMasterDetails.${index}.free_space`, currentWt);
-
-                                                            // Validation logic for total weight
-                                                            const allDetails = control._formValues.magzineMasterDetails;
-                                                            const totalWeightHeader = parseFloat(control._formValues.totalwt) || 0;
-                                                            let sumOfTableWeights = 0;
-
-                                                            allDetails.forEach((detail, idx) => {
-                                                                const wt = parseFloat(detail.wt) || 0;
-                                                                if (idx === index) {
-                                                                    sumOfTableWeights += currentWt;
-                                                                } else {
-                                                                    sumOfTableWeights += wt;
-                                                                }
-                                                            });
-
-                                                            if (sumOfTableWeights > totalWeightHeader) {
-                                                                setError(`magzineMasterDetails.${index}.wt`, {
-                                                                    type: 'manual',
-                                                                    message: 'Sum of weights exceeds Total Weight',
-                                                                });
-                                                            } else {
-                                                                clearErrors(`magzineMasterDetails.${index}.wt`);
-                                                            }
-                                                        },
-                                                    })}
-                                                    className={errors.magzineMasterDetails?.[index]?.wt ? 'border-red-500' : ''}
-                                                />
-                                                {errors.magzineMasterDetails?.[index]?.wt && (
-                                                    <span className="text-sm text-red-500">
-                                                        {errors.magzineMasterDetails[index].wt.message}
-                                                    </span>
-                                                )}
-                                            </TableCell> */}
-
                                             <TableCell className='w-[200px]'>
                                                 <Input
                                                     type="number"
@@ -616,7 +623,7 @@ function AddOrEdit() {
                                                                 shouldDirty: true,
                                                             });
 
-                                                            const allDetails = getValues("magzineMasterDetails");
+                                                            const allDetails = getValues("magzineMasterDetails") || [];
                                                             const totalwt = parseFloat(getValues("totalwt")) || 0;
 
                                                             const sumOfWeights = allDetails.reduce((sum, detail, idx) => {
@@ -643,13 +650,18 @@ function AddOrEdit() {
                                                 )}
                                             </TableCell>
 
-
                                             <TableCell className='w-[200px]'>
                                                 <Input
                                                     type="number"
+                                                    step="0.01"
                                                     {...register(`magzineMasterDetails.${index}.margin`)}
                                                     className={errors.magzineMasterDetails?.[index]?.margin ? 'border-red-500' : ''}
                                                 />
+                                                {errors.magzineMasterDetails?.[index]?.margin && (
+                                                    <span className="text-sm text-red-500">
+                                                        {errors.magzineMasterDetails[index].margin.message}
+                                                    </span>
+                                                )}
                                             </TableCell>
                                             <TableCell className='w-[150px]'>
                                                 <Controller
@@ -657,7 +669,7 @@ function AddOrEdit() {
                                                     control={control}
                                                     render={({ field }) => (
                                                         <Select
-                                                            value={field.value}
+                                                            value={field.value || 'KGs'}
                                                             onValueChange={field.onChange}
                                                         >
                                                             <SelectTrigger className="w-full">
@@ -678,6 +690,11 @@ function AddOrEdit() {
                                                         </Select>
                                                     )}
                                                 />
+                                                {errors.magzineMasterDetails?.[index]?.units && (
+                                                    <span className="text-sm text-red-500">
+                                                        {errors.magzineMasterDetails[index].units.message}
+                                                    </span>
+                                                )}
                                             </TableCell>
                                             <TableCell>
                                                 <Button
@@ -699,11 +716,15 @@ function AddOrEdit() {
                                                     className={errors.magzineMasterDetails?.[index]?.free_space ? 'border-red-500' : ''}
                                                 />
                                             </TableCell>
-
                                         </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
+                            {errors.magzineMasterDetails?.message && (
+                                <div className="text-sm text-red-500 mt-2">
+                                    {errors.magzineMasterDetails.message}
+                                </div>
+                            )}
                         </div>
                     </div>
 

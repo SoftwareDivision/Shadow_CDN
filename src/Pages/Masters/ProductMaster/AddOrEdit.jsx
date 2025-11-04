@@ -61,6 +61,7 @@ function AddOrEdit() {
 		formState: { errors },
 		reset,
 		control,
+		watch,
 	} = useForm({
 		resolver: yupResolver(schema),
 		defaultValues: {
@@ -91,6 +92,10 @@ function AddOrEdit() {
 	const [brands, setBrands] = useState([]);
 	const [uom, setUom] = useState([]);
 	const [plants, setPlants] = useState([]);
+
+	// Watch form values for dependent dropdowns
+	const ptypeValue = watch('ptype');
+	const bnameValue = watch('bname');
 
 	const mutation = useMutation({
 		mutationFn: (data) => {
@@ -157,7 +162,7 @@ function AddOrEdit() {
 	} = useQuery({
 		queryKey: ['product', id],
 		queryFn: () => getProductById(tokendata, id),
-		enabled: isEditMode && !!tokendata,
+		enabled: isEditMode && !!tokendata && !state, // Only fetch if not passed via state
 	});
 
 
@@ -184,36 +189,42 @@ function AddOrEdit() {
 
 	// Handle form data population for edit mode
 	useEffect(() => {
-		if (isEditMode && existingProduct && brandData && plantData) {
-			// First, filter brands based on the existing product's plant type
-			const selectedPlant = plantData.find((plant) => plant.pName === existingProduct.ptype);
-			if (selectedPlant) {
-				const filteredBrands = brandData.filter(
-					(brand) => brand.plant_type === selectedPlant.plant_type
-				).map(brand => ({
-					value: brand.bname,
-					text: brand.bname,
-					disabled: false
-				}));
-				setBrands(filteredBrands);
-			} else {
-				// Fallback: set all brands if plant not found
-				const allBrandOptions = brandData.map((b) => ({
-					value: b.bname,
-					text: b.bname,
-					disabled: false,
-				}));
-				allBrandOptions.unshift({ value: 'all', text: 'All', disabled: false });
-				setBrands(allBrandOptions);
+		if (isEditMode) {
+			// If data is passed via state (from Index.jsx), use it directly
+			let productData = null;
+			if (state) {
+				productData = state;
+			} else if (existingProduct) {
+				productData = existingProduct;
 			}
 			
-			// Reset form with existing product data
-			reset(existingProduct);
-		}
-		else if (!isEditMode && state) {
-			reset(state);
-		}
-		else if (!isEditMode && brandData) {
+			if (productData && brandData && plantData) {
+				// Filter brands based on the existing product's plant type
+				const selectedPlant = plantData.find((plant) => plant.pName === productData.ptype);
+				if (selectedPlant) {
+					const filteredBrands = brandData.filter(
+						(brand) => brand.plant_type === selectedPlant.plant_type
+					).map(brand => ({
+						value: brand.bname,
+						text: brand.bname,
+						disabled: false
+					}));
+					setBrands(filteredBrands);
+				} else {
+					// Fallback: set all brands if plant not found
+					const allBrandOptions = brandData.map((b) => ({
+						value: b.bname,
+						text: b.bname,
+						disabled: false,
+					}));
+					allBrandOptions.unshift({ value: 'all', text: 'All', disabled: false });
+					setBrands(allBrandOptions);
+				}
+				
+				// Reset form with existing product data
+				reset(productData);
+			}
+		} else if (!isEditMode && brandData) {
 			// For add mode, show all brands initially
 			const brandOptions = brandData.map((b) => ({
 				value: b.bname,
@@ -225,8 +236,27 @@ function AddOrEdit() {
 		}
 	}, [isEditMode, existingProduct, brandData, plantData, reset, state]);
 
+	// Handle plant type change to filter brands
+	useEffect(() => {
+		if (ptypeValue && plantData && brandData) {
+			const selectedPlant = plantData.find((plant) => plant.pName === ptypeValue);
+			if (selectedPlant) {
+				const filteredBrands = brandData.filter(
+					(brand) => brand.plant_type === selectedPlant.plant_type
+				).map(brand => ({
+					value: brand.bname,
+					text: brand.bname,
+					disabled: false
+				}));
+				setBrands(filteredBrands);
+			} else {
+				setBrands([]);
+			}
+		}
+	}, [ptypeValue, plantData, brandData]);
+
 	// Handle loading and error
-	const loading = isBrandLoading || isPlantLoading || isUomLoading || (isEditMode && isProductLoading);
+	const loading = isBrandLoading || isPlantLoading || isUomLoading || (isEditMode && isProductLoading && !state);
 	const allErrors = brandError || plantError || uomError || productError;
 
 	useEffect(() => {
@@ -260,7 +290,7 @@ function AddOrEdit() {
 								<div className="flex flex-col gap-y-2">
 									<Label>Product Type</Label>
 									<Select
-										value={field.value}
+										value={field.value || undefined} // Ensure undefined when no value
 										onValueChange={(value) => {
 											field.onChange(value);
 											const selectedPlantFromData = plantData?.find((plant) => plant.pName === value);
@@ -333,7 +363,7 @@ function AddOrEdit() {
 								<div className="flex flex-col gap-y-2">
 									<Label>Brand Name</Label>
 									<Select
-										value={field.value}
+										value={field.value || undefined} // Ensure undefined when no value
 										onValueChange={(value) => {
 											field.onChange(value);
 											const selectedBrand = brandData?.find((brand) => brand.bname === value);
@@ -404,7 +434,7 @@ function AddOrEdit() {
 							render={({ field }) => (
 								<div className="flex flex-col gap-y-2">
 									<Label>Unit</Label>
-									<Select value={field.value} onValueChange={field.onChange}>
+									<Select value={field.value || undefined} onValueChange={field.onChange}>
 										<SelectTrigger className="w-full">
 											<SelectValue placeholder="Select Unit..." />
 										</SelectTrigger>
@@ -457,7 +487,7 @@ function AddOrEdit() {
 							render={({ field }) => (
 								<div className="flex flex-col gap-y-2">
 									<Label>Dimension Unit</Label>
-									<Select value={field.value} onValueChange={field.onChange}>
+									<Select value={field.value || undefined} onValueChange={field.onChange}>
 										<SelectTrigger className="w-full">
 											<SelectValue placeholder="Select Unit..." />
 										</SelectTrigger>
@@ -498,7 +528,7 @@ function AddOrEdit() {
 							render={({ field }) => (
 								<div className="flex flex-col gap-y-2">
 									<Label>Weight Unit</Label>
-									<Select value={field.value} onValueChange={field.onChange}>
+									<Select value={field.value || undefined} onValueChange={field.onChange}>
 										<SelectTrigger className="w-full">
 											<SelectValue placeholder="Select Unit..." />
 										</SelectTrigger>
