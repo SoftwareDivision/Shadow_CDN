@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, Loader2 } from 'lucide-react';
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 import { Controller } from 'react-hook-form';
 import { cn } from '../../../lib/utils';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -69,7 +69,19 @@ const schema = yup.object().shape({
 	division: yup.string().required('Division is required'),
 	sdCat: yup.string().required('SD Category is required'),
 	unNoClass: yup.string().required('UN Number Class is required'),
-	mfgDt: yup.date().required('Manufacturing date is required'),
+	mfgDt: yup
+		.date()
+		.required('Manufacturing date is required')
+		.test('is-today', 'Manufacturing date must be todays date', (value) => {
+			if (!value) return false;
+			const today = new Date();
+			const mfgDate = new Date(value);
+			return (
+				mfgDate.getDate() === today.getDate() &&
+				mfgDate.getMonth() === today.getMonth() &&
+				mfgDate.getFullYear() === today.getFullYear()
+			);
+		}),
 	l1NetWt: yup.number().min(0, 'Weight must be positive').required('Net weight is required'),
 	l1NetUnit: yup.string().required('Net unit is required'),
 	noOfL2: yup.number().min(0, 'Must be 0 or more').required('L2 count required'),
@@ -215,7 +227,7 @@ export default function L1BarcodeGeneration() {
 		const currentPcode = watch('pCode');
 		const mcode = watch('mCode');
 		const selectedPSizeCode = watch('pSizeCode');
-		const currentMfgDt = watch('mfgDt');
+		const currentMfgDt = format(new Date(watch('mfgDt')), 'yyyy-MM-dd');
 		const countycode = watch('countryCode');
 		const mfglocationcode = watch('mfgCode');
 
@@ -302,32 +314,11 @@ export default function L1BarcodeGeneration() {
 									name="mfgDt"
 									control={control}
 									render={({ field }) => (
-										<Popover>
-											<PopoverTrigger asChild>
-												<Button
-													variant="outline"
-													className={cn(
-														'w-full justify-start text-left font-normal',
-														!field.value && 'text-muted-foreground',
-													)}
-												>
-													<CalendarIcon className="mr-2 h-4 w-4" />
-													{field.value ? (
-														format(new Date(field.value), 'PPP')
-													) : (
-														<span>Pick a date</span>
-													)}
-												</Button>
-											</PopoverTrigger>
-											<PopoverContent className="w-auto p-0" align="start">
-												<Calendar
-													mode="single"
-													selected={field.value ? new Date(field.value) : undefined}
-													onSelect={(date) => field.onChange(date?.toISOString())}
-													initialFocus
-												/>
-											</PopoverContent>
-										</Popover>
+										<Input
+											readOnly
+											value={field.value ? format(new Date(field.value), 'dd/MM/yyyy') : ''}
+											className="w-full"
+										/>
 									)}
 								/>
 

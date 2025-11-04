@@ -13,4 +13,3 @@ const API_BASE_URL = isLocalNetwork() ? 'https://localhost:7098/api' : 'http://1
 const WS_URL = isLocalNetwork() ? 'wss://localhost:7098/ws' : 'ws://182.70.117.46:4201/ws';
 //const WS_URL = isLocalNetwork() ? 'ws://192.168.10.12:4201/ws' : 'ws://182.70.117.46:4201/ws';
 export { API_BASE_URL, WS_URL, Networktype };
-

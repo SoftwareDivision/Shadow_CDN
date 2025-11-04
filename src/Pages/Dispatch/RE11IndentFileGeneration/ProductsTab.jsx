@@ -271,7 +271,7 @@ const ProductsTab = ({
 					</div>
 
 					<div className="flex flex-col gap-y-2">
-						<Label>Requied Case</Label>
+						<Label>Required Case</Label>
 						<Controller
 							name={`prdInfoList.${index}.reqCase`}
 							control={control}

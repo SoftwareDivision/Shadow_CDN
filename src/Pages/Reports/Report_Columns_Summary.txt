@@ -1,0 +1,196 @@
+REPORT COLUMNS SUMMARY
+
+This document provides a summary of visible columns for each report in both detailed and summary views.
+
+================================================================================
+
+1. DISPATCH REPORT
+
+Detailed View Columns:
+- RE11 Indent No.
+- Dispt. Dt.
+- Truck No.
+- L1 Bardcode
+- Brand
+- Product Size
+- Mag Name
+- Qty.
+- Unit
+
+Summary View Columns:
+- RE11 Indent No.
+- Dispt. Dt.
+- Truck No.
+- Brand
+- Product Size
+- Mag Name
+- Box Count
+- Qty.
+- Unit
+
+================================================================================
+
+2. L1 BARCODE REPRINT REPORT
+
+Detailed View Columns:
+- Plant Name
+- Brand Name
+- Product Size
+- L1 Barcode
+- Reprint Date
+- Reason
+- Reprint Time
+
+Summary View Columns:
+- Plant Name
+- Brand Name
+- Product Size
+- Box Count
+
+================================================================================
+
+3. L1 BOX DELETION REPORT
+
+Detailed View Columns:
+- Plant Name
+- Brand Name
+- Product Size
+- MFG Date
+- L1 Barcode
+- Deletion Date
+- Reason
+
+Summary View Columns:
+- Plant Name
+- Brand Name
+- Product Size
+- Box Count
+
+================================================================================
+
+4. L2 BARCODE REPRINT REPORT
+
+Detailed View Columns:
+- Plant Code
+- L2 Barcode
+- Reprint Date
+- Reason
+
+Summary View Columns:
+- Plant Code
+- No. Of Stickers
+
+================================================================================
+
+5. PRODUCTION MATERIAL TRANSFER REPORT
+
+Detailed View Columns:
+- Plant Code
+- Truck No.
+- L1 Barcode
+- Transfer Date
+
+Summary View Columns:
+- Plant Code
+- MFG Date
+- Truck No.
+- Transfer Date
+- Brand & Size (Combined column)
+- Box Count
+
+================================================================================
+
+6. RE11 STATUS REPORT
+
+Detailed View Columns:
+- RE11 Indent No.
+- Indent. Dt.
+- Product
+- Brand
+- Product Size
+- Requred Qty.
+- Req. Unit
+- Remaining Qty.
+- Rem. Unit
+- Status
+
+Note: This report only has a detailed view. There is no summary view.
+
+================================================================================
+
+7. RE2 STATUS REPORT
+
+Detailed View Columns:
+- Brand Name
+- Product Size
+- Magazine Name
+- Unload Date
+- L1 Barcode
+- RE2 Status
+
+Summary View Columns:
+- Brand Name
+- Product Size
+- Magazine Name
+- Unload Date
+- Box Count
+- RE2 Status
+
+================================================================================
+
+8. RE7 REPORT
+
+Detailed View Columns:
+- Brand Name
+- Product Size
+- Inward Quantity
+- Outward Quantity
+- Remaining Quantity
+
+Note: This report only has a detailed view. There is no summary view.
+
+================================================================================
+
+9. STORAGE REPORT
+
+Detailed View Columns:
+- Magazine & License No. (Combined column)
+- Brand Name
+- Product Size
+- L1 Barcode
+- Net Qty.
+- Net Unit
+
+Summary View Columns:
+- Magazine & License No. (Combined column)
+- Brand Name
+- Product Size
+- Box Count
+- Net Qty.
+- Net Unit
+
+================================================================================
+
+10. PRODUCTION REPORT
+
+Detailed View Columns:
+- Date
+- Plant Name
+- Shift
+- Brand Name
+- Product Size
+- L1 Barcode
+- Net Wt.
+- Net Unit
+
+Summary View Columns:
+- Date
+- Plant Name
+- Shift
+- Brand Name
+- Product Size
+- Box Qty.
+- Net Wt.
+- Net Unit
+
+================================================================================

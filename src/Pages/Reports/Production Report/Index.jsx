@@ -5,11 +5,17 @@ import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, FileBarChartIcon, DownloadIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 // Assuming getPlantDetails, getShiftDetails, getBrands, and getProductSizes are available in your api.js
-import { getPlantDetails, getShiftDetails, getProductionReport, getProductDetails } from '@/lib/api';
+import {
+	getPlantDetails,
+	getShiftDetails,
+	getProductionReport,
+	getProductDetails,
+	exportProductionReportToExcel,
+} from '@/lib/api';
 import { useAuthToken } from '@/hooks/authStore'; // Changed from import useAuthToken from '@/hooks/authStore';
 
 import { Card } from '@/components/ui/card';
@@ -64,6 +70,7 @@ function Production_Report() {
 	const [productSizes, setProductSizes] = useState([]);
 	const [reportData, setReportData] = React.useState(null);
 	const [isLoadingReport, setIsLoadingReport] = React.useState(false);
+	const [isExporting, setIsExporting] = React.useState(false);
 	const [reportType, setReportType] = React.useState('Detailed');
 
 	const { enqueueSnackbar } = useSnackbar();
@@ -160,9 +167,60 @@ function Production_Report() {
 		}
 	};
 
+	// Handle export to Excel
+	const onExportToExcel = async (data) => {
+		setIsExporting(true);
+
+		// Format dates to YYYY-MM-DD if they exist
+		const formattedFromDate = data.fromDate ? format(data.fromDate, 'yyyy-MM-dd') : '';
+		const formattedToDate = data.toDate ? format(data.toDate, 'yyyy-MM-dd') : '';
+
+		// Handle 'all' values for shift, plant, brand and productsize
+		const selectedShift = data.shift === 'all' ? '' : data.shift;
+		const selectedPlant = data.plantId === 'all' ? '' : data.plantId;
+		const selectedBrand = data.brand === 'all' ? '' : data.brand;
+		const selectedProductSize = data.productsize === 'all' ? '' : data.productsize;
+
+		const reportParams = {
+			fromDate: formattedFromDate,
+			toDate: formattedToDate,
+			reportType: data.reportType,
+			shift: selectedShift,
+			plant: selectedPlant,
+			brand: selectedBrand,
+			productsize: selectedProductSize,
+		};
+
+		try {
+			// Make the API call to export to Excel
+			const blob = await exportProductionReportToExcel(tokendata, reportParams);
+			console.log('Blob:', blob);
+			// Create a download link and trigger the download
+			const url = window.URL.createObjectURL(new Blob([blob]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute(
+				'download',
+				`Production_Report_${data.reportType}_${format(new Date(), 'dd-MM-yyyy')}.xlsx`,
+			);
+			document.body.appendChild(link);
+			link.click();
+
+			// Clean up
+			link.parentNode.removeChild(link);
+			window.URL.revokeObjectURL(url);
+
+			enqueueSnackbar('Report exported successfully', { variant: 'success' });
+		} catch (error) {
+			enqueueSnackbar(error.message || 'Failed to export report', { variant: 'error' });
+		} finally {
+			setIsExporting(false);
+		}
+	};
+
 	console.log('Report Data from setreportData:', reportData);
 
-	const loading = isLoadingReport || isShiftFetching || isPlantFetching || isProductFetching;
+	const loading = isShiftFetching || isPlantFetching || isProductFetching;
 	const allerrors = fetchShiftError || fetchplantError || fetchProductError;
 
 	if (allerrors) {
@@ -177,6 +235,18 @@ function Production_Report() {
 	}
 
 	const detailedReportColumns = [
+		{
+			accessorKey: 'mfgdt',
+			header: 'Date',
+			cell: ({ row }) => {
+				const dateStr = row.original.mfgdt;
+				if (!dateStr) return '';
+				// Parse the date string and format it as dd/MM/yyyy
+				const date = new Date(dateStr);
+				if (isNaN(date)) return dateStr; // Return original if invalid date
+				return format(date, 'dd/MM/yyyy');
+			},
+		},
 		{
 			accessorKey: 'plantname',
 			header: 'Plant Name',
@@ -209,6 +279,18 @@ function Production_Report() {
 	];
 
 	const summaryReportColumns = [
+		{
+			accessorKey: 'mfgdt',
+			header: 'Date',
+			cell: ({ row }) => {
+				const dateStr = row.original.mfgdt;
+				if (!dateStr) return '';
+				// Parse the date string and format it as dd/MM/yyyy
+				const date = new Date(dateStr);
+				if (isNaN(date)) return dateStr; // Return original if invalid date
+				return format(date, 'dd/MM/yyyy');
+			},
+		},
 		{
 			accessorKey: 'plantname',
 			header: 'Plant Name',
@@ -612,9 +694,40 @@ function Production_Report() {
 				</div>
 
 				{/* Submit Button */}
-				<Button type="submit" disabled={isLoadingReport}>
-					{isLoadingReport ? 'Generating Report...' : 'Generate Report'}
-				</Button>
+				<div className="flex gap-2">
+					<Button type="submit" disabled={isLoadingReport}>
+						{isLoadingReport ? (
+							<>
+								<FileBarChartIcon className="mr-2 h-4 w-4 animate-spin" />
+								Generating Report...
+							</>
+						) : (
+							<>
+								<FileBarChartIcon className="mr-2 h-4 w-4" />
+								Generate Report
+							</>
+						)}
+					</Button>
+					<Button
+						type="button"
+						variant="outline"
+						className="border-red-500 text-red-500"
+						onClick={handleSubmit(onExportToExcel)}
+						disabled={isExporting}
+					>
+						{isExporting ? (
+							<>
+								<DownloadIcon className="mr-2 h-4 w-4 animate-spin" />
+								Exporting...
+							</>
+						) : (
+							<>
+								<DownloadIcon className="mr-2 h-4 w-4" />
+								Export to Excel
+							</>
+						)}
+					</Button>
+				</div>
 			</form>
 
 			<div>
@@ -622,6 +735,8 @@ function Production_Report() {
 					<SummableDataTable
 						columns={reportType === 'Detailed' ? detailedReportColumns : summaryReportColumns} // Use 'columns' for Detailed, 'summaryReportColumns' for Summary
 						data={reportData}
+						fileName={`Production_Report_${reportType}_${format(new Date(), 'dd-MM-yyyy')}`}
+						showExportButtons={false}
 					/>
 				) : (
 					<p className="text-center">No report data available.</p>

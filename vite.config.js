@@ -15,4 +15,5 @@ export default defineConfig({
 		host: true, // This allows connections from any IP address
 		port: 5172, // Changed from default port 5173
 	},	
+
 });

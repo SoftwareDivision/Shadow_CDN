@@ -92,12 +92,33 @@ const fetchFile = async (method, url, token, data = null) => {
 	}
 };
 
+const fetchFileAsExcel = async (method, url, token, data = null) => {
+	try {
+		const config = {
+			method,
+			url,
+			responseType: 'blob',
+			headers: {
+				Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+				Authorization: `Bearer ${token}`,
+			},
+			...(data && { data }),
+		};
+		const res = await api(config);
+		console.log(res.data);
+		return res.data;
+	} catch (err) {
+		console.log(err);
+	}
+};
+
 // ===================== API Endpoints =====================
 
 // Auth
 export const login = async (credentials) => {
 	try {
 		const res = await api.post('/Login/Login', credentials);
+		console.log(res);
 		if (res.data.statusCode === 200) return res.data;
 		throw new Error(res.data.data || 'Login failed');
 	} catch (err) {
@@ -112,6 +133,8 @@ const getAll = (url, token) => request('get', url, token);
 const postData = (url, token, data) => request('post', url, token, data);
 
 const postDataFile = (url, token, data) => fetchFile('post', url, token, data);
+
+const postDataFileAsExcel = (url, token, data) => fetchFileAsExcel('post', url, token, data);
 
 // PUT helpers
 const putData = (url, token, data) => request('put', url, token, data);
@@ -287,7 +310,7 @@ export const updateMagzine = (t, data) => {
 // Customer Master APIs
 export const getCustomerDetails = (t) => getAll('/CustomerMasters/GetAllCustomers', t);
 export const createCustomer = (t, data) => postData('/CustomerMasters/CreateCustomer', t, data);
-export const updateCustomer = (t, data) => putData('/CustomerMasters/UpdateCustomer', t, data);
+export const updateCustomer = (t, data) => putData(`/CustomerMasters/UpdateCustomer/${data.id}`, t, data);
 export const deleteCustomer = (t, id) => deleteData(`/CustomerMasters/DeleteCustomer/${id}`, t);
 // Loading Sheet APIs
 
@@ -334,16 +357,76 @@ export const getProductionReport = (token, params) => {
 	return getAll(`/Reports/Getproreport?${queryParams}`, token);
 };
 
+// Production Report Export to Excel
+export const exportProductionReportToExcel = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return postDataFileAsExcel(`/Reports/ExportProReportToExcel?${queryParams}`, token);
+};
+
 // Stock Report API
 export const getStockReport = (token, params) => {
 	const queryParams = new URLSearchParams(params).toString();
 	return getAll(`/Reports/Getstockreport?${queryParams}`, token);
 };
 
+// Stock Report Export to Excel
+export const exportStockReportToExcel = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return postDataFileAsExcel(`/Reports/ExportStockReportToExcel?${queryParams}`, token);
+};
+
+// Dispatch Data Export to Excel
+export const exportDispatchDataToExcel = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return postDataFileAsExcel(`/Reports/ExportDispatchDataToExcel?${queryParams}`, token);
+};
+
+// RE11 Status Data Export to Excel
+export const exportRE11StatusDataToExcel = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return postDataFileAsExcel(`/Reports/ExportRE11StatusDataToExcel?${queryParams}`, token);
+};
+
+// RE2 Status Data Export to Excel
+export const exportRE2StatusDataToExcel = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return postDataFileAsExcel(`/Reports/ExportRE2StatusDataToExcel?${queryParams}`, token);
+};
+
+// L1 Box Data Export to Excel
+export const exportL1BoxDataToExcel = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return postDataFileAsExcel(`/Reports/ExportL1BoxDataToExcel?${queryParams}`, token);
+};
+
+// L1 Reprint Data Export to Excel
+export const exportL1ReprintDataToExcel = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return postDataFileAsExcel(`/Reports/ExportL1ReprintDataToExcel?${queryParams}`, token);
+};
+
+// L2 Reprint Data Export to Excel
+export const exportL2ReprintDataToExcel = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return postDataFileAsExcel(`/Reports/ExportL2ReprintDataToExcel?${queryParams}`, token);
+};
+
+// Production Transfer Fetch Data Export to Excel
+export const exportProTransFetchDataToExcel = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return postDataFileAsExcel(`/Reports/ExportProTransFetchDataToExcel?${queryParams}`, token);
+};
+
 // RE7 Report API
 export const getRE7Report = (token, params) => {
 	const queryParams = new URLSearchParams(params).toString();
 	return getAll(`/Reports/Getre7report?${queryParams}`, token);
+};
+
+// RE7 Report Export to Excel
+export const exportRE7ReportToExcel = (token, params) => {
+	const queryParams = new URLSearchParams(params).toString();
+	return postDataFileAsExcel(`/Reports/ExportRE7ReportToExcel?${queryParams}`, token);
 };
 
 export const getDispatchReport = (token, params) => {

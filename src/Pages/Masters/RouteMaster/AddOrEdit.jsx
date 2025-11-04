@@ -12,29 +12,11 @@ import { createRoute, getCustomerDetails, updateRoute } from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // DND Kit
-import {
-	DndContext,
-	closestCenter,
-	PointerSensor,
-	useSensor,
-	useSensors,
-} from '@dnd-kit/core';
-import {
-	arrayMove,
-	SortableContext,
-	horizontalListSortingStrategy,
-	useSortable,
-} from '@dnd-kit/sortable';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 const validationSchema = yup.object().shape({
@@ -45,13 +27,7 @@ const validationSchema = yup.object().shape({
 });
 
 function SortableLocationItem({ id, onRemove }) {
-	const {
-		attributes,
-		listeners,
-		setNodeRef,
-		transform,
-		transition,
-	} = useSortable({ id });
+	const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
 	const style = {
 		transform: CSS.Transform.toString(transform),
@@ -65,12 +41,7 @@ function SortableLocationItem({ id, onRemove }) {
 			className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full px-4 py-1 shadow text-sm flex items-center gap-2 text-gray-900 dark:text-gray-100"
 		>
 			{/* 👇 Drag Handle Only */}
-			<span
-				className="cursor-move"
-				{...attributes}
-				{...listeners}
-				title="Drag"
-			>
+			<span className="cursor-move" {...attributes} {...listeners} title="Drag">
 				☰
 			</span>
 
@@ -89,8 +60,6 @@ function SortableLocationItem({ id, onRemove }) {
 		</div>
 	);
 }
-
-
 
 export default function AddOrEdit() {
 	const { id } = useParams();
@@ -142,11 +111,7 @@ export default function AddOrEdit() {
 	}, [CustomerData]);
 
 	useEffect(() => {
-		if (
-			id &&
-			routeLocation.state &&
-			customerData.length > 0
-		) {
+		if (id && routeLocation.state && customerData.length > 0) {
 			const rd = routeLocation.state;
 
 			// Ensure cname is part of customerData options
@@ -162,15 +127,23 @@ export default function AddOrEdit() {
 		}
 	}, [id, routeLocation.state, customerData, setValue]);
 
-
-
 	useEffect(() => {
 		setValue('Locations', locationList.join('-'));
 	}, [locationList, setValue]);
 
 	const handleAddLocation = () => {
-		if (currentLocation.trim() !== '') {
-			setLocationList((prev) => [...prev, currentLocation.trim()]);
+		const trimmedLocation = currentLocation.trim();
+		if (trimmedLocation === '') {
+			return; // Ignore empty input
+		}
+
+		// Check if the location already exists (case-insensitive)
+		const isDuplicate = locationList.some((loc) => loc.toLowerCase() === trimmedLocation.toLowerCase());
+
+		if (isDuplicate) {
+			enqueueSnackbar('This location already exists in the list', { variant: 'warning' });
+		} else {
+			setLocationList((prev) => [...prev, trimmedLocation]);
 			setCurrentLocation('');
 		}
 	};
@@ -238,7 +211,9 @@ export default function AddOrEdit() {
 											</SelectGroup>
 										</SelectContent>
 									</Select>
-									{errors.cname && <span className="text-red-500 text-sm">{errors.cname.message}</span>}
+									{errors.cname && (
+										<span className="text-red-500 text-sm">{errors.cname.message}</span>
+									)}
 								</>
 							)}
 						/>
@@ -286,7 +261,6 @@ export default function AddOrEdit() {
 						</SortableContext>
 					</DndContext>
 				</div>
-
 
 				<div className="flex justify-end gap-2">
 					<Button type="button" variant="outline" onClick={() => navigate('/route-master')}>
