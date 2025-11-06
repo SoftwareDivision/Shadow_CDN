@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { useAuthToken } from '@/hooks/authStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MoreVertical, Pencil as PencilIcon, Plus as PlusIcon, Trash as TrashIcon, Loader2 } from 'lucide-react';
-import { CheckCircle2, CheckCircle2Icon, GripVerticalIcon, XCircle, XCircleIcon } from 'lucide-react';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import DataTable from '@/components/DataTable';
@@ -29,41 +29,32 @@ import { Badge } from '@/components/ui/badge';
 import PermissionDeniedDialog from '@/components/PermissionDeniedDialog';
 
 function MagzineMaster() {
-	const navigate = useNavigate();
-	const { token } = useAuthToken.getState();
-	const tokendata = token.data.token;
-	const { enqueueSnackbar } = useSnackbar();
-	const queryClient = useQueryClient();
-	const userpermission = token.data.user.role.pageAccesses.find((item) => item.pageName === 'Magzine Master');
+    const navigate = useNavigate();
+    const { token } = useAuthToken.getState();
+    const tokendata = token?.data?.token;
+    const { enqueueSnackbar } = useSnackbar();
+    const queryClient = useQueryClient();
+    const userpermission = token?.data?.user?.role?.pageAccesses?.find((item) => item.pageName === 'Magzine Master');
 
-	const { data: magzineData, isLoading } = useQuery({
-		queryKey: ['magzines'],
-		queryFn: () => getMagzineDetails(tokendata),
-		onError: (error) => {
-			enqueueSnackbar(error.message || 'Failed to fetch magzine data', { variant: 'error' });
-		},
-	});
+    const { data: magzineData, isLoading, isError, error } = useQuery({
+        queryKey: ['magzines'],
+        queryFn: () => getMagzineDetails(tokendata),
+        enabled: !!tokendata,
+        onError: (error) => {
+            enqueueSnackbar(error.message || 'Failed to fetch magazine data', { variant: 'error' });
+        },
+    });
 
-	const deleteMutation = useMutation({
-		mutationFn: (id) => deleteMagzine(tokendata, id),
-		onSuccess: () => {
-			queryClient.invalidateQueries(['magzines']);
-			enqueueSnackbar('Magzine deleted successfully', { variant: 'success' });
-		},
-		onError: (error) => {
-			enqueueSnackbar(error.message || 'Failed to delete magzine', { variant: 'error' });
-		},
-	});
-
-	const handleEdit = (row) => {
-		navigate(`/magzine-master/edit/${row.id}`, {
-			state: { magzineData: row },
-		});
-	};
-
-	const handleDelete = (row) => {
-		deleteMutation.mutate(row.id);
-	};
+    const deleteMutation = useMutation({
+        mutationFn: (id) => deleteMagzine(tokendata, id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['magzines'] });
+            enqueueSnackbar('Magazine deleted successfully', { variant: 'success' });
+        },
+        onError: (error) => {
+            enqueueSnackbar(error.message || 'Failed to delete magazine', { variant: 'error' });
+        },
+    });
 
 	const columns = [
 		// {
@@ -187,42 +178,52 @@ function MagzineMaster() {
 			),
 		},
 	];
+   
 
-	return (
-		<Card className="p-4 shadow-md">
-			<div className="flex items-center justify-between mb-4">
-				<h2 className="text-2xl font-bold">Magazine Master</h2>
-				{userpermission.isAdd ? (
-					<Button onClick={() => navigate('/magzine-master/add')} className="bg-primary hover:bg-primary/90">
-						<PlusIcon className="h-4 w-4 mr-2" />
-						Add Magazine
-					</Button>
-				) : (
-					<PermissionDeniedDialog
-						action="Add a Magazine"
-						trigger={
-							<Button className="bg-primary hover:bg-primary/90">
-								<PlusIcon className="h-4 w-4 mr-2" />
-								Add Magazine
-							</Button>
-						}
-					/>
-				)}
-			</div>
-			{isLoading ? (
-				<div className="flex items-center justify-center py-8">
-					<Loader2 className="h-8 w-8 animate-spin text-primary" />
-				</div>
-			) : (
-				<DataTable
-					columns={columns}
-					data={magzineData || []}
-					heading={'Magzine Master'}
-					filename={'Magzine_Master'}
-				/>
-			)}
-		</Card>
-	);
+    if (isError) {
+        return (
+            <Card className="p-4 shadow-md">
+                <div className="text-center py-8">
+                    <div className="text-red-500 font-bold text-lg">Error loading magazine data</div>
+                    <div className="text-gray-500 mt-2">{error?.message || 'An unknown error occurred'}</div>
+                    <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['magzines'] })} className="mt-4">
+                        Retry
+                    </Button>
+                </div>
+            </Card>
+        );
+    }
+
+    return (
+        <Card className="p-4 shadow-md">
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold">Magazine Master</h2>
+                {userpermission?.isAdd ? (
+                    <Button onClick={() => navigate('/magzine-master/add')} className="bg-primary hover:bg-primary/90">
+                        <PlusIcon className="h-4 w-4 mr-2" />
+                        Add Magazine
+                    </Button>
+                ) : (
+                    <PermissionDeniedDialog
+                        action="Add a Magazine"
+                        trigger={
+                            <Button className="bg-primary hover:bg-primary/90">
+                                <PlusIcon className="h-4 w-4 mr-2" />
+                                Add Magazine
+                            </Button>
+                        }
+                    />
+                )}
+            </div>
+            {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+            ) : (
+                <DataTable columns={columns} data={magzineData || []} heading={'Magzine Master'} filename={'Magzine_Master'} />
+            )}
+        </Card>
+    );
 }
 
 export default MagzineMaster;

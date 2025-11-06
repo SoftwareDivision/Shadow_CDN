@@ -22,25 +22,6 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 
-yup.addMethod(yup.array, 'uniqueProducts', function (message) {
-	return this.test('unique-products', message, function (list) {
-		const { path, createError } = this;
-		const productNames = new Set();
-		for (let i = 0; i < list.length; i++) {
-			const product = list[i].product;
-
-			if (productNames.has(product)) {
-				return createError({
-					path: `${path}.${i}.product`,
-					message: message || 'Duplicate product entry',
-				});
-			}
-			productNames.add(product);
-		}
-		return true;
-	});
-});
-
 const detailSchema = yup.object().shape({
 	id: yup.number(),
 	magzineid: yup.number(),
@@ -61,14 +42,18 @@ const schema = yup.object().shape({
 	mcode: yup.string().required('Magazine Code is required'),
 	licno: yup.string().required('License Number is required'),
 	issuedate: yup.date().required('Issue Date is required'),
-	validitydt: yup
-		.date()
+	validitydt: yup.date()
 		.required('Validity Date is required')
 		.min(yup.ref('issuedate'), 'Validity date must be after issue date'),
-	totalwt: yup.number().required('Total Weight is required').positive('Total Weight must be positive'),
-	margin: yup.number().required('Margin is required').min(0, 'Margin cannot be negative'),
+	totalwt: yup.number()
+		.required('Total Weight is required')
+		.positive('Total Weight must be positive'),
+	margin: yup.number()
+		.required('Margin is required')
+		.min(0, 'Margin cannot be negative'),
 	autoallot_flag: yup.boolean().default(false),
-	magzineMasterDetails: yup.array().of(detailSchema).uniqueProducts('Duplicate product entries found'),
+	magzineMasterDetails: yup.array().of(detailSchema).required('Magazine details are required')
+		.min(1, 'At least one magazine detail is required')
 });
 
 function AddOrEdit() {
@@ -97,9 +82,9 @@ function AddOrEdit() {
 	});
 
 	const { data: mfgLoc } = useQuery({
-		queryKey: ['classes'],
+		queryKey: ['mfgLocations'],
 		queryFn: () => getMfgLocationDetails(tokendata),
-		enabled: !!tokendata,
+		enabled: !!tokendata
 	});
 
 	const {
@@ -139,33 +124,55 @@ function AddOrEdit() {
 	useEffect(() => {
 		if (state?.magzineData) {
 			const data = state.magzineData;
+			// Fix date formatting to prevent timezone issues
+			const formatDateString = (date) => {
+				if (!date) return '';
+				// Convert to ISO string and extract only the date part (YYYY-MM-DD)
+				return new Date(date).toISOString().split('T')[0];
+			};
+
 			reset({
-				id: data.id,
-				mfgloc: data.mfgloc,
-				mfgloccode: data.mfgloccode,
-				magname: data.magname,
-				mcode: data.mcode,
-				licno: data.licno,
-				issuedate: new Date(data.issuedate).toISOString().split('T')[0],
-				validitydt: new Date(data.validitydt).toISOString().split('T')[0],
-				totalwt: data.totalwt,
-				margin: data.margin,
-				autoallot_flag: data.autoallot_flag,
-				magzineMasterDetails: data.magzineMasterDetails.map((detail) => ({
-					id: detail.id,
-					magzineid: detail.magzineid,
-					class: detail.class,
-					division: detail.division,
-					product: detail.product,
-					wt: detail.wt,
-					margin: detail.margin,
-					units: detail.units,
-					free_space: detail.free_space,
-				})),
+				id: data.id || 0,
+				mfgloc: data.mfgloc || '',
+				mfgloccode: data.mfgloccode || '',
+				magname: data.magname || '',
+				mcode: data.mcode || '',
+				licno: data.licno || '',
+				issuedate: data.issuedate ? formatDateString(data.issuedate) : '',
+				validitydt: data.validitydt ? formatDateString(data.validitydt) : '',
+				totalwt: data.totalwt || '',
+				margin: data.margin || '',
+				autoallot_flag: data.autoallot_flag || false,
+				magzineMasterDetails: Array.isArray(data.magzineMasterDetails) ? data.magzineMasterDetails.map(detail => ({
+					id: detail.id || 0,
+					magzineid: detail.magzineid || (id ? parseInt(id) : 0),
+					class: detail.class || '',
+					division: detail.division || '',
+					product: detail.product || '',
+					wt: detail.wt || '',
+					margin: detail.margin || '',
+					units: detail.units || 'KGs',
+					free_space: detail.free_space || ''
+				})) : []
+			});
+		} else {
+			// Reset to default values when adding new
+			reset({
+				id: 0,
+				mfgloc: '',
+				mfgloccode: '',
+				magname: '',
+				mcode: '',
+				licno: '',
+				issuedate: '',
+				validitydt: '',
+				totalwt: '',
+				margin: '',
+				autoallot_flag: false,
+				magzineMasterDetails: []
 			});
 		}
-	}, [state, reset, mfgLocations, uomData]);
-	console.log('state', state);
+	}, [state, reset, id]);
 
 	// Inside component
 	const { dirtyFields } = useFormState({ control });
@@ -174,7 +181,7 @@ function AddOrEdit() {
 		const subscription = watch((value, { name }) => {
 			if (name === 'totalwt') {
 				const totalwt = parseFloat(value.totalwt) || 0;
-				const allDetails = getValues('magzineMasterDetails');
+				const allDetails = getValues("magzineMasterDetails") || [];
 
 				allDetails.forEach((_, index) => {
 					const sumOfWeights = allDetails.reduce((sum, detail, idx) => {
@@ -199,96 +206,76 @@ function AddOrEdit() {
 
 	const mutation = useMutation({
 		mutationFn: (data) => {
+			// Ensure dates are properly formatted
+			const formatDateString = (date) => {
+				if (!date) return '';
+				// Convert to ISO string and extract only the date part (YYYY-MM-DD)
+				return new Date(date).toISOString().split('T')[0];
+			};
+
 			const payload = {
 				id: id ? parseInt(id) : 0,
-				mfgloc: data.mfgloc.toUpperCase(),
-				mfgloccode: data.mfgloccode.toUpperCase(),
-				magname: data.magname.toUpperCase(),
-				mcode: data.mcode.toUpperCase(),
-				licno: data.licno,
-				issuedate: data.issuedate,
-				validitydt: data.validitydt,
-				totalwt: parseFloat(data.totalwt),
-				margin: parseFloat(data.margin),
-				autoallot_flag: data.autoallot_flag,
-				magzineMasterDetails: data.magzineMasterDetails.map((detail) => ({
-					...detail,
-					wt: parseFloat(detail.wt),
-					margin: parseFloat(detail.margin),
-					free_space: parseFloat(detail.free_space),
-				})),
+				mfgloc: data.mfgloc?.toUpperCase() || '',
+				mfgloccode: data.mfgloccode?.toUpperCase() || '',
+				magname: data.magname?.toUpperCase() || '',
+				mcode: data.mcode?.toUpperCase() || '',
+				licno: data.licno || '',
+				issuedate: formatDateString(data.issuedate),
+				validitydt: formatDateString(data.validitydt),
+				totalwt: parseFloat(data.totalwt) || 0,
+				margin: parseFloat(data.margin) || 0,
+				autoallot_flag: data.autoallot_flag || false,
+				magzineMasterDetails: Array.isArray(data.magzineMasterDetails) ? data.magzineMasterDetails.map(detail => ({
+					id: detail.id || 0,
+					magzineid: id ? parseInt(id) : 0,
+					class: parseInt(detail.class) || 0,
+					division: parseInt(detail.division) || 0,
+					product: detail.product || '',
+					wt: parseFloat(detail.wt) || 0,
+					margin: parseFloat(detail.margin) || 0,
+					units: detail.units || 'KGs',
+					free_space: parseFloat(detail.free_space) || 0
+				})) : []
 			};
+
+			console.log('Payload being sent:', payload);
 			return id ? updateMagzine(tokendata, payload) : createMagzine(tokendata, payload);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries(['magzines']);
+			queryClient.invalidateQueries({ queryKey: ['magzines'] });
 			enqueueSnackbar(`Magazine ${id ? 'updated' : 'created'} successfully`, {
 				variant: 'success',
 			});
 			navigate('/magzine-master');
 		},
 		onError: (error) => {
+			console.error('Error saving magazine:', error);
 			enqueueSnackbar(error.message || `Failed to ${id ? 'update' : 'create'} magazine`, {
 				variant: 'error',
 			});
 		},
 	});
 
-	const onSubmit = async (data) => {
-		try {
-			await schema.validate(data, { abortEarly: false });
-			mutation.mutate(data);
-		} catch (validationErrors) {
-			validationErrors.inner.forEach((error) => {
-				enqueueSnackbar(error.message, { variant: 'error' });
-			});
-		}
-		console.log('data', data);
+	const onSubmit = (data) => {
+		console.log('Form data:', data);
+		mutation.mutate(data);
 	};
 
 	useEffect(() => {
 		if (mfgLoc) {
-			const mfgLocOptions = mfgLoc.map((loc) => ({
+			const mfgLocOptions = mfgLoc.map(loc => ({
 				value: loc.mfgloc,
-				text: loc.mfgloc,
+				text: loc.mfgloc
 			}));
 			setMfgLocations(mfgLocOptions);
 		}
 	}, [mfgLoc]);
 
-	useEffect(() => {
-		if (uomData) {
-			const uomOptions = uomData.map((uom) => ({
-				value: uom.uomcode,
-				text: `${uom.uomcode}`,
-			}));
-			setUoms(uomOptions);
-		}
-	}, [uomData]);
-
-	useEffect(() => {
-		if (productData) {
-			// Filter unique plant types
-			const uniqueTypes = Array.from(new Set(productData.map((product) => product.ptype))).map((ptype) => {
-				const product = productData.find((p) => p.ptype === ptype);
-				return {
-					value: product.ptypecode,
-					text: product.ptype,
-				};
-			});
-			setProducts(uniqueTypes);
-		}
-	}, [productData]);
-
 	return (
 		<Card className="p-4 shadow-md w-full mx-auto">
-			<div>
-				<h2 className="text-2xl font-bold">{id ? 'Edit' : 'Add'} Magazine</h2>
-			</div>
-
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-				<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-					<div className="space-y-2">
+				<div className="space-y-2">
+					<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 						<label htmlFor="mfgloc" className="text-sm font-medium">
 							MFG Location
 						</label>
@@ -361,11 +348,11 @@ function AddOrEdit() {
 					</div>
 
 					<div className="space-y-2">
-						<label htmlFor="licno" className="text-sm font-medium">
-							License Number
+						<label htmlFor="mfgloccode" className="text-sm font-medium">
+							MFG Location Code
 						</label>
-						<Input id="licno" {...register('licno')} className={errors.licno ? 'border-red-500' : ''} />
-						{errors.licno && <span className="text-sm text-red-500">{errors.licno.message}</span>}
+						<Input id="mfgloccode" {...register('mfgloccode')} className={errors.mfgloccode ? 'border-red-500' : ''} readOnly />
+						{errors.mfgloccode && <span className="text-sm text-red-500">{errors.mfgloccode.message}</span>}
 					</div>
 
 					<div className="space-y-2">
@@ -461,323 +448,399 @@ function AddOrEdit() {
 					</div>
 
 					<div className="space-y-2">
-						<label htmlFor="margin" className="text-sm font-medium">
-							Margin (KGs)
+						<label htmlFor="issuedate" className="text-sm font-medium">
+							Issue Date
 						</label>
-						<Input
-							type="number"
-							step="0.01"
-							id="margin"
-							{...register('margin')}
-							className={errors.margin ? 'border-red-500' : ''}
-						/>
-						{errors.margin && <span className="text-sm text-red-500">{errors.margin.message}</span>}
-					</div>
-
-					<div className="flex items-center mt-5 space-x-2">
 						<Controller
-							name="autoallot_flag"
+							name="issuedate"
 							control={control}
-							render={({ field }) => (
-								<Checkbox id="autoallot_flag" checked={field.value} onCheckedChange={field.onChange} />
+							render={({ field: { onChange, value } }) => (
+								<div>
+									<Popover>
+										<PopoverTrigger asChild>
+											<Button
+												variant={"outline"}
+												className={cn(
+													"w-full justify-start text-left font-normal",
+													!value && "text-muted-foreground"
+												)}
+											>
+												<CalendarIcon className="mr-2 h-4 w-4" />
+												{value ? format(new Date(value), "PPP") : <span>Pick a date</span>}
+											</Button>
+										</PopoverTrigger>
+										<PopoverContent className="w-auto p-0">
+											<Calendar
+												mode="single"
+												selected={value ? new Date(value) : undefined}
+												onSelect={(date) => {
+													const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
+													onChange(formattedDate);
+												}}
+												initialFocus
+											/>
+										</PopoverContent>
+									</Popover>
+								</div>
 							)}
 						/>
-						<label htmlFor="autoallot_flag" className="text-sm font-medium cursor-pointer">
-							Enable Auto Allotment
+						{errors.issuedate && <span className="text-sm text-red-500">{errors.issuedate.message}</span>}
+					</div>
+
+
+					<div className="space-y-2">
+						<label htmlFor="validitydt" className="text-sm font-medium">
+							Validity Date
 						</label>
-					</div>
-				</div>
-
-				<div className="space-y-4">
-					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<h3 className="text-lg font-semibold">Magazine Details</h3>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={() =>
-									append({
-										id: 0,
-										magzineid: id || 0,
-										Plant: '',
-										class: '',
-										division: '',
-										wt: '',
-										margin: '',
-										units: 'KGs',
-									})
-								}
-							>
-								<Plus className="h-4 w-4 mr-2" />
-								Add Detail
-							</Button>
-						</div>
-
-						<div className="border rounded-lg overflow-hidden">
-							<Table>
-								<TableHeader>
-									<TableRow>
-										<TableHead>Product</TableHead>
-										<TableHead>Class</TableHead>
-										<TableHead>Division</TableHead>
-										<TableHead>Weight</TableHead>
-										<TableHead>Margin</TableHead>
-										<TableHead>Units</TableHead>
-										<TableHead className="w-[50px]"></TableHead>
-										{/* <TableHead>Free Space</TableHead>
-                                        <TableHead>Carton</TableHead> */}
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{fields.map((field, index) => (
-										<TableRow key={field.id}>
-											<TableCell className="w-[300px]">
-												<Controller
-													name={`magzineMasterDetails.${index}.product`}
-													control={control}
-													render={({ field }) => (
-														<Select
-															value={field.value}
-															onValueChange={(value) => {
-																field.onChange(value);
-																const selectedProduct = productData.find(
-																	(p) => p.ptypecode === value,
-																);
-																if (selectedProduct) {
-																	setValue(
-																		`magzineMasterDetails.${index}.class`,
-																		selectedProduct.class,
-																	);
-																	setValue(
-																		`magzineMasterDetails.${index}.division`,
-																		selectedProduct.division,
-																	);
-																}
-															}}
-														>
-															<SelectTrigger className="w-full">
-																<SelectValue placeholder="Select product..." />
-															</SelectTrigger>
-															<SelectContent>
-																<SelectGroup>
-																	{products.map((product) => (
-																		<SelectItem
-																			key={product.value}
-																			value={product.value}
-																		>
-																			{product.text}
-																		</SelectItem>
-																	))}
-																</SelectGroup>
-															</SelectContent>
-														</Select>
-													)}
-												/>
-											</TableCell>
-											<TableCell className="w-[200px]">
-												<Input
-													type="text"
-													{...register(`magzineMasterDetails.${index}.class`)}
-													className={
-														errors.magzineMasterDetails?.[index]?.class
-															? 'border-red-500'
-															: ''
-													}
-													readOnly
-												/>
-											</TableCell>
-											<TableCell className="w-[200px]">
-												<Input
-													type="number"
-													{...register(`magzineMasterDetails.${index}.division`)}
-													className={
-														errors.magzineMasterDetails?.[index]?.division
-															? 'border-red-500'
-															: ''
-													}
-													readOnly
-												/>
-											</TableCell>
-											{/* <TableCell className='w-[200px]'>
-                                                <Input
-                                                    type="number"
-                                                    step="0.01"
-                                                    {...register(`magzineMasterDetails.${index}.wt`, {
-                                                        onChange: (e) => {
-                                                            const currentWt = parseFloat(e.target.value) || 0;
-
-                                                            // Automatically set free_space to same value
-                                                            setValue(`magzineMasterDetails.${index}.free_space`, currentWt);
-
-                                                            // Validation logic for total weight
-                                                            const allDetails = control._formValues.magzineMasterDetails;
-                                                            const totalWeightHeader = parseFloat(control._formValues.totalwt) || 0;
-                                                            let sumOfTableWeights = 0;
-
-                                                            allDetails.forEach((detail, idx) => {
-                                                                const wt = parseFloat(detail.wt) || 0;
-                                                                if (idx === index) {
-                                                                    sumOfTableWeights += currentWt;
-                                                                } else {
-                                                                    sumOfTableWeights += wt;
-                                                                }
-                                                            });
-
-                                                            if (sumOfTableWeights > totalWeightHeader) {
-                                                                setError(`magzineMasterDetails.${index}.wt`, {
-                                                                    type: 'manual',
-                                                                    message: 'Sum of weights exceeds Total Weight',
-                                                                });
-                                                            } else {
-                                                                clearErrors(`magzineMasterDetails.${index}.wt`);
-                                                            }
-                                                        },
-                                                    })}
-                                                    className={errors.magzineMasterDetails?.[index]?.wt ? 'border-red-500' : ''}
-                                                />
-                                                {errors.magzineMasterDetails?.[index]?.wt && (
-                                                    <span className="text-sm text-red-500">
-                                                        {errors.magzineMasterDetails[index].wt.message}
-                                                    </span>
-                                                )}
-                                            </TableCell> */}
-
-											<TableCell className="w-[200px]">
-												<Input
-													type="number"
-													step="0.01"
-													{...register(`magzineMasterDetails.${index}.wt`, {
-														onChange: (e) => {
-															const currentWt = parseFloat(e.target.value) || 0;
-
-															setValue(
-																`magzineMasterDetails.${index}.free_space`,
-																currentWt,
-																{
-																	shouldValidate: true,
-																	shouldDirty: true,
-																},
-															);
-
-															const allDetails = getValues('magzineMasterDetails');
-															const totalwt = parseFloat(getValues('totalwt')) || 0;
-
-															const sumOfWeights = allDetails.reduce(
-																(sum, detail, idx) => {
-																	const val =
-																		idx === index
-																			? currentWt
-																			: parseFloat(detail.wt) || 0;
-																	return sum + val;
-																},
-																0,
-															);
-
-															if (sumOfWeights > totalwt) {
-																setError(`magzineMasterDetails.${index}.wt`, {
-																	type: 'manual',
-																	message: 'Sum of weights exceeds Total Weight',
-																});
-															} else {
-																clearErrors(`magzineMasterDetails.${index}.wt`);
-															}
-														},
-													})}
-													className={
-														errors.magzineMasterDetails?.[index]?.wt ? 'border-red-500' : ''
-													}
-												/>
-												{errors.magzineMasterDetails?.[index]?.wt && (
-													<span className="text-sm text-red-500">
-														{errors.magzineMasterDetails[index].wt.message}
-													</span>
+						<Controller
+							name="validitydt"
+							control={control}
+							render={({ field: { onChange, value } }) => (
+								<div>
+									<Popover>
+										<PopoverTrigger asChild>
+											<Button
+												variant={"outline"}
+												className={cn(
+													"w-full justify-start text-left font-normal",
+													!value && "text-muted-foreground"
 												)}
-											</TableCell>
-
-											<TableCell className="w-[200px]">
-												<Input
-													type="number"
-													{...register(`magzineMasterDetails.${index}.margin`)}
-													className={
-														errors.magzineMasterDetails?.[index]?.margin
-															? 'border-red-500'
-															: ''
-													}
-												/>
-											</TableCell>
-											<TableCell className="w-[150px]">
-												<Controller
-													name={`magzineMasterDetails.${index}.units`}
-													control={control}
-													render={({ field }) => (
-														<Select value={field.value} onValueChange={field.onChange}>
-															<SelectTrigger className="w-full">
-																<SelectValue placeholder="Select unit..." />
-															</SelectTrigger>
-															<SelectContent>
-																<SelectGroup>
-																	{uoms.map((uom) => (
-																		<SelectItem key={uom.value} value={uom.value}>
-																			{uom.text}
-																		</SelectItem>
-																	))}
-																</SelectGroup>
-															</SelectContent>
-														</Select>
-													)}
-												/>
-											</TableCell>
-											<TableCell>
-												<Button
-													type="button"
-													variant="ghost"
-													size="sm"
-													className="text-red-500 hover:text-red-700"
-													onClick={() => remove(index)}
-												>
-													<Trash2 className="h-4 w-4" />
-												</Button>
-											</TableCell>
-
-											<TableCell className="w-[200px] hidden">
-												<Input
-													type="number"
-													step="0.01"
-													{...register(`magzineMasterDetails.${index}.free_space`)}
-													className={
-														errors.magzineMasterDetails?.[index]?.free_space
-															? 'border-red-500'
-															: ''
-													}
-												/>
-											</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						</div>
+											>
+												<CalendarIcon className="mr-2 h-4 w-4" />
+												{value ? format(new Date(value), "PPP") : <span>Pick a date</span>}
+											</Button>
+										</PopoverTrigger>
+										<PopoverContent className="w-auto p-0">
+											<Calendar
+												mode="single"
+												selected={value ? new Date(value) : undefined}
+												onSelect={(date) => {
+													const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
+													onChange(formattedDate);
+												}}
+												initialFocus
+											/>
+										</PopoverContent>
+									</Popover>
+								</div>
+							)}
+						/>
+						{errors.validitydt && <span className="text-sm text-red-500">{errors.validitydt.message}</span>}
 					</div>
 
-					<div className="flex justify-end space-x-2">
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => navigate('/magzine-master')}
-							disabled={mutation.isPending}
-						>
-							Cancel
-						</Button>
-						<Button type="submit" className="bg-primary hover:bg-primary/90" disabled={mutation.isPending}>
-							{mutation.isPending ? (
-								<>
-									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									{id ? 'Updating...' : 'Creating...'}
-								</>
-							) : (
-								`${id ? 'Update' : 'Create'} Magazine`
-							)}
-						</Button>
+					<div className="space-y-4">
+						<div className="space-y-4">
+							<div className="flex items-center justify-between">
+								<h3 className="text-lg font-semibold">Magazine Details</h3>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() =>
+										append({
+											id: 0,
+											magzineid: id || 0,
+											Plant: '',
+											class: '',
+											division: '',
+											wt: '',
+											margin: '',
+											units: 'KGs',
+										})
+									}
+								>
+									<Plus className="h-4 w-4 mr-2" />
+									Add Detail
+								</Button>
+							</div>
+
+							<div className="space-y-2">
+								<label htmlFor="margin" className="text-sm font-medium">
+									Margin (KGs)
+								</label>
+								<Input
+									type="number"
+									step="0.01"
+									id="margin"
+									{...register('margin')}
+									className={errors.margin ? 'border-red-500' : ''}
+								/>
+								{errors.margin && <span className="text-sm text-red-500">{errors.margin.message}</span>}
+							</div>
+
+
+							<div className="flex items-center mt-5 space-x-2">
+								<Controller
+									name="autoallot_flag"
+									control={control}
+									render={({ field }) => (
+										<Checkbox
+											id="autoallot_flag"
+											checked={field.value}
+											onCheckedChange={field.onChange}
+										/>
+									)}
+								/>
+								<label htmlFor="autoallot_flag" className="text-sm font-medium cursor-pointer">
+									Enable Auto Allotment
+								</label>
+							</div>
+						</div>
+
+						<div className="space-y-4">
+							<div className="space-y-4">
+								<div className="flex items-center justify-between">
+									<h3 className="text-lg font-semibold">Magazine Details</h3>
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={() => append({
+											id: 0,
+											magzineid: id ? parseInt(id) : 0,
+											class: '',
+											division: '',
+											product: '',
+											wt: '',
+											margin: '',
+											units: 'KGs',
+											free_space: ''
+										})}
+									>
+										<Plus className="h-4 w-4 mr-2" />
+										Add Detail
+									</Button>
+								</div>
+
+								<div className="border rounded-lg overflow-hidden">
+									<Table>
+										<TableHeader>
+											<TableRow>
+												<TableHead>Product</TableHead>
+												<TableHead>Class</TableHead>
+												<TableHead>Division</TableHead>
+												<TableHead>Weight</TableHead>
+												<TableHead>Margin</TableHead>
+												<TableHead>Units</TableHead>
+												<TableHead className="w-[50px]"></TableHead>
+											</TableRow>
+										</TableHeader>
+										<TableBody>
+											{fields.map((field, index) => (
+												<TableRow key={field.id}>
+													<TableCell className='w-[300px]'>
+														<Controller
+															name={`magzineMasterDetails.${index}.product`}
+															control={control}
+															render={({ field }) => (
+																<Select
+																	value={field.value || ''}
+																	onValueChange={(value) => {
+																		field.onChange(value);
+																		const selectedProduct = productData?.find(p => p.ptypecode === value);
+																		if (selectedProduct) {
+																			setValue(`magzineMasterDetails.${index}.class`, selectedProduct.class || '', {
+																				shouldValidate: true,
+																				shouldDirty: true
+																			});
+																			setValue(`magzineMasterDetails.${index}.division`, selectedProduct.division || '', {
+																				shouldValidate: true,
+																				shouldDirty: true
+																			});
+																		}
+																	}}
+																>
+																	<SelectTrigger className="w-full">
+																		<SelectValue placeholder="Select product..." />
+																	</SelectTrigger>
+																	<SelectContent>
+																		<SelectGroup>
+																			{products.map((product) => (
+																				<SelectItem
+																					key={product.value}
+																					value={product.value}
+																				>
+																					{product.text}
+																				</SelectItem>
+																			))}
+																		</SelectGroup>
+																	</SelectContent>
+																</Select>
+															)}
+														/>
+														{errors.magzineMasterDetails?.[index]?.product && (
+															<span className="text-sm text-red-500">
+																{errors.magzineMasterDetails[index].product.message}
+															</span>
+														)}
+													</TableCell>
+													<TableCell className='w-[200px]'>
+														<Input
+															type="text"
+															{...register(`magzineMasterDetails.${index}.class`)}
+															className={errors.magzineMasterDetails?.[index]?.class ? 'border-red-500' : ''}
+															readOnly
+														/>
+													</TableCell>
+													<TableCell className='w-[200px]'>
+														<Input
+															type="number"
+															{...register(`magzineMasterDetails.${index}.division`)}
+															className={errors.magzineMasterDetails?.[index]?.division ? 'border-red-500' : ''}
+															readOnly
+														/>
+													</TableCell>
+													<TableCell className='w-[200px]'>
+														<Input
+															type="number"
+															step="0.01"
+															{...register(`magzineMasterDetails.${index}.wt`, {
+																onChange: (e) => {
+																	const currentWt = parseFloat(e.target.value) || 0;
+
+																	setValue(
+																		`magzineMasterDetails.${index}.free_space`,
+																		currentWt,
+																		{
+																			shouldValidate: true,
+																			shouldDirty: true,
+																		},
+																	);
+
+																	const allDetails = getValues("magzineMasterDetails") || [];
+																	const totalwt = parseFloat(getValues("totalwt")) || 0;
+
+																	const sumOfWeights = allDetails.reduce(
+																		(sum, detail, idx) => {
+																			const val =
+																				idx === index
+																					? currentWt
+																					: parseFloat(detail.wt) || 0;
+																			return sum + val;
+																		},
+																		0,
+																	);
+
+																	if (sumOfWeights > totalwt) {
+																		setError(`magzineMasterDetails.${index}.wt`, {
+																			type: 'manual',
+																			message: 'Sum of weights exceeds Total Weight',
+																		});
+																	} else {
+																		clearErrors(`magzineMasterDetails.${index}.wt`);
+																	}
+																},
+															})}
+															className={
+																errors.magzineMasterDetails?.[index]?.wt ? 'border-red-500' : ''
+															}
+														/>
+														{errors.magzineMasterDetails?.[index]?.wt && (
+															<span className="text-sm text-red-500">
+																{errors.magzineMasterDetails[index].wt.message}
+															</span>
+														)}
+													</TableCell>
+
+													<TableCell className='w-[200px]'>
+														<Input
+															type="number"
+															step="0.01"
+															{...register(`magzineMasterDetails.${index}.margin`)}
+															className={errors.magzineMasterDetails?.[index]?.margin ? 'border-red-500' : ''}
+														/>
+														{errors.magzineMasterDetails?.[index]?.margin && (
+															<span className="text-sm text-red-500">
+																{errors.magzineMasterDetails[index].margin.message}
+															</span>
+														)}
+													</TableCell>
+													<TableCell className='w-[150px]'>
+														<Controller
+															name={`magzineMasterDetails.${index}.units`}
+															control={control}
+															render={({ field }) => (
+																<Select
+																	value={field.value || 'KGs'}
+																	onValueChange={field.onChange}
+																>
+																	<SelectTrigger className="w-full">
+																		<SelectValue placeholder="Select unit..." />
+																	</SelectTrigger>
+																	<SelectContent>
+																		<SelectGroup>
+																			{uoms.map((uom) => (
+																				<SelectItem
+																					key={uom.value}
+																					value={uom.value}
+																				>
+																					{uom.text}
+																				</SelectItem>
+																			))}
+																		</SelectGroup>
+																	</SelectContent>
+																</Select>
+															)}
+														/>
+														{errors.magzineMasterDetails?.[index]?.units && (
+															<span className="text-sm text-red-500">
+																{errors.magzineMasterDetails[index].units.message}
+															</span>
+														)}
+													</TableCell>
+													<TableCell>
+														<Button
+															type="button"
+															variant="ghost"
+															size="sm"
+															className="text-red-500 hover:text-red-700"
+															onClick={() => remove(index)}
+														>
+															<Trash2 className="h-4 w-4" />
+														</Button>
+													</TableCell>
+
+													<TableCell className='w-[200px] hidden'>
+														<Input
+															type="number"
+															step="0.01"
+															{...register(`magzineMasterDetails.${index}.free_space`)}
+															className={errors.magzineMasterDetails?.[index]?.free_space ? 'border-red-500' : ''}
+														/>
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+									{errors.magzineMasterDetails?.message && (
+										<div className="text-sm text-red-500 mt-2">
+											{errors.magzineMasterDetails.message}
+										</div>
+									)}
+								</div>
+							</div>
+
+							<div className="flex justify-end space-x-2">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => navigate('/magzine-master')}
+									disabled={mutation.isPending}
+								>
+									Cancel
+								</Button>
+								<Button type="submit" className="bg-primary hover:bg-primary/90" disabled={mutation.isPending}>
+									{mutation.isPending ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											{id ? 'Updating...' : 'Creating...'}
+										</>
+									) : (
+										`${id ? 'Update' : 'Create'} Magazine`
+									)}
+								</Button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</form>
