@@ -51,7 +51,6 @@ const NavItems = [
 		items: [
 			{ title: 'Manual L1Barcode Generation', url: '/barcode-generation' },
 			{ title: '2D Barcode Generation', url: '/2Dbarcode-generation' },
-		
 		],
 	},
 	{
@@ -81,7 +80,7 @@ const NavItems = [
 			{ title: 'Loading Sheet Generation', url: '/loading-sheets' },
 			{ title: 'RE12 File Generation', url: '/re12-file-generation' },
 			{ title: 'Intimation Generation', url: '/intimation-generation' },
-			{ title: 'RE6 Generation', url: '/re6-generation' },			
+			{ title: 'RE6 Generation', url: '/re6-generation' },
 		],
 	},
 	{

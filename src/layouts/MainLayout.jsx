@@ -134,7 +134,6 @@ export default function MainLayout() {
 		'/plant-type-master': { parent: 'Masters', current: 'Plant Type Master' },
 		'/plant-type-master/add': { parent: 'Masters', current: 'Add Plant Type' },
 		'/plant-type-master/edit': { parent: 'Masters', current: 'Edit Plant Type' },
-
 	};
 
 	const getPathInfo = (path) => {
@@ -173,7 +172,7 @@ export default function MainLayout() {
 	const { parent, current } = getPathInfo(location.pathname);
 
 	return (
-		<SidebarProvider>
+		<SidebarProvider defaultOpen={true}>
 			<AppSidebar />
 			<SidebarInset className="min-h-screen flex flex-col">
 				<header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-md">
