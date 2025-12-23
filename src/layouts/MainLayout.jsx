@@ -134,6 +134,7 @@ export default function MainLayout() {
 		'/plant-type-master': { parent: 'Masters', current: 'Plant Type Master' },
 		'/plant-type-master/add': { parent: 'Masters', current: 'Add Plant Type' },
 		'/plant-type-master/edit': { parent: 'Masters', current: 'Edit Plant Type' },
+		'/settings': { parent: 'Home', current: 'Settings' },
 	};
 
 	const getPathInfo = (path) => {

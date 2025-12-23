@@ -75,7 +75,8 @@ const RE2_Status_Report = lazy(() => import('../Pages/Reports/RE2 Status Report/
 const L1_Box_Deletion_Report = lazy(() => import('../Pages/Reports/L1 Box Deletion Report/Index'));
 const L1_Barcode_Reprint_Report = lazy(() => import('../Pages/Reports/L1 Barcode Reprint Report/Index'));
 const L2_Barcode_Reprint_Report = lazy(() => import('../Pages/Reports/L2 Barcode Reprint Report/Index'));
-const Production_Material_Transfer_Report = lazy(() => import('../Pages/Reports/Production Material Transfer Report/Index'),
+const Production_Material_Transfer_Report = lazy(() =>
+	import('../Pages/Reports/Production Material Transfer Report/Index'),
 );
 
 // Admin
@@ -106,7 +107,7 @@ const UserManagement = lazy(() => import('../Pages/UserManage/UserMangement/inde
 const UsermasterAddorEdit = lazy(() => import('../Pages/UserManage/UserMangement/AddorEdit'));
 const RouteMaster = lazy(() => import('../Pages/Masters/RouteMaster/Index'));
 const RouteAddOrEdit = lazy(() => import('../Pages/Masters/RouteMaster/AddOrEdit'));
-
+const Setting = lazy(() => import('../Pages/Settings/Index'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -729,6 +730,14 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
+							<Route
+								path="/settings"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<Setting />
+									</SuspenseWrapper>
+								}
+							/>
 
 							{/* Catch-all 404 page */}
 							<Route
@@ -1038,8 +1047,6 @@ export default function RoutesComponent() {
 									</SuspenseWrapper>
 								}
 							/>
-
-
 						</Route>
 						{/* Catch-all 404 page */}
 						<Route
