@@ -51,6 +51,7 @@
     "@react-pdf/renderer": "^4.3.0",
     "@tailwindcss/vite": "^4.1.8",
     "@tanstack/react-query": "^5.74.7",
+    "@tanstack/react-query-devtools": "^5.91.2",
     "@tanstack/react-table": "^8.21.2",
     "axios": "^1.9.0",
     "bwip-js": "^4.6.0",

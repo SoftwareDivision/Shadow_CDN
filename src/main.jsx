@@ -5,6 +5,7 @@ import '@fontsource/inter';
 import App from './App.jsx';
 import { ThemeProvider } from './components/theme-provider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { SnackbarProvider } from 'notistack';
 import { WebSocketProvider } from './hooks/WebSocketContext';
 
@@ -33,6 +34,13 @@ createRoot(document.getElementById('root')).render(
 					<WebSocketProvider>
 						<App />
 					</WebSocketProvider>
+					{import.meta.env.DEV && (
+						<ReactQueryDevtools 
+							initialIsOpen={false} 
+							position="bottom-right"
+							buttonPosition="bottom-right"
+						/>
+					)}
 				</QueryClientProvider>
 			</SnackbarProvider>
 		</ThemeProvider>

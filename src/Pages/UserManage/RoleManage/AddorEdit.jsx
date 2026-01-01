@@ -53,9 +53,10 @@ function AddOrEdit() {
 		},
 	});
 
-	// Initialize permissions from menu items
+	// Initialize permissions from menu items and merge with existing data
 	useEffect(() => {
-		const initialPermissions = menutems
+		// Get all pages from menu items
+		const allPagesFromMenu = menutems
 			.filter((item) => item.items && item.items.length > 0)
 			.flatMap((category) =>
 				category.items.map((item) => ({
@@ -66,22 +67,36 @@ function AddOrEdit() {
 				})),
 			);
 
-		setPermissions(initialPermissions);
-		setValue('pageAccesses', initialPermissions);
-	}, []);
-
-	// Load data for editing
-	useEffect(() => {
+		// If editing, merge existing permissions with all available pages
 		if (state?.roleData) {
 			const { roleName, pageAccesses } = state.roleData;
+			
+			// Create a map of existing permissions for quick lookup
+			const existingPermissionsMap = {};
+			pageAccesses.forEach((access) => {
+				existingPermissionsMap[access.pageName] = access;
+			});
+
+			// Merge: use existing permissions if available, otherwise use default (all false)
+			const mergedPermissions = allPagesFromMenu.map((page) => {
+				if (existingPermissionsMap[page.pageName]) {
+					return existingPermissionsMap[page.pageName];
+				}
+				return page; // Use default (all permissions false)
+			});
+
 			reset({
 				id: parseInt(id),
 				roleName,
-				pageAccesses,
+				pageAccesses: mergedPermissions,
 			});
-			setPermissions(pageAccesses);
+			setPermissions(mergedPermissions);
+		} else {
+			// For adding new role, use all pages with default permissions
+			setPermissions(allPagesFromMenu);
+			setValue('pageAccesses', allPagesFromMenu);
 		}
-	}, [state, id, reset]);
+	}, [state, id, reset, setValue]);
 
 	const handlePermissionChange = (index, field, value) => {
 		const updatedPermissions = [...permissions];
@@ -118,11 +133,11 @@ function AddOrEdit() {
 
 	const isRowAllSelected = (index) => {
 		const permission = permissions[index];
-		return permission.isAdd && permission.isEdit && permission.isDelete;
+		return permission?.isAdd && permission?.isEdit && permission?.isDelete;
 	};
 
-	const isGlobalAllSelected = permissions.every((p) => p.isAdd && p.isEdit && p.isDelete);
-	const isGlobalSomeSelected = permissions.some((p) => p.isAdd || p.isEdit || p.isDelete) && !isGlobalAllSelected;
+	const isGlobalAllSelected = permissions.length > 0 && permissions.every((p) => p?.isAdd && p?.isEdit && p?.isDelete);
+	const isGlobalSomeSelected = permissions.some((p) => p?.isAdd || p?.isEdit || p?.isDelete) && !isGlobalAllSelected;
 
 	const mutation = useMutation({
 		mutationFn: (data) => {
@@ -199,47 +214,62 @@ function AddOrEdit() {
 										</TableRow>
 									</TableHeader>
 									<TableBody>
-										{permissions.map((permission, index) => (
-											<TableRow key={index} className="hover:bg-muted/50">
-												<TableCell className="font-medium">{permission.pageName}</TableCell>
-												<TableCell className="text-center">
-													<Checkbox
-														className="border-blue-600"
-														checked={isRowAllSelected(index)}
-														onCheckedChange={(checked) =>
-															handleRowSelectAll(index, checked)
-														}
-													/>
-												</TableCell>
-												<TableCell className="text-center">
-													<Checkbox
-														className="border-blue-600"
-														checked={permission.isAdd}
-														onCheckedChange={(checked) =>
-															handlePermissionChange(index, 'isAdd', checked)
-														}
-													/>
-												</TableCell>
-												<TableCell className="text-center">
-													<Checkbox
-														className="border-blue-600"
-														checked={permission.isEdit}
-														onCheckedChange={(checked) =>
-															handlePermissionChange(index, 'isEdit', checked)
-														}
-													/>
-												</TableCell>
-												<TableCell className="text-center">
-													<Checkbox
-														className="border-blue-600"
-														checked={permission.isDelete}
-														onCheckedChange={(checked) =>
-															handlePermissionChange(index, 'isDelete', checked)
-														}
-													/>
-												</TableCell>
-											</TableRow>
-										))}
+										{permissions.map((permission, index) => {
+											const hasAnyPermission = permission.isAdd || permission.isEdit || permission.isDelete;
+											return (
+												<TableRow 
+													key={index} 
+													className={`hover:bg-muted/50 ${
+														!hasAnyPermission ? 'bg-muted/30 opacity-60' : ''
+													}`}
+												>
+													<TableCell className="font-medium">
+														{permission.pageName}
+														{!hasAnyPermission && (
+															<span className="ml-2 text-xs text-muted-foreground italic">
+																(No permissions)
+															</span>
+														)}
+													</TableCell>
+													<TableCell className="text-center">
+														<Checkbox
+															className="border-blue-600"
+															checked={isRowAllSelected(index)}
+															onCheckedChange={(checked) =>
+																handleRowSelectAll(index, checked)
+															}
+														/>
+													</TableCell>
+													<TableCell className="text-center">
+														<Checkbox
+															className="border-blue-600"
+															checked={permission.isAdd}
+															onCheckedChange={(checked) =>
+																handlePermissionChange(index, 'isAdd', checked)
+															}
+														/>
+													</TableCell>
+													<TableCell className="text-center">
+														<Checkbox
+															className="border-blue-600"
+															checked={permission.isEdit}
+															onCheckedChange={(checked) =>
+																handlePermissionChange(index, 'isEdit', checked)
+															}
+														/>
+													</TableCell>
+													<TableCell className="text-center">
+														<Checkbox
+															className="border-blue-600"
+															checked={permission.isDelete}
+															onCheckedChange={(checked) =>
+																handlePermissionChange(index, 'isDelete', checked)
+															}
+														/>
+													</TableCell>
+												</TableRow>
+											);
+										})}
 									</TableBody>
 								</Table>
 							</div>

@@ -35,6 +35,8 @@ const BatchMaster = lazy(() => import('../Pages/Masters/BatchMaster/index'));
 const BatchAddOrEdit = lazy(() => import('../Pages/Masters/BatchMaster/AddOrEdit'));
 const ProductMaster = lazy(() => import('../Pages/Masters/ProductMaster/Index'));
 const ProductAddOrEdit = lazy(() => import('../Pages/Masters/ProductMaster/AddOrEdit'));
+const ProductionPlan = lazy(() => import('../Pages/Masters/ProductionPlan/Index'));
+const ProductionPlanAddOrEdit = lazy(() => import('../Pages/Masters/ProductionPlan/AddOrEdit'));
 const IntimationMaster = lazy(() => import('../Pages/Masters/IntimationMaster/Index'));
 const IntimationAddOrEdit = lazy(() => import('../Pages/Masters/IntimationMaster/AddOrEdit'));
 const RE2FileGeneration = lazy(() => import('../Pages/Storages/RE2FileGeneration/RE2FileGeneration'));
@@ -473,6 +475,31 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<ProductAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							
+							<Route
+								path="/production-plan"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ProductionPlan />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/production-plan/add"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ProductionPlanAddOrEdit />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/production-plan/edit/:id"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<ProductionPlanAddOrEdit />
 									</SuspenseWrapper>
 								}
 							/>

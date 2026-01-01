@@ -616,4 +616,31 @@ export const fetchAIMETableData = (token, data) => {
 	return getAll(`/AIME/GetAIMETableDetails?${queryParams}`, token);
 };
 
+// Production Plan APIs
+export const getAllProductionPlans = (t) => getAll('/ProductionPlan/GetAllProductionPlans', t);
+export const getProductionPlanById = (t, id) => getAll(`/ProductionPlan/GetProductionPlan/${id}`, t);
+export const generateProductionPlanNo = (t) => getAll('/ProductionPlan/GenerateProductionPlanNo', t);
+export const createProductionPlan = (t, data) => {
+	const formatted = {
+		...data,
+		mfgDt: formatDate(data.mfgDt),
+	};
+	return postData('/ProductionPlan/CreateProductionPlan', t, formatted);
+};
+export const updateProductionPlan = (t, data) => {
+	const formatted = {
+		...data,
+		mfgDt: formatDate(data.mfgDt),
+	};
+	return putData(`/ProductionPlan/UpdateProductionPlan/${data.id}`, t, formatted);
+};
+export const deleteProductionPlan = (t, id) => deleteData(`/ProductionPlan/DeleteProductionPlan/${id}`, t);
+export const searchProductionPlans = (t, searchParams) => {
+	const formatted = { ...searchParams };
+	if (searchParams.mfgDt) formatted.mfgDt = formatDate(searchParams.mfgDt);
+	if (searchParams.createdDateFrom) formatted.createdDateFrom = formatDate(searchParams.createdDateFrom);
+	if (searchParams.createdDateTo) formatted.createdDateTo = formatDate(searchParams.createdDateTo);
+	return postData('/ProductionPlan/SearchProductionPlans', t, formatted);
+};
+
 export default api;
