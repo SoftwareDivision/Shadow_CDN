@@ -33,7 +33,6 @@ const NavItems = [
 			{ title: 'Brand Master', url: '/brand-master' },
 			{ title: 'Machine Code Master', url: '/machine-code-master' },
 			{ title: 'Product Master', url: '/product-master' },
-			{ title: 'Production Plan', url: '/production-plan' },
 			{ title: 'Batch Master', url: '/batch-master' },
 			{ title: 'UOM Master', url: '/uom-master' },
 			{ title: 'Magzine Master', url: '/magzine-master' },
@@ -50,6 +49,7 @@ const NavItems = [
 		url: '#',
 		icon: Workflow,
 		items: [
+			{ title: 'Production Plan', url: '/production-plan' },
 			{ title: 'Manual L1Barcode Generation', url: '/barcode-generation' },
 			{ title: '2D Barcode Generation', url: '/2Dbarcode-generation' },
 		],

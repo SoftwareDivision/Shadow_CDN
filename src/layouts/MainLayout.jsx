@@ -43,8 +43,8 @@ export default function MainLayout() {
 
 	const breadcrumbMap = {
 		'/dashboard': { parent: 'Home', current: 'Dashboard' },
-		'/barcode-generation': { parent: 'Home', current: 'L1 Barcode Generation' },
-		'/2Dbarcode-generation': { parent: 'Home', current: '2D Barcode Generator' },
+		'/barcode-generation': { parent: 'Production', current: 'L1 Barcode Generation' },
+		'/2Dbarcode-generation': { parent: 'Production', current: '2D Barcode Generator' },
 		'/magzine-transfer': { parent: 'Home', current: 'Magzine-Transfer' },
 		'/magzine-transfer/transfer': { parent: 'Home', current: 'Magzine-Transfer' },
 		'/magzine-master': { parent: 'Home', current: 'Magzine-Master' },
@@ -71,9 +71,9 @@ export default function MainLayout() {
 		'/product-master': { parent: 'Masters', current: 'Product Master' },
 		'/product-master/add': { parent: 'Masters', current: 'Add Product' },
 		'/product-master/edit': { parent: 'Masters', current: 'Edit Product' },
-		'/production-plan': { parent: 'Masters', current: 'Production Plan' },
-		'/production-plan/add': { parent: 'Masters', current: 'Add Production Plan' },
-		'/production-plan/edit': { parent: 'Masters', current: 'Edit Production Plan' },
+		'/production-plan': { parent: 'Production', current: 'Production Plan' },
+		'/production-plan/add': { parent: 'Production', current: 'Add Production Plan' },
+		'/production-plan/edit': { parent: 'Production', current: 'Edit Production Plan' },
 		'/re11-indent-generation': { parent: 'Dispatch', current: 'RE11 Indent Generation' },
 		'/re11-indent-generation/add': { parent: 'Dispatch', current: 'Add RE11 Indent' },
 		'/reset-type-master': { parent: 'Masters', current: 'Reset Type Master' },
@@ -171,7 +171,7 @@ export default function MainLayout() {
 		}
 
 		if (path.startsWith('/production-plan/edit/')) {
-			return { parent: 'Masters', current: 'Edit Production Plan' };
+			return { parent: 'Production', current: 'Edit Production Plan' };
 		}
 
 		return breadcrumbMap[path] || { parent: 'Home', current: 'Unknown' };
