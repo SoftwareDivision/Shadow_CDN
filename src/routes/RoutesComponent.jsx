@@ -110,6 +110,7 @@ const UsermasterAddorEdit = lazy(() => import('../Pages/UserManage/UserMangement
 const RouteMaster = lazy(() => import('../Pages/Masters/RouteMaster/Index'));
 const RouteAddOrEdit = lazy(() => import('../Pages/Masters/RouteMaster/AddOrEdit'));
 const Setting = lazy(() => import('../Pages/Settings/Index'));
+const CsvUpload = lazy(() => import('../Pages/Operations/CsvUpload/Index'));
 
 const LoadingSpinner = ({ loadingBarRef }) => {
 	useEffect(() => {
@@ -251,6 +252,14 @@ export default function RoutesComponent() {
 								element={
 									<SuspenseWrapper loadingBarRef={loadingBarRef}>
 										<BarcodeGeneratorPage />
+									</SuspenseWrapper>
+								}
+							/>
+							<Route
+								path="/csv-upload"
+								element={
+									<SuspenseWrapper loadingBarRef={loadingBarRef}>
+										<CsvUpload />
 									</SuspenseWrapper>
 								}
 							/>

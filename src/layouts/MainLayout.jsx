@@ -45,6 +45,7 @@ export default function MainLayout() {
 		'/dashboard': { parent: 'Home', current: 'Dashboard' },
 		'/barcode-generation': { parent: 'Production', current: 'L1 Barcode Generation' },
 		'/2Dbarcode-generation': { parent: 'Production', current: '2D Barcode Generator' },
+		'/csv-upload': { parent: 'Production', current: 'CSV Upload' },
 		'/magzine-transfer': { parent: 'Home', current: 'Magzine-Transfer' },
 		'/magzine-transfer/transfer': { parent: 'Home', current: 'Magzine-Transfer' },
 		'/magzine-master': { parent: 'Home', current: 'Magzine-Master' },

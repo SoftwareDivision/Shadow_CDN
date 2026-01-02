@@ -198,6 +198,29 @@ export const updateMachineCode = (t, d) => putData(`/MachineCodeMasters/UpdateMa
 // Special APIs
 export const getL1DetailsByNumber = (t, barcodes) => postData('/L1Generate/GetL1detailsByL1Number', t, barcodes);
 
+// CSV Upload API
+export const uploadCsvFile = async (token, file) => {
+	try {
+		const formData = new FormData();
+		formData.append('file', file);
+		
+		const config = {
+			method: 'post',
+			url: '/CsvUpload/UploadCsvFile',
+			headers: {
+				'Content-Type': 'multipart/form-data',
+				Authorization: `Bearer ${token}`,
+			},
+			data: formData,
+		};
+		
+		const res = await api(config);
+		return handleResponse(res);
+	} catch (err) {
+		handleError(err);
+	}
+};
+
 export const createL1Generate = (t, d) => {
 	const formatted = { ...d, mfgDt: formatDate(d.mfgDt) };
 	return postData('/L1Generate/CreateL1Generate', t, formatted);

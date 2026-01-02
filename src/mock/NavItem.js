@@ -16,6 +16,7 @@ import {
 	Home,
 	Search,
 	User2Icon,
+	Upload,
 } from 'lucide-react';
 
 const NavItems = [
@@ -52,6 +53,7 @@ const NavItems = [
 			{ title: 'Production Plan', url: '/production-plan' },
 			{ title: 'Manual L1Barcode Generation', url: '/barcode-generation' },
 			{ title: '2D Barcode Generation', url: '/2Dbarcode-generation' },
+			{ title: 'CSV Upload', url: '/csv-upload' },
 		],
 	},
 	{
